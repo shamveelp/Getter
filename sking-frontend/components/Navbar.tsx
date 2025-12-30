@@ -20,7 +20,7 @@ export default function Navbar() {
     return (
         <nav
             ref={navRef}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-5xl rounded-full bg-black/30 backdrop-blur-md border border-white/10 px-8 py-4 flex items-center justify-between shadow-2xl shadow-purple-900/10 opacity-0"
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-5xl rounded-full bg-black/40 backdrop-blur-xl border border-white/20 px-8 py-4 flex items-center justify-between shadow-[0_0_30px_0_rgba(255,255,255,0.1)] opacity-0"
         >
             {/* Brand Name */}
             <Link href="/" className="text-xl font-bold tracking-widest text-white hover:text-gray-300 transition-colors">
