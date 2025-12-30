@@ -70,20 +70,20 @@ export default function Home() {
     >
       {/* Background Ambience */}
       <div ref={visualsRef} className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="glow-orb absolute top-[-10%] left-[20%] h-[500px] w-[500px] rounded-full bg-purple-900/40 blur-[120px]" />
-        <div className="glow-orb absolute bottom-[-10%] right-[20%] h-[400px] w-[400px] rounded-full bg-blue-900/30 blur-[100px]" />
-        <div className="glow-orb absolute top-[40%] left-[80%] h-[300px] w-[300px] rounded-full bg-fuchsia-900/20 blur-[80px]" />
+        <div className="glow-orb absolute top-[-10%] left-[20%] h-125 w-125 rounded-full bg-purple-900/40 blur-[120px]" />
+        <div className="glow-orb absolute bottom-[-10%] right-[20%] h-100 w-100 rounded-full bg-blue-900/30 blur-[100px]" />
+        <div className="glow-orb absolute top-[40%] left-[80%] h-75 w-75 rounded-full bg-fuchsia-900/20 blur-[80px]" />
       </div>
 
       {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[64px_64px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)] pointer-events-none" />
 
       {/* Main Content */}
       <main className="relative z-10 flex flex-col items-center px-4 md:px-6 text-center max-w-5xl mx-auto space-y-8">
         <div className="overflow-hidden">
           <h1
             ref={headlineRef}
-            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60"
+            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter bg-clip-text text-transparent bg-linear-to-b from-white to-white/60"
           >
             SKING COSMETICS
           </h1>
