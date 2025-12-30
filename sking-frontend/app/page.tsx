@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import Link from "next/link";
+import Navbar from "../components/Navbar";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,6 +69,8 @@ export default function Home() {
       ref={containerRef}
       className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black text-white selection:bg-white selection:text-black invisible"
     >
+      <Navbar />
+
       {/* Background Ambience */}
       <div ref={visualsRef} className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="glow-orb absolute top-[-10%] left-[20%] h-125 w-125 rounded-full bg-purple-900/40 blur-[120px]" />
