@@ -6,6 +6,9 @@ interface User {
     username: string;
     email: string;
     name: string;
+    bio?: string;
+    phoneNumber?: string;
+    profilePicture?: string;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;

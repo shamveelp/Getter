@@ -17,6 +17,7 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -29,8 +30,10 @@
     "mongodb": "^7.0.0",
     "mongoose": "^9.1.0",
     "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.12",
     "reflect-metadata": "^0.2.2",
+    "streamifier": "^0.1.1",
     "winston": "^3.19.0",
     "zod": "^4.2.1"
   },
@@ -41,8 +44,10 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.0.0",
     "@types/node": "^25.0.3",
     "@types/nodemailer": "^7.0.4",
+    "@types/streamifier": "^0.1.2",
     "@types/winston": "^2.4.4",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"

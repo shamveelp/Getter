@@ -18,6 +18,10 @@ import { OTPService } from "../services/otp.service";
 import { JwtService } from "../utils/jwt";
 import { BaseRepository } from "../repositories/base.repository";
 import { EmailService } from "../services/email.service";
+import { UserProfileController } from "../controllers/user/userProfile.controller";
+import { UserProfileService } from "../services/user/userProfile.service";
+import { IUserProfileController } from "./interfaces/controllers/user/IUserProfile.controller";
+import { IUserProfileService } from "./interfaces/services/user/IUserProfile.service";
 
 const container = new Container();
 
@@ -25,13 +29,15 @@ const container = new Container();
 container.bind<IBaseRepository<any>>(TYPES.IBaseRepository).to(BaseRepository);
 container.bind<IUserAuthRepository>(TYPES.IUserAuthRepository).to(UserAuthRepository);
 
+// Controllers
+container.bind<IUserAuthController>(TYPES.IUserAuthController).to(UserAuthController);
+container.bind<IUserProfileController>(TYPES.IUserProfileController).to(UserProfileController);
+
 // Services
 container.bind<IEmailService>(TYPES.IEmailService).to(EmailService);
 container.bind<IOTPService>(TYPES.IOTPService).to(OTPService);
 container.bind<IJwtService>(TYPES.IJwtService).to(JwtService);
 container.bind<IUserAuthService>(TYPES.IUserAuthService).to(UserAuthService);
-
-// Controllers
-container.bind<IUserAuthController>(TYPES.IUserAuthController).to(UserAuthController);
+container.bind<IUserProfileService>(TYPES.IUserProfileService).to(UserProfileService);
 
 export default container;

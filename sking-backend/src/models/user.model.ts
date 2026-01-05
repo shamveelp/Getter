@@ -9,6 +9,9 @@ export interface IUser extends Document {
   name: string;
   isActive: boolean;
   tokenVersion: number;
+  profilePicture?: string;
+  bio?: string;
+  phoneNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,7 +23,10 @@ const UserSchema: Schema<IUser> = new Schema(
     password: { type: String, required: false },
     name: { type: String, required: true },
     isActive: { type: Boolean, default: true },
-    tokenVersion: { type: Number, default: 0 }
+    tokenVersion: { type: Number, default: 0 },
+    profilePicture: { type: String, default: "" },
+    bio: { type: String, default: "" },
+    phoneNumber: { type: String, default: "" }
   },
   { timestamps: true }
 );

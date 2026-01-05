@@ -6,6 +6,8 @@ const TYPES = {
     IJwtService: Symbol.for("IJwtService"),
     IBaseRepository: Symbol.for("IBaseRepository"),
     IEmailService: Symbol.for("IEmailService"),
+    IUserProfileService: Symbol.for("IUserProfileService"),
+    IUserProfileController: Symbol.for("IUserProfileController"),
 };
 
 export { TYPES };
