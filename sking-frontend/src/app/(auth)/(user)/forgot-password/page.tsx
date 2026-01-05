@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                            className="w-16 h-16 bg-gradient-to-tr from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/30"
+                            className="w-16 h-16 bg-linear-to-tr from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/30"
                         >
                             <CheckCircle className="w-8 h-8 text-white" />
                         </motion.div>
@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
 
                         <button
                             onClick={continueToVerification}
-                            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-green-500/20 mb-4"
+                            className="w-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-green-500/20 mb-4"
                         >
                             Continue to Verification
                         </button>
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
                     </Link>
 
                     <div className="mb-6">
-                        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300 mb-2">Forgot Password?</h1>
+                        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-cyan-300 mb-2">Forgot Password?</h1>
                         <p className="text-gray-400 text-sm">Enter your email address and we'll send you a verification code to reset your password.</p>
                     </div>
 
@@ -141,7 +141,7 @@ export default function ForgotPasswordPage() {
                         <button
                             type="submit"
                             disabled={loading || !watchedEmail}
-                            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Reset Code'}
                         </button>

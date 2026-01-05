@@ -91,7 +91,7 @@ export default function VerifyOtpPage() {
                 username: username!,
                 password: password!,
                 otp: finalOtp,
-                name: username
+                name: username || undefined
             });
 
             if (response.success) {
@@ -127,7 +127,7 @@ export default function VerifyOtpPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white relative overflow-hidden">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/20 rounded-full blur-[120px]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-purple-500/20 rounded-full blur-[120px]" />
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -140,7 +140,7 @@ export default function VerifyOtpPage() {
                             initial={{ scale: 0.8, rotate: -10 }}
                             animate={{ scale: 1, rotate: 0 }}
                             transition={{ type: "spring", stiffness: 200 }}
-                            className="w-16 h-16 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30"
+                            className="w-16 h-16 bg-linear-to-tr from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30"
                         >
                             <KeyRound className="w-8 h-8 text-white" />
                         </motion.div>
@@ -170,7 +170,7 @@ export default function VerifyOtpPage() {
                             {otp.map((digit, index) => (
                                 <motion.input
                                     key={index}
-                                    ref={(el) => (inputRefs.current[index] = el)}
+                                    ref={(el) => { inputRefs.current[index] = el }}
                                     type="text"
                                     inputMode="numeric"
                                     pattern="[0-9]*"
@@ -191,7 +191,7 @@ export default function VerifyOtpPage() {
                             onClick={() => handleSubmit()}
                             disabled={loading || otp.some(digit => digit === '')}
                             whileTap={{ scale: 0.98 }}
-                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20"
+                            className="w-full bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20"
                         >
                             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify Code'}
                         </motion.button>
