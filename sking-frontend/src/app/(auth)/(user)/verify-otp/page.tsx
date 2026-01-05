@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { userAuthService } from '@/services/user/userAuthApiService';
 import { loginSuccess } from '@/redux/features/authSlice';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Loader2, RefreshCw } from 'lucide-react';
 
@@ -67,7 +67,7 @@ export default function VerifyOtpPage() {
         e.preventDefault();
         const paste = e.clipboardData.getData('text');
         const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
-        
+
         if (digits.length === 6) {
             setOtp(digits);
             handleSubmit(digits.join(''));
@@ -76,7 +76,7 @@ export default function VerifyOtpPage() {
 
     const handleSubmit = async (otpCode?: string) => {
         const finalOtp = otpCode || otp.join('');
-        
+
         if (finalOtp.length !== 6) {
             setError('Please enter all 6 digits');
             return;
@@ -84,7 +84,7 @@ export default function VerifyOtpPage() {
 
         setLoading(true);
         setError(null);
-        
+
         try {
             const response = await userAuthService.verifyOtp({
                 email: email!,

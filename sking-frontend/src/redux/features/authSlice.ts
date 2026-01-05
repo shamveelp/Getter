@@ -44,7 +44,7 @@ const authSlice = createSlice({
             state.error = null;
             state.isInitialized = true;
             if (typeof window !== 'undefined') {
-                localStorage.setItem('accessToken', action.payload.accessToken);
+                // localStorage.setItem('accessToken', action.payload.accessToken);
             }
         },
         loginFailure: (state, action: PayloadAction<string>) => {
@@ -55,7 +55,7 @@ const authSlice = createSlice({
             state.error = action.payload;
             state.isInitialized = true;
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('accessToken');
+                // localStorage.removeItem('accessToken');
             }
         },
         logout: (state) => {
@@ -66,7 +66,7 @@ const authSlice = createSlice({
             state.loading = false;
             state.isInitialized = true;
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('accessToken');
+                // localStorage.removeItem('accessToken');
             }
         },
         updateUser: (state, action: PayloadAction<User>) => {
@@ -81,14 +81,14 @@ const authSlice = createSlice({
     },
 });
 
-export const { 
-    loginStart, 
-    loginSuccess, 
-    loginFailure, 
-    logout, 
-    updateUser, 
-    setInitialized, 
-    clearError 
+export const {
+    loginStart,
+    loginSuccess,
+    loginFailure,
+    logout,
+    updateUser,
+    setInitialized,
+    clearError
 } = authSlice.actions;
 
 export default authSlice.reducer;

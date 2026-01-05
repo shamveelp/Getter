@@ -7,7 +7,7 @@ import { userAuthService } from '@/services/user/userAuthApiService';
 import { forgotPasswordSchema, ForgotPasswordFormData } from '@/validations/userAuth.validation';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Loader2, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
                         >
                             <CheckCircle className="w-8 h-8 text-white" />
                         </motion.div>
-                        
+
                         <h1 className="text-2xl font-bold text-white mb-2">Check Your Email</h1>
                         <p className="text-gray-400 text-sm mb-6">
                             We've sent a password reset code to<br />

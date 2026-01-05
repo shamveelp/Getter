@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { logout } from "../redux/features/authSlice";
 import { userAuthService } from "../services/user/userAuthApiService";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { RootState } from "../redux/store";
 import gsap from "gsap";
 
@@ -17,7 +17,7 @@ export default function Navbar() {
     const mobileSearchRef = useRef<HTMLDivElement>(null);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
-    
+
     const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
     const router = useRouter();
@@ -135,7 +135,7 @@ export default function Navbar() {
                             >
                                 <Search size={20} />
                             </button>
-                            
+
                             {isAuthenticated ? (
                                 <div className="relative">
                                     <button
@@ -145,7 +145,7 @@ export default function Navbar() {
                                         <User size={20} />
                                         <span className="hidden sm:inline">{user?.username}</span>
                                     </button>
-                                    
+
                                     {showUserMenu && (
                                         <div className="absolute top-full right-0 mt-2 w-48 bg-black/90 backdrop-blur-xl border border-white/20 rounded-xl shadow-lg py-2">
                                             <Link
@@ -189,7 +189,7 @@ export default function Navbar() {
                                     </Link>
                                 </div>
                             )}
-                            
+
                             <button aria-label="Cart" className="text-gray-300 hover:text-white transition-colors hover:scale-110 active:scale-95 duration-200 relative">
                                 <ShoppingBag size={20} />
                             </button>
@@ -235,7 +235,7 @@ export default function Navbar() {
                 <Link href="/contact" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
                     <Mail size={22} />
                 </Link>
-                
+
                 {isAuthenticated ? (
                     <Link href="/profile" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
                         <User size={22} />

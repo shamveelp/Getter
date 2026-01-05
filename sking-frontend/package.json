@@ -10,20 +10,20 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
+    "@hookform/resolvers": "^3.3.2",
     "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.13.2",
     "framer-motion": "^12.23.26",
     "gsap": "^3.14.2",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-redux": "^9.2.0",
-    "react-toastify": "^11.0.5",
     "react-hook-form": "^7.48.2",
-    "@hookform/resolvers": "^3.3.2",
-    "zod": "^3.22.4",
-    "js-cookie": "^3.0.5"
+    "react-redux": "^9.2.0",
+    "sonner": "^2.0.7",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

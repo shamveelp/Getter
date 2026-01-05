@@ -8,7 +8,7 @@ import { userAuthService } from '@/services/user/userAuthApiService';
 import { registerSchema, RegisterFormData } from '@/validations/userAuth.validation';
 import { useUsernameValidation, useEmailValidation } from '@/hooks/useValidation';
 import Link from 'next/link';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Mail,
@@ -280,12 +280,12 @@ export default function RegisterPage() {
                                                 <div
                                                     key={level}
                                                     className={`h-1 flex-1 rounded-full transition-colors ${passwordStrength.strength >= level
-                                                            ? passwordStrength.strength <= 2
-                                                                ? 'bg-red-500'
-                                                                : passwordStrength.strength <= 3
-                                                                    ? 'bg-yellow-500'
-                                                                    : 'bg-green-500'
-                                                            : 'bg-gray-600'
+                                                        ? passwordStrength.strength <= 2
+                                                            ? 'bg-red-500'
+                                                            : passwordStrength.strength <= 3
+                                                                ? 'bg-yellow-500'
+                                                                : 'bg-green-500'
+                                                        : 'bg-gray-600'
                                                         }`}
                                                 />
                                             ))}

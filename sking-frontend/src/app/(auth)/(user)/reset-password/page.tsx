@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userAuthService } from '@/services/user/userAuthApiService';
 import { resetPasswordSchema, ResetPasswordFormData } from '@/validations/userAuth.validation';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Loader2, Eye, EyeOff, AlertCircle, Check, X, CheckCircle } from 'lucide-react';
 
@@ -43,9 +43,9 @@ export default function ResetPasswordPage() {
             numbers: /\d/.test(password),
             special: /[@$!%*?&]/.test(password)
         };
-        
+
         strength = Object.values(checks).filter(Boolean).length;
-        
+
         return { strength, checks };
     };
 
@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
                 email,
                 newPassword: data.password
             });
-            
+
             toast.success('Password reset successfully! Please login with your new password.');
             router.push('/login?reset=success');
         } catch (err: any) {
@@ -134,11 +134,12 @@ export default function ResetPasswordPage() {
                                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                             </div>
-                            
+
                             {/* Password Strength Indicator */}
                             <AnimatePresence>
                                 {watchedPassword && (
                                     <motion.div
+                                        key="password-strength"
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -148,15 +149,14 @@ export default function ResetPasswordPage() {
                                             {[1, 2, 3, 4, 5].map((level) => (
                                                 <div
                                                     key={level}
-                                                    className={`h-1 flex-1 rounded-full transition-colors ${
-                                                        passwordStrength.strength >= level 
-                                                            ? passwordStrength.strength <= 2 
-                                                                ? 'bg-red-500' 
-                                                                : passwordStrength.strength <= 3 
-                                                                    ? 'bg-yellow-500' 
-                                                                    : 'bg-green-500'
-                                                            : 'bg-gray-600'
-                                                    }`}
+                                                    className={`h-1 flex-1 rounded-full transition-colors ${passwordStrength.strength >= level
+                                                        ? passwordStrength.strength <= 2
+                                                            ? 'bg-red-500'
+                                                            : passwordStrength.strength <= 3
+                                                                ? 'bg-yellow-500'
+                                                                : 'bg-green-500'
+                                                        : 'bg-gray-600'
+                                                        }`}
                                                 />
                                             ))}
                                         </div>
@@ -181,6 +181,7 @@ export default function ResetPasswordPage() {
                                 )}
                                 {errors.password && (
                                     <motion.p
+                                        key="password-error"
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -215,6 +216,7 @@ export default function ResetPasswordPage() {
                             <AnimatePresence>
                                 {watchedConfirmPassword && watchedPassword && (
                                     <motion.div
+                                        key="confirm-password-match"
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -235,6 +237,7 @@ export default function ResetPasswordPage() {
                                 )}
                                 {errors.confirmPassword && (
                                     <motion.p
+                                        key="confirm-password-error"
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}

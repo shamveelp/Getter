@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginStart, loginSuccess, loginFailure } from '@/redux/features/authSlice';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { userAuthService } from '@/services/user/userAuthApiService';
 import { loginSchema, LoginFormData } from '@/validations/userAuth.validation';
 import type { RootState } from '@/redux/store';

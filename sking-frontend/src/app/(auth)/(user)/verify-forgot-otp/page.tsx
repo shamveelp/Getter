@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { userAuthService } from '@/services/user/userAuthApiService';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Loader2, RefreshCw, Shield } from 'lucide-react';
 
@@ -62,7 +62,7 @@ export default function VerifyForgotOtpPage() {
         e.preventDefault();
         const paste = e.clipboardData.getData('text');
         const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
-        
+
         if (digits.length === 6) {
             setOtp(digits);
             handleSubmit(digits.join(''));
@@ -71,7 +71,7 @@ export default function VerifyForgotOtpPage() {
 
     const handleSubmit = async (otpCode?: string) => {
         const finalOtp = otpCode || otp.join('');
-        
+
         if (finalOtp.length !== 6) {
             setError('Please enter all 6 digits');
             return;
@@ -79,7 +79,7 @@ export default function VerifyForgotOtpPage() {
 
         setLoading(true);
         setError(null);
-        
+
         try {
             await userAuthService.verifyForgotPasswordOtp({
                 email: email!,
@@ -159,7 +159,7 @@ export default function VerifyForgotOtpPage() {
                             {otp.map((digit, index) => (
                                 <motion.input
                                     key={index}
-                                    ref={(el:any) => (inputRefs.current[index] = el)}
+                                    ref={(el: any) => (inputRefs.current[index] = el)}
                                     type="text"
                                     inputMode="numeric"
                                     pattern="[0-9]*"

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { store } from '../redux/store';
 import { logout } from '../redux/features/authSlice';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 
 const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/users',
@@ -31,15 +31,21 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        
-        if (error.response?.status === 401 && !originalRequest._retry) {
+
+        if (
+            error.response?.status === 401 &&
+            !originalRequest._retry &&
+            !originalRequest.url?.includes('/login') &&
+            !originalRequest.url?.includes('/refresh-token')
+        ) {
             originalRequest._retry = true;
-            
+
             try {
                 const { data } = await axiosInstance.post('/auth/refresh-token');
-                if (data.success && data.accessToken) {
-                    localStorage.setItem('accessToken', data.accessToken);
-                    originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+                if (data.success) {
+                    // Update header if using Authorization header (though we moved to cookies)
+                    // If backend expects cookie only, this line might be redundant but harmless
+                    // originalRequest.headers.Authorization = `Bearer ${data.accessToken}`; 
                     return axiosInstance(originalRequest);
                 }
             } catch (refreshError) {
