@@ -21,6 +21,6 @@ export interface IUserAuthService {
     loginUser(email: string, password?: string): Promise<{ user: IUser; accessToken: string; refreshToken: string }>;
     requestForgotPassword(email: string): Promise<void>;
     resetPassword(email: string, newPassword?: string): Promise<void>;
-    loginWithGoogle(idToken: string, referralCode?: string): Promise<{ user: IUser; accessToken: string; refreshToken: string }>;
+    loginWithGoogle(payload: { token?: string, code?: string, referralCode?: string }): Promise<{ user: IUser; accessToken: string; refreshToken: string }>;
     getUserById(userId: string): Promise<IUser>;
 }

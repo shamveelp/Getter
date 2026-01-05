@@ -21,7 +21,11 @@ export class UserAuthService implements IUserAuthService {
         @inject(TYPES.IJwtService) private _jwtService: IJwtService,
         @inject(TYPES.IEmailService) private _emailService: IEmailService
     ) {
-        this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        this.googleClient = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            "http://localhost:3000/auth/google/callback"
+        );
     }
 
     async registerUser(
@@ -161,20 +165,38 @@ export class UserAuthService implements IUserAuthService {
         }
     }
 
-    async loginWithGoogle(idToken: string, referralCode?: string): Promise<{ user: IUser; accessToken: string; refreshToken: string }> {
+    async loginWithGoogle(payload: { token?: string, code?: string, referralCode?: string }): Promise<{ user: IUser; accessToken: string; refreshToken: string }> {
         try {
-            const ticket = await this.googleClient.verifyIdToken({
-                idToken,
-                audience: process.env.GOOGLE_CLIENT_ID,
-            });
-            const payload = ticket.getPayload();
+            const { token: idToken, code, referralCode } = payload;
+            let email: string = "";
+            let name: string = "";
 
-            if (!payload || !payload.email) {
-                throw new CustomError("Invalid Google Token", StatusCode.UNAUTHORIZED);
+            if (code) {
+                const { tokens } = await this.googleClient.getToken(code);
+                if (!tokens.id_token) {
+                    throw new CustomError("Failed to retrieve ID token from Google", StatusCode.UNAUTHORIZED);
+                }
+                const ticket = await this.googleClient.verifyIdToken({
+                    idToken: tokens.id_token,
+                    audience: process.env.GOOGLE_CLIENT_ID,
+                });
+                const p = ticket.getPayload();
+                if (!p?.email) throw new CustomError("Invalid Google Token", StatusCode.UNAUTHORIZED);
+                email = p.email;
+                name = p.name || "";
+            } else if (idToken) {
+                const ticket = await this.googleClient.verifyIdToken({
+                    idToken,
+                    audience: process.env.GOOGLE_CLIENT_ID,
+                });
+                const p = ticket.getPayload();
+                if (!p?.email) throw new CustomError("Invalid Google Token", StatusCode.UNAUTHORIZED);
+                email = p.email;
+                name = p.name || "";
+            } else {
+                throw new CustomError("Google Login requires either a token or a code", StatusCode.BAD_REQUEST);
             }
 
-            const email = payload.email;
-            const name = payload.name || "";
             let user = await this._userAuthRepository.findByEmail(email);
 
             if (!user) {

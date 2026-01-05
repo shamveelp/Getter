@@ -57,7 +57,7 @@ axiosInstance.interceptors.response.use(
                 }
                 // httpOnly cookies are cleared by the backend /logout or expiration
                 // We just redirect here
-                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !originalRequest.url?.includes('/auth/me')) {
                     toast.error('Session expired. Please login again.');
                     window.location.href = '/login';
                 }

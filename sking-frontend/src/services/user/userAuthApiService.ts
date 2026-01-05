@@ -54,8 +54,8 @@ export const userAuthService = {
         return response.data;
     },
 
-    googleLogin: async (idToken: string, referralCode?: string) => {
-        const response = await axiosInstance.post(`${API_URL}/google-login`, { token: idToken, referralCode });
+    googleLogin: async (data: { token?: string; code?: string; referralCode?: string }) => {
+        const response = await axiosInstance.post(`${API_URL}/google-login`, data);
         return response.data;
     },
 

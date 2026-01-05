@@ -45,6 +45,7 @@ export class RequestOtpDto {
 
 export class GoogleLoginDto {
     token?: string;
+    code?: string;
     referralCode?: string;
 }
 

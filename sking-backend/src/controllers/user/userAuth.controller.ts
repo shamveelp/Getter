@@ -325,16 +325,16 @@ export class UserAuthController implements IUserAuthController {
     googleLogin = async (req: Request, res: Response) => {
         try {
             const googleLoginDto = req.body as GoogleLoginDto;
-            const { token: idToken, referralCode } = googleLoginDto;
 
-            if (!idToken) {
+            if (!googleLoginDto.token && !googleLoginDto.code) {
                 res.status(StatusCode.BAD_REQUEST).json({
                     success: false,
-                    error: ErrorMessages.GOOGLE_ID_TOKEN_REQUIRED
+                    error: ErrorMessages.GOOGLE_ID_TOKEN_REQUIRED // You might want to update this error message constant to be more generic
                 });
+                return;
             }
 
-            const { user, accessToken, refreshToken } = await this._userAuthService.loginWithGoogle(idToken as any, referralCode);
+            const { user, accessToken, refreshToken } = await this._userAuthService.loginWithGoogle(googleLoginDto);
             this._jwtService.setTokens(res, accessToken, refreshToken);
 
             const response = new LoginResponseDto(user, SuccessMessages.GOOGLE_LOGIN_SUCCESS);
