@@ -7,7 +7,7 @@ import {
   IJwtService,
   JwtAccessPayload,
   JwtRefreshPayload,
-} from "../core/interfaces/services/IJwtService";
+} from "../core/interfaces/services/IJWT.service";
 import logger from "./logger";
 
 @injectable()
@@ -54,18 +54,23 @@ export class JwtService implements IJwtService {
   }
 
   setTokens(res: Response, accessToken: string, refreshToken: string): void {
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
-    // Access token usually sent in body, but can be cookie too.
-    // Here we just set refresh token cookie. Access token is returned in body by controller.
   }
 
   clearTokens(res: Response): void {
+    res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
   }
 }

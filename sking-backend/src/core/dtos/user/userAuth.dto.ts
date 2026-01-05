@@ -26,6 +26,10 @@ export class CheckUsernameDto {
     username?: string;
 }
 
+export class CheckEmailDto {
+    email?: string;
+}
+
 export class ForgotPasswordDto {
     email?: string;
 }
@@ -45,18 +49,28 @@ export class GoogleLoginDto {
 }
 
 export class LoginResponseDto {
-    user: IUser;
-    accessToken: string;
+    success: boolean = true;
+    user: {
+        _id: string;
+        email: string;
+        name: string;
+        username: string;
+    };
     message: string;
 
-    constructor(user: IUser, accessToken: string, message: string) {
-        this.user = user;
-        this.accessToken = accessToken;
+    constructor(user: IUser, message: string) {
+        this.user = {
+            _id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            username: user.username
+        };
         this.message = message;
     }
 }
 
 export class RegisterResponseDto {
+    success: boolean = true;
     message: string;
 
     constructor(message: string) {
@@ -65,6 +79,16 @@ export class RegisterResponseDto {
 }
 
 export class UsernameCheckResponseDto {
+    success: boolean = true;
+    isAvailable: boolean;
+
+    constructor(isAvailable: boolean) {
+        this.isAvailable = isAvailable;
+    }
+}
+
+export class EmailCheckResponseDto {
+    success: boolean = true;
     isAvailable: boolean;
 
     constructor(isAvailable: boolean) {

@@ -5,6 +5,7 @@ export interface IUserAuthController {
     requestOtp(req: Request, res: Response): Promise<void>;
     verifyOtp(req: Request, res: Response): Promise<void>;
     checkUsername(req: Request, res: Response): Promise<void>;
+    checkEmail(req: Request, res: Response): Promise<void>;
     generateUsername(req: Request, res: Response): Promise<void>;
     forgotPassword(req: Request, res: Response): Promise<void>;
     verifyForgotPasswordOtp(req: Request, res: Response): Promise<void>;

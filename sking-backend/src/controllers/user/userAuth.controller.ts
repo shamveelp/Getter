@@ -7,20 +7,22 @@ import { IOTPService } from "../../core/interfaces/services/IOTP.service";
 import { StatusCode } from "../../enums/statusCode.enums";
 import logger from "../../utils/logger";
 import { OAuth2Client } from "google-auth-library";
-import { IJwtService } from "../../core/interfaces/services/IJwtService";
+import { IJwtService } from "../../core/interfaces/services/IJWT.service";
 import { CustomError } from "../../utils/customError";
 import {
     UserRegisterDto,
     UserLoginDto,
     VerifyOtpDto,
     CheckUsernameDto,
+    CheckEmailDto,
     ForgotPasswordDto,
     ResetPasswordDto,
     RequestOtpDto,
     GoogleLoginDto,
     LoginResponseDto,
     RegisterResponseDto,
-    UsernameCheckResponseDto
+    UsernameCheckResponseDto,
+    EmailCheckResponseDto
 } from "../../core/dtos/user/userAuth.dto";
 import { SuccessMessages, ErrorMessages, LoggerMessages } from "../../enums/messages.enum";
 
@@ -36,20 +38,14 @@ export class UserAuthController implements IUserAuthController {
         this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     }
 
-    /**
-     * Registers a new user.
-     * @param req - Express Request object containing registration details.
-     * @param res - Express Response object.
-     */
     register = async (req: Request, res: Response) => {
         try {
             const registerDto = req.body as UserRegisterDto;
             const { username, email, password, name, referralCode } = registerDto;
 
-            logger.info(`Starting registration validation for email: ${email}, username: ${username}`);
+            logger.info(`Starting registration for email: ${email}, username: ${username}`);
 
             await this._userAuthService.registerUser(username!, email!, password!, name!, referralCode);
-
             await this._otpService.requestOtp(email!, "user");
 
             const response = new RegisterResponseDto(SuccessMessages.REGISTRATION_INITIATED);
@@ -66,11 +62,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Requests an OTP for generic purposes.
-     * @param req - Express Request object containing email.
-     * @param res - Express Response object.
-     */
     requestOtp = async (req: Request, res: Response) => {
         try {
             const requestOtpDto = req.body as RequestOtpDto;
@@ -91,11 +82,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Verifies OTP and completes value-sensitive operations.
-     * @param req - Express Request object containing OTP and other details.
-     * @param res - Express Response object.
-     */
     verifyOtp = async (req: Request, res: Response) => {
         try {
             const verifyOtpDto = req.body as VerifyOtpDto;
@@ -115,7 +101,7 @@ export class UserAuthController implements IUserAuthController {
 
             this._jwtService.setTokens(res, accessToken, refreshToken);
 
-            const response = new LoginResponseDto(user, accessToken, SuccessMessages.USER_REGISTERED);
+            const response = new LoginResponseDto(user, SuccessMessages.USER_REGISTERED);
             res.status(StatusCode.CREATED).json(response);
         } catch (error) {
             logger.error(LoggerMessages.VERIFY_OTP_ERROR, error);
@@ -129,14 +115,8 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Checks if a username is available.
-     * @param req - Express Request object containing username in body.
-     * @param res - Express Response object.
-     */
     checkUsername = async (req: Request, res: Response) => {
         try {
-
             const checkUsernameDto = req.body as CheckUsernameDto;
             const { username } = checkUsernameDto;
 
@@ -152,14 +132,27 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Generates a random username.
-     * @param req - Express Request object.
-     * @param res - Express Response object.
-     */
+    checkEmail = async (req: Request, res: Response) => {
+        try {
+            const checkEmailDto = req.body as CheckEmailDto;
+            const { email } = checkEmailDto;
+
+            const isAvailable = await this._userAuthService.checkEmailAvailability(email!);
+            const response = new EmailCheckResponseDto(isAvailable);
+            res.status(StatusCode.OK).json(response);
+        } catch (error) {
+            logger.error("Error checking email availability:", error);
+            res.status(StatusCode.BAD_REQUEST).json({
+                success: false,
+                error: "Failed to check email availability"
+            });
+        }
+    };
+
     generateUsername = async (req: Request, res: Response) => {
         try {
-            const username = await this._userAuthService.generateUsername();
+            const { email } = req.query;
+            const username = await this._userAuthService.generateUsername(email as string);
 
             res.status(StatusCode.OK).json({
                 success: true,
@@ -174,11 +167,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Initiates the forgot password process.
-     * @param req - Express Request object containing email.
-     * @param res - Express Response object.
-     */
     forgotPassword = async (req: Request, res: Response) => {
         try {
             const forgotPasswordDto = req.body as ForgotPasswordDto;
@@ -201,16 +189,11 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Verifies the OTP for forgot password.
-     * @param req - Express Request object containing email and otp.
-     * @param res - Express Response object.
-     */
     verifyForgotPasswordOtp = async (req: Request, res: Response) => {
         try {
             const { email, otp } = req.body;
 
-            await this._otpService.verifyOtp(email, otp);
+            await this._otpService.verifyForgotPasswordOtp(email, otp);
             res.status(StatusCode.OK).json({
                 success: true,
                 message: SuccessMessages.OTP_VERIFIED
@@ -226,11 +209,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Resets the user's password.
-     * @param req - Express Request object containing email and new password.
-     * @param res - Express Response object.
-     */
     resetPassword = async (req: Request, res: Response) => {
         try {
             const resetPasswordDto = req.body as ResetPasswordDto;
@@ -252,11 +230,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Logs in a user.
-     * @param req - Express Request object containing login credentials.
-     * @param res - Express Response object.
-     */
     login = async (req: Request, res: Response) => {
         try {
             const loginDto = req.body as UserLoginDto;
@@ -266,7 +239,7 @@ export class UserAuthController implements IUserAuthController {
 
             this._jwtService.setTokens(res, accessToken, refreshToken);
 
-            const response = new LoginResponseDto(user, accessToken, SuccessMessages.USER_LOGGED_IN);
+            const response = new LoginResponseDto(user, SuccessMessages.USER_LOGGED_IN);
             res.status(StatusCode.OK).json(response);
         } catch (error) {
             logger.error(LoggerMessages.LOGIN_ERROR, error);
@@ -280,11 +253,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Resends the OTP.
-     * @param req - Express Request object containing email.
-     * @param res - Express Response object.
-     */
     resendOtp = async (req: Request, res: Response) => {
         try {
             const { email } = req.body;
@@ -303,11 +271,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Refreshes the access token using a refresh token.
-     * @param req - Express Request object containing cookies.
-     * @param res - Express Response object.
-     */
     refreshAccessToken = async (req: Request, res: Response) => {
         try {
             const { refreshToken } = req.cookies;
@@ -353,11 +316,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Logs in a user using Google OAuth.
-     * @param req - Express Request object containing Google ID token.
-     * @param res - Express Response object.
-     */
     googleLogin = async (req: Request, res: Response) => {
         try {
             const googleLoginDto = req.body as GoogleLoginDto;
@@ -373,7 +331,7 @@ export class UserAuthController implements IUserAuthController {
             const { user, accessToken, refreshToken } = await this._userAuthService.loginWithGoogle(idToken as any, referralCode);
             this._jwtService.setTokens(res, accessToken, refreshToken);
 
-            const response = new LoginResponseDto(user, accessToken, SuccessMessages.GOOGLE_LOGIN_SUCCESS);
+            const response = new LoginResponseDto(user, SuccessMessages.GOOGLE_LOGIN_SUCCESS);
             res.status(StatusCode.OK).json(response);
         } catch (error) {
             logger.error(LoggerMessages.GOOGLE_LOGIN_ERROR, error);
@@ -386,11 +344,6 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    /**
-     * Logs out the user.
-     * @param req - Express Request object.
-     * @param res - Express Response object.
-     */
     logout = async (req: Request, res: Response) => {
         try {
             this._jwtService.clearTokens(res);

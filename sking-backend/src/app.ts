@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import logger from "./utils/logger";
 import userRouter from "./routes/userRouter";
+import cookieParser from "cookie-parser";
 
 const app: Application = express();
 
@@ -18,6 +19,7 @@ app.use(
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 
 if (process.env.NODE_ENV === "development") {

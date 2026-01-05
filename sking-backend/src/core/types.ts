@@ -5,6 +5,7 @@ const TYPES = {
     IOTPService: Symbol.for("IOTPService"),
     IJwtService: Symbol.for("IJwtService"),
     IBaseRepository: Symbol.for("IBaseRepository"),
+    IEmailService: Symbol.for("IEmailService"),
 };
 
 export { TYPES };

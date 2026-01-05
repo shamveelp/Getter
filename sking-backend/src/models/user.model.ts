@@ -5,7 +5,8 @@ export interface IUser extends Document {
   _id: ObjectId;
   username: string;
   email: string;
-  password: string;
+  password?: string;
+  name: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ const UserSchema: Schema<IUser> = new Schema(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: false },
+    name: { type: String, required: true },
     isActive: { type: Boolean, default: true }
   },
   { timestamps: true }

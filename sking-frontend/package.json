@@ -10,11 +10,16 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
+    "@reduxjs/toolkit": "^2.11.2",
+    "axios": "^1.13.2",
+    "framer-motion": "^12.23.26",
     "gsap": "^3.14.2",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-redux": "^9.2.0",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
