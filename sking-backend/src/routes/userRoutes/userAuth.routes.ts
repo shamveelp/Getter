@@ -4,14 +4,15 @@ import container from "../../core/inversify.config";
 import { TYPES } from "../../core/types";
 import { IUserAuthController } from "../../core/interfaces/controllers/user/IUserAuth.controllers";
 import { validateResource } from "../../middlewares/validateResource.middleware";
-import { 
-    registerSchema, 
-    loginSchema, 
-    forgotPasswordSchema, 
-    resetPasswordSchema, 
-    verifyOtpSchema,
-    checkUsernameSchema,
-    checkEmailSchema
+import { verifyToken } from "../../middlewares/auth.middleware";
+import {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  verifyOtpSchema,
+  checkUsernameSchema,
+  checkEmailSchema
 } from "../../validations/user/userAuth.validation";
 
 const userAuthRouter = Router();
@@ -41,6 +42,7 @@ userAuthRouter.use(generalLimiter);
 // Authentication routes
 userAuthRouter.post("/register", validateResource(registerSchema), (req, res) => userAuthController.register(req, res));
 userAuthRouter.post("/login", validateResource(loginSchema), (req, res) => userAuthController.login(req, res));
+userAuthRouter.get("/me", verifyToken, (req, res) => userAuthController.getMe(req, res));
 userAuthRouter.post("/logout", (req, res) => userAuthController.logout(req, res));
 
 // OTP routes with rate limiting

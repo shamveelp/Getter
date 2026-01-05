@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { store } from '../redux/store';
-import { logout } from '../redux/features/authSlice';
 import { toast } from 'sonner';
 
 const axiosInstance = axios.create({
@@ -12,15 +10,19 @@ const axiosInstance = axios.create({
     },
 });
 
-// Request interceptor to add access token
+let store: any = null;
+let logoutAction: any = null;
+
+export const setupInterceptors = (_store: any, _logoutAction: any) => {
+    store = _store;
+    logoutAction = _logoutAction;
+};
+
+// Request interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
-        if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('accessToken');
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-        }
+        // Tokens are handled via httpOnly cookies, so we don't need to manually set the Authorization header
+        // if the backend is configured to read from cookies.
         return config;
     },
     (error) => Promise.reject(error)
@@ -50,8 +52,11 @@ axiosInstance.interceptors.response.use(
                 }
             } catch (refreshError) {
                 // Refresh token failed, logout user
-                store.dispatch(logout());
-                localStorage.removeItem('accessToken');
+                if (store && logoutAction) {
+                    store.dispatch(logoutAction());
+                }
+                // httpOnly cookies are cleared by the backend /logout or expiration
+                // We just redirect here
                 if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
                     toast.error('Session expired. Please login again.');
                     window.location.href = '/login';

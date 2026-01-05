@@ -89,7 +89,7 @@ export class UserAuthService implements IUserAuthService {
 
     async generateUsername(email?: string): Promise<string> {
         let baseUsername: string;
-        
+
         if (email) {
             // Generate from email
             baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -100,13 +100,13 @@ export class UserAuthService implements IUserAuthService {
 
         let username = baseUsername;
         let counter = 1;
-        
+
         // Check if username is available, if not add numbers
         while (!(await this.checkUsernameAvailability(username))) {
             username = `${baseUsername}${counter}`;
             counter++;
         }
-        
+
         return username;
     }
 
@@ -203,5 +203,13 @@ export class UserAuthService implements IUserAuthService {
             logger.error("Google verify error", error);
             throw new CustomError("Google Authentication Failed", StatusCode.UNAUTHORIZED);
         }
+    }
+
+    async getUserById(userId: string): Promise<IUser> {
+        const user = await this._userAuthRepository.findById(userId);
+        if (!user) {
+            throw new CustomError("User not found", StatusCode.NOT_FOUND);
+        }
+        return user;
     }
 }

@@ -22,4 +22,5 @@ export interface IUserAuthService {
     requestForgotPassword(email: string): Promise<void>;
     resetPassword(email: string, newPassword?: string): Promise<void>;
     loginWithGoogle(idToken: string, referralCode?: string): Promise<{ user: IUser; accessToken: string; refreshToken: string }>;
+    getUserById(userId: string): Promise<IUser>;
 }

@@ -26,6 +26,7 @@ export enum ErrorMessages {
     GOOGLE_ID_TOKEN_REQUIRED = "Google ID token is required.",
     GOOGLE_LOGIN_FAILED = "Google login failed.",
     FAILED_LOGOUT = "Logout failed.",
+    UNAUTHORIZED = "Unauthorized access.",
 }
 
 export enum LoggerMessages {

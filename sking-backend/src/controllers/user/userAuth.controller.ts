@@ -302,13 +302,19 @@ export class UserAuthController implements IUserAuthController {
 
             this._jwtService.setTokens(res, accessToken, newRefreshToken);
 
+            // Fetch user data to return with refresh
+            const user = await this._userAuthService.getUserById(decoded.id);
+
             res.status(StatusCode.OK).json({
                 success: true,
                 accessToken,
-                refreshToken: newRefreshToken
+                refreshToken: newRefreshToken,
+                user // Return user data
             });
         } catch (error) {
             logger.error(LoggerMessages.REFRESH_TOKEN_ERROR, error);
+            // Critical: Clear cookies if refresh fails so middleware doesn't loop
+            this._jwtService.clearTokens(res);
             res.status(StatusCode.UNAUTHORIZED).json({
                 success: false,
                 error: ErrorMessages.INVALID_REFRESH_TOKEN
@@ -357,6 +363,37 @@ export class UserAuthController implements IUserAuthController {
             res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 error: ErrorMessages.FAILED_LOGOUT
+            });
+        }
+    };
+
+    getMe = async (req: Request, res: Response) => {
+        try {
+            // @ts-ignore - user is attached by middleware
+            const userId = req.user?.id;
+
+            if (!userId) {
+                res.status(StatusCode.UNAUTHORIZED).json({
+                    success: false,
+                    error: ErrorMessages.UNAUTHORIZED
+                });
+                return;
+            }
+
+            const user = await this._userAuthService.getUserById(userId);
+
+            res.status(StatusCode.OK).json({
+                success: true,
+                user
+            });
+        } catch (error) {
+            logger.error("Error in getMe:", error);
+            const errorMessage = error instanceof CustomError ? error.message : "Failed to fetch user profile";
+            const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
+
+            res.status(statusCode).json({
+                success: false,
+                error: errorMessage
             });
         }
     };

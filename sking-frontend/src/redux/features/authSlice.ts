@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { userAuthService } from '../../services/user/userAuthApiService';
 
 interface User {
     _id: string;
@@ -27,6 +28,18 @@ const initialState: AuthState = {
     accessToken: null,
     isInitialized: false,
 };
+
+export const checkSession = createAsyncThunk(
+    'auth/checkSession',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await userAuthService.getMe();
+            return response;
+        } catch (error: any) {
+            return rejectWithValue("Session invalid");
+        }
+    }
+);
 
 const authSlice = createSlice({
     name: 'auth',
@@ -79,6 +92,25 @@ const authSlice = createSlice({
             state.error = null;
         }
     },
+    extraReducers: (builder) => {
+        builder
+            .addCase(checkSession.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(checkSession.fulfilled, (state, action) => {
+                state.loading = false;
+                state.isAuthenticated = true;
+                state.user = action.payload.user;
+                state.isInitialized = true;
+            })
+            .addCase(checkSession.rejected, (state) => {
+                state.loading = false;
+                state.isAuthenticated = false;
+                state.user = null;
+                state.accessToken = null;
+                state.isInitialized = true;
+            });
+    }
 });
 
 export const {

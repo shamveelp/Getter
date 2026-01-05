@@ -59,6 +59,11 @@ export const userAuthService = {
         return response.data;
     },
 
+    getMe: async () => {
+        const response = await axiosInstance.get(`${API_URL}/me`);
+        return response.data;
+    },
+
     refreshToken: async () => {
         const response = await axiosInstance.post(`${API_URL}/refresh-token`);
         return response.data;
