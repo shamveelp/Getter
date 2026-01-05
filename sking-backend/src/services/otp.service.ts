@@ -14,13 +14,16 @@ export class OTPService implements IOTPService {
 
     constructor(
         @inject(TYPES.IEmailService) private _emailService: IEmailService
-    ) {}
+    ) { }
 
     async requestOtp(email: string, type: string): Promise<void> {
         const otp = this.generateOtp();
         const expires = Date.now() + this.OTP_EXPIRY;
 
         this.otpStore.set(email, { otp, expires, attempts: 0 });
+
+        // For development/testing purposes
+        logger.info(`🔐 OTP for ${email}: ${otp}`);
 
         try {
             await this._emailService.sendOtpEmail(email, otp);
@@ -36,6 +39,9 @@ export class OTPService implements IOTPService {
         const expires = Date.now() + this.OTP_EXPIRY;
 
         this.otpStore.set(`reset_${email}`, { otp, expires, attempts: 0 });
+
+        // For development/testing purposes
+        logger.info(`🔐 Reset OTP for ${email}: ${otp}`);
 
         try {
             await this._emailService.sendForgotPasswordOtpEmail(email, otp);
