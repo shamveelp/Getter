@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { Suspense, useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { userAuthService } from '@/services/user/userAuthApiService';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Loader2, RefreshCw, Shield } from 'lucide-react';
 
-export default function VerifyForgotOtpPage() {
+// Main component with logic
+function VerifyForgotOtpContent() {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
@@ -208,5 +209,14 @@ export default function VerifyForgotOtpPage() {
                 </div>
             </motion.div>
         </div>
+    );
+}
+
+// Export wrapped with Suspense
+export default function VerifyForgotOtpPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white">Loading...</div>}>
+            <VerifyForgotOtpContent />
+        </Suspense>
     );
 }
