@@ -1,6 +1,6 @@
 import axiosInstance from '../../lib/axios';
 
-const API_URL = '/auth';
+const API_URL = '/api/users/auth';
 
 export const userAuthService = {
     register: async (userData: { username: string; email: string; password: string; name?: string; referralCode?: string }) => {

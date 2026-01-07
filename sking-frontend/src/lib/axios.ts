@@ -2,7 +2,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/users',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
     withCredentials: true, // For cookies (refresh token)
     timeout: 10000,
     headers: {
@@ -43,7 +43,7 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const { data } = await axiosInstance.post('/auth/refresh-token');
+                const { data } = await axiosInstance.post('/api/users/auth/refresh-token');
                 if (data.success) {
                     // Update header if using Authorization header (though we moved to cookies)
                     // If backend expects cookie only, this line might be redundant but harmless

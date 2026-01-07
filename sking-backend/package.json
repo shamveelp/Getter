@@ -9,7 +9,8 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "lint": "eslint .",
-    "lint-fix": "eslint --fix ."
+    "lint-fix": "eslint --fix .",
+    "seed:admin": "ts-node src/createAdmin/seedAdmin.ts"
   },
   "keywords": [],
   "author": "",

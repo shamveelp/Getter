@@ -8,6 +8,7 @@ export interface IUser extends Document {
   password?: string;
   name: string;
   isActive: boolean;
+  isAdmin: boolean;
   tokenVersion: number;
   profilePicture?: string;
   bio?: string;
@@ -23,6 +24,7 @@ const UserSchema: Schema<IUser> = new Schema(
     password: { type: String, required: false },
     name: { type: String, required: true },
     isActive: { type: Boolean, default: true },
+    isAdmin: { type: Boolean, default: false },
     tokenVersion: { type: Number, default: 0 },
     profilePicture: { type: String, default: "" },
     bio: { type: String, default: "" },

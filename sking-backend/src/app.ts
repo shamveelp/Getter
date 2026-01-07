@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import logger from "./utils/logger";
 import userRouter from "./routes/userRouter";
+import adminRouter from "./routes/adminRouter";
 import cookieParser from "cookie-parser";
 
 const app: Application = express();
@@ -43,5 +44,6 @@ app.get("/health", (_req, res) => {
 
 
 app.use("/api/users", userRouter);
+app.use("/api/admin", adminRouter);
 
 export default app;

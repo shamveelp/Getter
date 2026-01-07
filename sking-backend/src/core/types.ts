@@ -8,6 +8,9 @@ const TYPES = {
     IEmailService: Symbol.for("IEmailService"),
     IUserProfileService: Symbol.for("IUserProfileService"),
     IUserProfileController: Symbol.for("IUserProfileController"),
+    IAdminAuthRepository: Symbol.for("IAdminAuthRepository"),
+    IAdminAuthService: Symbol.for("IAdminAuthService"),
+    IAdminAuthController: Symbol.for("IAdminAuthController"),
 };
 
 export { TYPES };

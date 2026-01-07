@@ -1,6 +1,6 @@
 import axiosInstance from '../../lib/axios';
 
-const API_URL = '/profile';
+const API_URL = '/api/users/profile';
 
 interface UpdateProfileData {
     name?: string;

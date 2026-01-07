@@ -14,21 +14,47 @@ export function middleware(request: NextRequest) {
         '/verify-forgot-otp'
     ];
 
+    const adminRoutes = [
+        '/admin'
+    ];
+
+    const adminGuestRoutes = [
+        '/admin/login'
+    ];
+
     // Check if the current path is a guest route
     const isGuestRoute = guestRoutes.some(route => pathname.startsWith(route));
+    const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
+    const isAdminGuestRoute = adminGuestRoutes.some(route => pathname.startsWith(route));
 
     // Get the token from cookies
-    // We check for refreshToken usually as it has longer validity, 
-    // ensuring we catch users who might have an expired access token but valid session.
-    // However, checking accessToken is also fine if we expect it to be present.
-    // Let's check for either to be safe that a session exists.
     const accessToken = request.cookies.get('accessToken')?.value;
     const refreshToken = request.cookies.get('refreshToken')?.value;
     const isAuthenticated = !!accessToken || !!refreshToken;
 
+    // TODO: Ideally we should decode the token to check the role, but for middleware without verifying signature (expensive),
+    // we assume backend handles role verification. But we can check a client cookie for role if available, or just rely on API 403s.
+    // However, to do redirects efficiently:
+
+    // For now, let's assume if you are authenticated, you are a user. 
+    // Admin checking usually requires verifying the token. 
+    // Since we can't easily verify signature in Edge middleware without external libs (jwt-decode works though).
+    // Let's rely on protected pages to redirect if role doesn't match, or add a 'role' cookie.
+
     // If user is authenticated and tries to access guest routes, redirect to home
     if (isAuthenticated && isGuestRoute) {
         return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    // If user is authenticated and tries to access admin login, redirect to admin dashboard
+    // NOTE: This assumes the authenticated user IS an admin. If they are a normal user, they shouldn't be here anyway.
+    // We might want to separate user and admin tokens to avoid confusion or check a role cookie.
+    if (isAuthenticated && isAdminGuestRoute) {
+        return NextResponse.redirect(new URL('/admin', request.url));
+    }
+
+    if (!isAuthenticated && isAdminRoute && !isAdminGuestRoute) {
+        return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     const response = NextResponse.next();
