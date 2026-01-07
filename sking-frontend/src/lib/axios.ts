@@ -12,10 +12,12 @@ const axiosInstance = axios.create({
 
 let store: any = null;
 let logoutAction: any = null;
+let adminLogoutAction: any = null;
 
-export const setupInterceptors = (_store: any, _logoutAction: any) => {
+export const setupInterceptors = (_store: any, _logoutAction: any, _adminLogoutAction: any) => {
     store = _store;
     logoutAction = _logoutAction;
+    adminLogoutAction = _adminLogoutAction;
 };
 
 // Request interceptor
@@ -33,6 +35,8 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+        const isAdminRequest = originalRequest.url?.includes('/api/admin');
+        const refreshUrl = isAdminRequest ? '/api/admin/auth/refresh-token' : '/api/users/auth/refresh-token';
 
         if (
             error.response?.status === 401 &&
@@ -43,7 +47,7 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const { data } = await axiosInstance.post('/api/users/auth/refresh-token');
+                const { data } = await axiosInstance.post(refreshUrl);
                 if (data.success) {
                     // Update header if using Authorization header (though we moved to cookies)
                     // If backend expects cookie only, this line might be redundant but harmless
@@ -52,14 +56,24 @@ axiosInstance.interceptors.response.use(
                 }
             } catch (refreshError) {
                 // Refresh token failed, logout user
-                if (store && logoutAction) {
-                    store.dispatch(logoutAction());
+                if (store) {
+                    if (isAdminRequest) {
+                        if (adminLogoutAction) store.dispatch(adminLogoutAction());
+                    } else {
+                        if (logoutAction) store.dispatch(logoutAction());
+                    }
                 }
+
                 // httpOnly cookies are cleared by the backend /logout or expiration
                 // We just redirect here
                 if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !originalRequest.url?.includes('/auth/me')) {
-                    toast.error('Session expired. Please login again.');
-                    window.location.href = '/login';
+                    if (isAdminRequest) {
+                        toast.error('Admin session expired. Please login again.');
+                        window.location.href = '/admin/login';
+                    } else {
+                        toast.error('Session expired. Please login again.');
+                        window.location.href = '/login';
+                    }
                 }
                 return Promise.reject(refreshError);
             }
