@@ -17,7 +17,8 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
     }
 
     try {
-        const secret = process.env.JWT_ACCESS_SECRET || "default_secret_key_change_me";
+        const secret = process.env.JWT_ACCESS_SECRET;
+        if (!secret) throw new Error("JWT_ACCESS_SECRET is not defined in environment variables.");
         const verified = jwt.verify(token, secret);
         req.user = verified;
         next();

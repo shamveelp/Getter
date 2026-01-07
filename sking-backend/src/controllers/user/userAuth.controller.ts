@@ -106,7 +106,7 @@ export class UserAuthController implements IUserAuthController {
                 referralCode
             );
 
-            this._jwtService.setTokens(res, accessToken, refreshToken);
+            this._jwtService.setTokens(res, accessToken, refreshToken, "user");
 
             const response = new LoginResponseDto(user, SuccessMessages.USER_REGISTERED);
             res.status(StatusCode.CREATED).json(response);
@@ -244,7 +244,7 @@ export class UserAuthController implements IUserAuthController {
 
             const { user, accessToken, refreshToken } = await this._userAuthService.loginUser(email!, password!);
 
-            this._jwtService.setTokens(res, accessToken, refreshToken);
+            this._jwtService.setTokens(res, accessToken, refreshToken, "user");
 
             const response = new LoginResponseDto(user, SuccessMessages.USER_LOGGED_IN);
             res.status(StatusCode.OK).json(response);
@@ -307,7 +307,7 @@ export class UserAuthController implements IUserAuthController {
                 decoded.tokenVersion ?? 0
             );
 
-            this._jwtService.setTokens(res, accessToken, newRefreshToken);
+            this._jwtService.setTokens(res, accessToken, newRefreshToken, decoded.role);
 
             // Fetch user data to return with refresh
             const user = await this._userAuthService.getUserById(decoded.id);
@@ -345,7 +345,7 @@ export class UserAuthController implements IUserAuthController {
             }
 
             const { user, accessToken, refreshToken } = await this._userAuthService.loginWithGoogle(googleLoginDto);
-            this._jwtService.setTokens(res, accessToken, refreshToken);
+            this._jwtService.setTokens(res, accessToken, refreshToken, "user");
 
             const response = new LoginResponseDto(user, SuccessMessages.GOOGLE_LOGIN_SUCCESS);
             res.status(StatusCode.OK).json(response);

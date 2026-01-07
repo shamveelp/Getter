@@ -28,11 +28,10 @@ export class AdminAuthController implements IAdminAuthController {
         try {
             const loginDto = req.body as AdminLoginDto;
             const { email, password } = loginDto;
-            console.log(email, password);
 
             const { user, accessToken, refreshToken } = await this._adminAuthService.loginAdmin(email!, password!);
 
-            this._jwtService.setTokens(res, accessToken, refreshToken);
+            this._jwtService.setTokens(res, accessToken, refreshToken, "admin");
 
             const response = new AdminLoginResponseDto(user, SuccessMessages.USER_LOGGED_IN);
             res.status(StatusCode.OK).json(response);
@@ -144,7 +143,7 @@ export class AdminAuthController implements IAdminAuthController {
                 decoded.tokenVersion ?? 0
             );
 
-            this._jwtService.setTokens(res, accessToken, newRefreshToken);
+            this._jwtService.setTokens(res, accessToken, newRefreshToken, decoded.role);
 
             // Fetch admin data to return with refresh
             const user = await this._adminAuthService.getAdminById(decoded.id);

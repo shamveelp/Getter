@@ -53,7 +53,7 @@ export class JwtService implements IJwtService {
     }
   }
 
-  setTokens(res: Response, accessToken: string, refreshToken: string): void {
+  setTokens(res: Response, accessToken: string, refreshToken: string, role: string): void {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -67,10 +67,19 @@ export class JwtService implements IJwtService {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+
+    // Valid only for same session duration as refresh token or just persistent
+    res.cookie("user_role", role, {
+      httpOnly: false, // Allow client-side JS/Middleware to read this to determine role
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
   }
 
   clearTokens(res: Response): void {
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
+    res.clearCookie("user_role");
   }
 }

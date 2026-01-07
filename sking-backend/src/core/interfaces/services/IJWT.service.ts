@@ -17,6 +17,6 @@ export interface IJwtService {
     generateRefreshToken(id: string, role: string, tokenVersion: number): string;
     verifyAccessToken(token: string): JwtAccessPayload;
     verifyRefreshToken(token: string): JwtRefreshPayload;
-    setTokens(res: Response, accessToken: string, refreshToken: string): void;
+    setTokens(res: Response, accessToken: string, refreshToken: string, role: string): void;
     clearTokens(res: Response): void;
 }

@@ -30,31 +30,34 @@ export function middleware(request: NextRequest) {
     // Get the token from cookies
     const accessToken = request.cookies.get('accessToken')?.value;
     const refreshToken = request.cookies.get('refreshToken')?.value;
+    const userRole = request.cookies.get('user_role')?.value;
     const isAuthenticated = !!accessToken || !!refreshToken;
 
-    // TODO: Ideally we should decode the token to check the role, but for middleware without verifying signature (expensive),
-    // we assume backend handles role verification. But we can check a client cookie for role if available, or just rely on API 403s.
-    // However, to do redirects efficiently:
-
-    // For now, let's assume if you are authenticated, you are a user. 
-    // Admin checking usually requires verifying the token. 
-    // Since we can't easily verify signature in Edge middleware without external libs (jwt-decode works though).
-    // Let's rely on protected pages to redirect if role doesn't match, or add a 'role' cookie.
-
-    // If user is authenticated and tries to access guest routes, redirect to home
+    // If user is authenticated and tries to access guest routes (login/register), redirect based on role
     if (isAuthenticated && isGuestRoute) {
+        if (userRole === 'admin') {
+            return NextResponse.redirect(new URL('/admin', request.url));
+        }
         return NextResponse.redirect(new URL('/', request.url));
     }
 
-    // If user is authenticated and tries to access admin login, redirect to admin dashboard
-    // NOTE: This assumes the authenticated user IS an admin. If they are a normal user, they shouldn't be here anyway.
-    // We might want to separate user and admin tokens to avoid confusion or check a role cookie.
+    // If user is authenticated and tries to access admin login
     if (isAuthenticated && isAdminGuestRoute) {
-        return NextResponse.redirect(new URL('/admin', request.url));
+        if (userRole === 'admin') {
+            return NextResponse.redirect(new URL('/admin', request.url));
+        }
+        return NextResponse.redirect(new URL('/', request.url));
     }
 
-    if (!isAuthenticated && isAdminRoute && !isAdminGuestRoute) {
-        return NextResponse.redirect(new URL('/admin/login', request.url));
+    // Protected Admin Routes
+    if (isAdminRoute && !isAdminGuestRoute) {
+        if (!isAuthenticated) {
+            return NextResponse.redirect(new URL('/admin/login', request.url));
+        }
+
+        if (userRole !== 'admin') {
+            return NextResponse.redirect(new URL('/', request.url));
+        }
     }
 
     const response = NextResponse.next();
