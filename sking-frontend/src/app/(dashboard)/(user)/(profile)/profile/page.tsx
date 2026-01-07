@@ -127,7 +127,7 @@ export default function ProfilePage() {
     const profilePic = user.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white p-6 md:p-12 relative">
+        <div className="relative">
             {/* Cropper Modal */}
             <AnimatePresence>
                 {isCropping && tempImageSrc && (
@@ -201,18 +201,15 @@ export default function ProfilePage() {
                 )}
             </AnimatePresence>
 
-            <div className="max-w-4xl mx-auto">
-                <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white mb-8 transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Dashboard
-                </Link>
+            <div>
+                <h1 className="text-3xl font-bold mb-8">My Profile</h1>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                     {/* Left Column: Profile Card */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="md:col-span-1"
+                        className="xl:col-span-1"
                     >
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
                             <div className="relative inline-block mb-4 group">
@@ -250,7 +247,7 @@ export default function ProfilePage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="md:col-span-2"
+                        className="xl:col-span-2"
                     >
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
                             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
