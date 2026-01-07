@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
     icon: <Users size={20} />,
     name: "Customers",
     subItems: [
-      { name: "Customer Management", path: "/customers", pro: false },
+      { name: "Customer Management", path: "/admin/customers", pro: false },
       { name: "Reviews & Ratings", path: "/reviews", pro: false },
     ],
   },

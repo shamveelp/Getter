@@ -142,6 +142,10 @@ export class UserAuthService implements IUserAuthService {
             throw new CustomError("Account is deactivated", StatusCode.FORBIDDEN);
         }
 
+        if (user.isBanned) {
+            throw new CustomError("Account is banned. Please contact support.", StatusCode.FORBIDDEN);
+        }
+
         const accessToken = this._jwtService.generateAccessToken(user._id.toString(), "user", user.tokenVersion);
         const refreshToken = this._jwtService.generateRefreshToken(user._id.toString(), "user", user.tokenVersion);
 
@@ -211,6 +215,10 @@ export class UserAuthService implements IUserAuthService {
             }
 
             let user = await this._userAuthRepository.findByEmail(email);
+
+            if (user && user.isBanned) {
+                throw new CustomError("Account is banned. Please contact support.", StatusCode.FORBIDDEN);
+            }
 
             if (!user) {
                 const username = await this.generateUsername(email);
