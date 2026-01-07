@@ -44,8 +44,8 @@ const navItems: NavItem[] = [
     icon: <Package size={20} />,
     name: "Catalog Management",
     subItems: [
-      { name: "Product Management", path: "/products", pro: false },
-      { name: "Category Management", path: "/categories", pro: false },
+      { name: "Category Management", path: "/admin/categories", pro: false },
+      { name: "Product Management", path: "/admin/products", pro: false },
     ],
   },
   {

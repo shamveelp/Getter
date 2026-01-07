@@ -23,6 +23,7 @@ interface IUser {
     isActive: boolean;
     isBanned: boolean;
     createdAt: string;
+    phoneNumber?: string;
 }
 
 export default function CustomersPage() {
@@ -32,12 +33,12 @@ export default function CustomersPage() {
     const [totalPages, setTotalPages] = useState(1);
     const limit = 10;
 
-    const fetchUsers = async (page: number) => {
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const fetchUsers = async (page: number, search: string) => {
         try {
             setLoading(true);
-            const data = await adminCustomerService.getAllUsers(page, limit);
-            // data.data.users, data.data.total
-            // Check structure of response in controller: { success: true, data: { users, total, page, limit } }
+            const data = await adminCustomerService.getAllUsers(page, limit, search);
             if (data.success) {
                 setUsers(data.data.users);
                 setTotalPages(Math.ceil(data.data.total / limit));
@@ -50,10 +51,14 @@ export default function CustomersPage() {
     };
 
     useEffect(() => {
-        fetchUsers(currentPage);
-    }, [currentPage]);
+        const delayDebounceFn = setTimeout(() => {
+            fetchUsers(currentPage, searchTerm);
+        }, 500);
 
-    if (loading && users.length === 0) {
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm, currentPage]);
+
+    if (loading && users.length === 0 && !searchTerm) {
         return <div className="p-6">Loading...</div>;
     }
 
@@ -61,6 +66,33 @@ export default function CustomersPage() {
         <div className="p-6">
             <div className="mb-6 flex justify-between items-center">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Customer Management</h1>
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Search customers..."
+                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                        value={searchTerm}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                    />
+                    <svg
+                        className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                        fill="none"
+                        height="24"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" x2="16.65" y1="21" y2="16.65" />
+                    </svg>
+                </div>
             </div>
 
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -71,6 +103,7 @@ export default function CustomersPage() {
                                 <TableRow>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">User</TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Email</TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Phone</TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Status</TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Joined Date</TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Actions</TableCell>
@@ -79,7 +112,7 @@ export default function CustomersPage() {
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                 {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="px-5 py-4 text-center text-gray-500 dark:text-gray-400">
+                                        <TableCell colSpan={6} className="px-5 py-4 text-center text-gray-500 dark:text-gray-400">
                                             No customers found.
                                         </TableCell>
                                     </TableRow>
@@ -102,6 +135,7 @@ export default function CustomersPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">{user.email}</TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">{user.phoneNumber || "-"}</TableCell>
                                             <TableCell className="px-4 py-3">
                                                 {user.isBanned ? (
                                                     <Badge size="sm" color="error">Banned</Badge>

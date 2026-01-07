@@ -3,8 +3,8 @@ import axiosInstance from '../../lib/axios';
 const API_URL = '/api/admin/customers'; // Assuming backend route is mounted here
 
 export const adminCustomerService = {
-    getAllUsers: async (page: number = 1, limit: number = 10) => {
-        const response = await axiosInstance.get(`${API_URL}?page=${page}&limit=${limit}`);
+    getAllUsers: async (page: number = 1, limit: number = 10, search: string = '') => {
+        const response = await axiosInstance.get(`${API_URL}?page=${page}&limit=${limit}&search=${search}`);
         return response.data;
     },
 

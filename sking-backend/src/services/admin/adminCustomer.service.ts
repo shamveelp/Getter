@@ -12,9 +12,9 @@ export class AdminCustomerService implements IAdminCustomerService {
         @inject(TYPES.IAdminCustomerRepository) private _adminCustomerRepository: IAdminCustomerRepository
     ) { }
 
-    async getAllUsers(page: number, limit: number): Promise<AdminCustomerListResponseDto> {
+    async getAllUsers(page: number, limit: number, search?: string): Promise<AdminCustomerListResponseDto> {
         const skip = (page - 1) * limit;
-        const { users, total } = await this._adminCustomerRepository.findAll(limit, skip);
+        const { users, total } = await this._adminCustomerRepository.findAll(limit, skip, search);
 
         return new AdminCustomerListResponseDto(users, total, page, limit);
     }
