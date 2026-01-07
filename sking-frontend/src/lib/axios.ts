@@ -38,6 +38,31 @@ axiosInstance.interceptors.response.use(
         const isAdminRequest = originalRequest.url?.includes('/api/admin');
         const refreshUrl = isAdminRequest ? '/api/admin/auth/refresh-token' : '/api/users/auth/refresh-token';
 
+        // Handle 403 Forbidden (specifically for Banned users)
+        if (
+            error.response?.status === 403 &&
+            error.response?.data?.message?.toLowerCase().includes('banned')
+        ) {
+            if (store) {
+                if (isAdminRequest) {
+                    if (adminLogoutAction) store.dispatch(adminLogoutAction());
+                } else {
+                    if (logoutAction) store.dispatch(logoutAction());
+                }
+            }
+
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/signin')) {
+                if (isAdminRequest) {
+                    toast.error(error.response.data.message || 'Account is banned.');
+                    window.location.href = '/admin/login';
+                } else {
+                    toast.error(error.response.data.message || 'Account is banned.');
+                    window.location.href = '/login';
+                }
+            }
+            return Promise.reject(error);
+        }
+
         if (
             error.response?.status === 401 &&
             !originalRequest._retry &&
@@ -66,7 +91,7 @@ axiosInstance.interceptors.response.use(
 
                 // httpOnly cookies are cleared by the backend /logout or expiration
                 // We just redirect here
-                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !originalRequest.url?.includes('/auth/me')) {
+                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/signin') && !originalRequest.url?.includes('/auth/me')) {
                     if (isAdminRequest) {
                         toast.error('Admin session expired. Please login again.');
                         window.location.href = '/admin/login';
