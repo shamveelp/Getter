@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, ShoppingBag, Mouse as House, Store, Mail, X, LogIn, User } from "lucide-react";
+import { Search, ShoppingBag, Calendar, Ticket, Mail, X, LogIn, User, Mouse as House } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -86,14 +86,14 @@ export default function Navbar() {
                 {/* Brand Name (Hidden when search is open) */}
                 {!isSearchOpen && (
                     <Link href="/" className="text-xl font-bold tracking-widest text-white hover:text-gray-300 transition-colors">
-                        SKING.
+                        GETTER.
                     </Link>
                 )}
 
                 {/* Navigation Links (Hidden when search is open) */}
                 {!isSearchOpen && (
                     <div className="flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-                        {["Home", "Shop", "Contact"].map((item) => (
+                        {["Home", "Events", "Support"].map((item) => (
                             <Link
                                 key={item}
                                 href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
@@ -114,7 +114,7 @@ export default function Navbar() {
                             <input
                                 type="text"
                                 autoFocus
-                                placeholder="Search products..."
+                                placeholder="Search events..."
                                 className="w-full bg-transparent text-white placeholder-gray-400 outline-none text-sm font-light tracking-wide"
                             />
                             <button
@@ -156,11 +156,11 @@ export default function Navbar() {
                                                 Profile
                                             </Link>
                                             <Link
-                                                href="/orders"
+                                                href="/tickets"
                                                 className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
                                                 onClick={() => setShowUserMenu(false)}
                                             >
-                                                Orders
+                                                Tickets
                                             </Link>
                                             <Link
                                                 href="/settings"
@@ -222,8 +222,8 @@ export default function Navbar() {
                 <Link href="/" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
                     <House size={22} />
                 </Link>
-                <Link href="/shop" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
-                    <Store size={22} />
+                <Link href="/events" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
+                    <Calendar size={22} />
                 </Link>
                 <button
                     onClick={() => setIsSearchOpen(true)}
@@ -232,7 +232,7 @@ export default function Navbar() {
                 >
                     <Search size={22} />
                 </button>
-                <Link href="/contact" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
+                <Link href="/support" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
                     <Mail size={22} />
                 </Link>
 

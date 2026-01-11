@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sking Cosmetics | Redefining Beauty",
-  description: "Luxury skincare for the modern era. Experience pure, potent, and precise formulations.",
+  title: "Getter | Event & Service Booking Platform",
+  description: "Your one-stop destination for booking events and services efficiently.",
 };
 
 export default function RootLayout({

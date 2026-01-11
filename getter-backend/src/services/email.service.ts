@@ -54,7 +54,7 @@ export class EmailService implements IEmailService {
                         <p>Verify Your Email Address</p>
                     </div>
                     <div class="content">
-                        <h2>Welcome to Sking Cosmetics!</h2>
+                        <h2>Welcome to Getter!</h2>
                         <p>Thank you for registering with us. To complete your registration, please enter the following verification code:</p>
                         
                         <div class="otp-code">
@@ -63,10 +63,10 @@ export class EmailService implements IEmailService {
                         </div>
                         
                         <p><strong>This code will expire in 5 minutes.</strong></p>
-                        <p>If you didn't create an account with Sking Cosmetics, please ignore this email.</p>
+                        <p>If you didn't create an account with Getter, please ignore this email.</p>
                     </div>
                     <div class="footer">
-                        <p>&copy; ${new Date().getFullYear()} Sking Cosmetics. All rights reserved.</p>
+                        <p>&copy; ${new Date().getFullYear()} Getter. All rights reserved.</p>
                     </div>
                 </div>
             </body>
@@ -75,7 +75,7 @@ export class EmailService implements IEmailService {
 
         await this.sendEmail(
             email,
-            "Verify Your Sking Cosmetics Account",
+            "Verify Your Getter Account",
             `Your verification code is: ${otp}`,
             htmlTemplate
         );
@@ -115,7 +115,7 @@ export class EmailService implements IEmailService {
                         <p>If you didn't request a password reset, please ignore this email and your password will remain unchanged.</p>
                     </div>
                     <div class="footer">
-                        <p>&copy; ${new Date().getFullYear()} Sking Cosmetics. All rights reserved.</p>
+                        <p>&copy; ${new Date().getFullYear()} Getter. All rights reserved.</p>
                     </div>
                 </div>
             </body>
@@ -124,7 +124,7 @@ export class EmailService implements IEmailService {
 
         await this.sendEmail(
             email,
-            "Reset Your Sking Cosmetics Password",
+            "Reset Your Getter Password",
             `Your password reset code is: ${otp}`,
             htmlTemplate
         );
@@ -151,13 +151,13 @@ export class EmailService implements IEmailService {
                     </div>
                     <div class="content">
                         <h2>Welcome ${username}!</h2>
-                        <p>Congratulations! Your Sking Cosmetics account has been successfully created.</p>
+                        <p>Congratulations! Your Getter account has been successfully created.</p>
                         <p>You're now part of our exclusive beauty community where luxury meets innovation.</p>
                         <p>Get ready to discover our curated collection of premium skincare products designed to enhance your natural beauty.</p>
                         <p>Start exploring and enjoy your journey with us!</p>
                     </div>
                     <div class="footer">
-                        <p>&copy; ${new Date().getFullYear()} Sking Cosmetics. All rights reserved.</p>
+                        <p>&copy; ${new Date().getFullYear()} Getter. All rights reserved.</p>
                     </div>
                 </div>
             </body>
@@ -166,7 +166,7 @@ export class EmailService implements IEmailService {
 
         await this.sendEmail(
             email,
-            "Welcome to Sking Cosmetics!",
+            "Welcome to Getter!",
             `Welcome ${username}! Your account has been created successfully.`,
             htmlTemplate
         );
@@ -198,7 +198,7 @@ export class EmailService implements IEmailService {
                         <p>For your security, we recommend using a strong, unique password.</p>
                     </div>
                     <div class="footer">
-                        <p>&copy; ${new Date().getFullYear()} Sking Cosmetics. All rights reserved.</p>
+                        <p>&copy; ${new Date().getFullYear()} Getter. All rights reserved.</p>
                     </div>
                 </div>
             </body>
@@ -207,7 +207,7 @@ export class EmailService implements IEmailService {
 
         await this.sendEmail(
             email,
-            "Password Reset Successful - Sking Cosmetics",
+            "Password Reset Successful - Getter",
             "Your password has been successfully updated.",
             htmlTemplate
         );
@@ -217,7 +217,7 @@ export class EmailService implements IEmailService {
         try {
             await this.transporter.sendMail({
                 from: {
-                    name: process.env.FROM_NAME || "Sking Cosmetics",
+                    name: process.env.FROM_NAME || "Getter",
                     address: process.env.FROM_EMAIL || process.env.SMTP_USER || "",
                 },
                 to,

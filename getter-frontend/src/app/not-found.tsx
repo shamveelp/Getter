@@ -5,9 +5,9 @@ import Link from "next/link";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Error 404 | Sking Cosmetics - Admin Dashboard",
+  title: "Error 404 | Getter",
   description:
-    "This is Error 404 page for Sking Cosmetics - Admin Dashboard",
+    "This is Error 404 page for Getter",
 };
 
 export default function Error404() {
@@ -47,7 +47,7 @@ export default function Error404() {
       </div>
       {/* <!-- Footer --> */}
       <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
-        &copy; {new Date().getFullYear()} - Sking Cosmetics
+        &copy; {new Date().getFullYear()} - Getter
       </p>
     </div>
   );

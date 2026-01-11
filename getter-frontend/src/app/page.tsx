@@ -88,7 +88,7 @@ export default function Home() {
             ref={headlineRef}
             className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter bg-clip-text text-transparent bg-linear-to-b from-white to-white/60"
           >
-            SKING COSMETICS
+            GETTER
           </h1>
         </div>
 
@@ -97,7 +97,7 @@ export default function Home() {
             ref={subheadlineRef}
             className="text-lg md:text-xl text-neutral-400 max-w-2xl font-light tracking-wide"
           >
-            Experience the future of skincare. Pure, potent, and precisely formulated for your radiance.
+            Discover and book the most exclusive events, concerts, and gatherings. Your gateway to unforgettable experiences.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export default function Home() {
             href="#"
             className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-white px-8 font-medium text-black transition-all duration-300 hover:bg-neutral-200 hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-black"
           >
-            <span className="mr-2">Discover Collection</span>
+            <span className="mr-2">Explore Events</span>
             <span className="relative overflow-hidden w-5 h-5 flex items-center justify-center">
               <svg
                 className="w-4 h-4 transform transition-transform group-hover:translate-x-1"
@@ -124,7 +124,7 @@ export default function Home() {
 
       {/* Footer / Bottom Elements */}
       <footer className="absolute bottom-8 w-full text-center text-neutral-600 text-xs tracking-widest uppercase">
-        <p>&copy; {new Date().getFullYear()} Sking Cosmetics &bull; All Rights Reserved</p>
+        <p>&copy; {new Date().getFullYear()} Getter &bull; All Rights Reserved</p>
       </footer>
     </div>
   );

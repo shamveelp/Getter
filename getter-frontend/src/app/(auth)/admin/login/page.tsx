@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
                 <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl">
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-red-400 to-orange-400 mb-2">Admin Portal</h1>
-                        <p className="text-gray-400 text-sm">Sign in to manage Sking Cosmetics</p>
+                        <p className="text-gray-400 text-sm">Sign in to manage Getter</p>
                     </div>
 
                     <AnimatePresence>
@@ -94,7 +94,7 @@ export default function AdminLoginPage() {
                                     {...register('email')}
                                     type="email"
                                     className="w-full bg-black/20 border border-white/10 rounded-xl px-10 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50 transition-all"
-                                    placeholder="admin@sking.com"
+                                    placeholder="admin@getter.com"
                                 />
                             </div>
                             <AnimatePresence>

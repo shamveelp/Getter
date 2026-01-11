@@ -6,6 +6,16 @@ import Image from "next/image";
 import { User, Package, MapPin, Wallet } from "lucide-react";
 import { adminCustomerService } from "../../../../../../services/admin/adminCustomerApiService";
 import Badge from "../../../../../../components/admin/ui/badge/Badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface IUser {
     _id: string;
@@ -30,6 +40,8 @@ export default function CustomerDetailPage() {
     const [user, setUser] = useState<IUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
+    const [isUnbanDialogOpen, setIsUnbanDialogOpen] = useState(false);
 
     const fetchUser = async () => {
         if (!id) return;
@@ -42,6 +54,7 @@ export default function CustomerDetailPage() {
             }
         } catch (error) {
             console.error("Failed to fetch user details", error);
+            toast.error("Failed to fetch user details");
         } finally {
             setLoading(false);
         }
@@ -52,28 +65,30 @@ export default function CustomerDetailPage() {
     }, [id]);
 
     const handleBan = async () => {
-        if (!confirm("Are you sure you want to ban this user? They will be logged out immediately.")) return;
         try {
             setActionLoading(true);
             await adminCustomerService.banUser(id);
             await fetchUser(); // Refresh data
+            toast.success("User has been banned successfully");
+            setIsBanDialogOpen(false);
         } catch (error) {
             console.error("Failed to ban user", error);
-            alert("Failed to ban user");
+            toast.error("Failed to ban user");
         } finally {
             setActionLoading(false);
         }
     };
 
     const handleUnban = async () => {
-        if (!confirm("Are you sure you want to unban this user?")) return;
         try {
             setActionLoading(true);
             await adminCustomerService.unbanUser(id);
             await fetchUser(); // Refresh data
+            toast.success("User has been unbanned successfully");
+            setIsUnbanDialogOpen(false);
         } catch (error) {
             console.error("Failed to unban user", error);
-            alert("Failed to unban user");
+            toast.error("Failed to unban user");
         } finally {
             setActionLoading(false);
         }
@@ -116,7 +131,7 @@ export default function CustomerDetailPage() {
                     <div className="flex gap-3">
                         {user.isBanned ? (
                             <button
-                                onClick={handleUnban}
+                                onClick={() => setIsUnbanDialogOpen(true)}
                                 disabled={actionLoading}
                                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
                             >
@@ -124,7 +139,7 @@ export default function CustomerDetailPage() {
                             </button>
                         ) : (
                             <button
-                                onClick={handleBan}
+                                onClick={() => setIsBanDialogOpen(true)}
                                 disabled={actionLoading}
                                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
                             >
@@ -238,6 +253,40 @@ export default function CustomerDetailPage() {
                     </div>
                 )}
             </div>
+
+            <Dialog open={isBanDialogOpen} onOpenChange={setIsBanDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Ban User</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to ban this user? They will be logged out immediately.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsBanDialogOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleBan} disabled={actionLoading}>
+                            {actionLoading ? "Banning..." : "Ban User"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isUnbanDialogOpen} onOpenChange={setIsUnbanDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Unban User</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to unban this user? They will regain access to their account.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsUnbanDialogOpen(false)}>Cancel</Button>
+                        <Button variant="default" onClick={handleUnban} disabled={actionLoading}>
+                            {actionLoading ? "Unbanning..." : "Unban User"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

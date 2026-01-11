@@ -65,7 +65,7 @@ export default function LoginPage() {
                 <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl">
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-purple-400 to-blue-400 mb-2">Welcome Back</h1>
-                        <p className="text-gray-400 text-sm">Sign in to continue to Sking Cosmetics</p>
+                        <p className="text-gray-400 text-sm">Sign in to continue to Getter</p>
                     </div>
 
                     <AnimatePresence>

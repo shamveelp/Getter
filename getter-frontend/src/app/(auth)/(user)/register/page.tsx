@@ -141,8 +141,8 @@ export default function RegisterPage() {
                         >
                             <Sparkles className="w-8 h-8 text-white" />
                         </motion.div>
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-purple-400 to-blue-400 mb-2">Join Sking</h1>
-                        <p className="text-gray-400 text-sm">Create your beauty journey account</p>
+                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-purple-400 to-blue-400 mb-2">Join Getter</h1>
+                        <p className="text-gray-400 text-sm">Create your booking account</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

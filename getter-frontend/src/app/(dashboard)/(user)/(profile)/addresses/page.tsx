@@ -23,7 +23,7 @@ export default function AddressesPage() {
                     <MapPin className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No addresses saved</h3>
-                <p className="text-gray-400 mb-6">Add an address to speed up your checkout process.</p>
+                <p className="text-gray-400 mb-6">Add an address to speed up your booking process.</p>
             </motion.div>
         </div>
     );

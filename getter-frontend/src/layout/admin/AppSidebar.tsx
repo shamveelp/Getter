@@ -15,7 +15,11 @@ import {
   Box,
   ShieldCheck,
   ChevronDown,
-  MoreHorizontal
+  MoreHorizontal,
+  Calendar,
+  Briefcase,
+  Settings,
+  CreditCard
 } from "lucide-react";
 import SidebarWidget from "@/layout/admin/SidebarWidget";
 
@@ -33,29 +37,39 @@ const navItems: NavItem[] = [
     path: "/admin"
   },
   {
+    icon: <Calendar size={20} />,
+    name: "Events",
+    subItems: [
+      { name: "Event Management", path: "/admin/events", pro: false },
+      { name: "Bookings", path: "/admin/events/bookings", pro: false },
+      { name: "Categories", path: "/admin/events/categories", pro: false },
+    ],
+  },
+  {
+    icon: <Briefcase size={20} />,
+    name: "Services",
+    subItems: [
+      { name: "Service Management", path: "/admin/services", pro: false },
+      { name: "Bookings", path: "/admin/services/bookings", pro: false },
+      { name: "Categories", path: "/admin/services/categories", pro: false },
+    ],
+  },
+  {
     icon: <Users size={20} />,
-    name: "Customers",
+    name: "Users",
     subItems: [
-      { name: "Customer Management", path: "/admin/customers", pro: false },
-      { name: "Reviews & Ratings", path: "/reviews", pro: false },
+      { name: "User Management", path: "/admin/users", pro: false },
+      { name: "Reviews & Ratings", path: "/admin/reviews", pro: false },
     ],
   },
   {
-    icon: <Package size={20} />,
-    name: "Catalog Management",
-    subItems: [
-      { name: "Category Management", path: "/admin/categories", pro: false },
-      { name: "Product Management", path: "/admin/products", pro: false },
-    ],
+    icon: <Settings size={20} />,
+    name: "Settings",
+    path: "/admin/settings",
   },
-  {
-    icon: <ShoppingCart size={20} />,
-    name: "Orders",
-    subItems: [
-      { name: "Order Management", path: "/orders", pro: false },
-      { name: "Order Details", path: "/order-details", pro: false },
-    ],
-  },
+];
+
+const othersItems: NavItem[] = [
   {
     name: "Forms",
     icon: <CheckSquare size={20} />,
@@ -74,9 +88,6 @@ const navItems: NavItem[] = [
       { name: "404 Error", path: "/error-404", pro: false },
     ],
   },
-];
-
-const othersItems: NavItem[] = [
   {
     icon: <PieChart size={20} />,
     name: "Charts",
@@ -312,9 +323,9 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <span className="text-2xl font-bold text-gray-900 dark:text-white truncate">SKING Cosmetics</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white truncate">Getter</span>
           ) : (
-            <span className="text-2xl font-bold text-gray-900 dark:text-white text-center w-full block">SK</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white text-center w-full block">G</span>
           )}
         </Link>
       </div>
