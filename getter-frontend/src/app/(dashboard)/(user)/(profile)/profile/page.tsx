@@ -10,8 +10,9 @@ import { toast } from 'sonner';
 import { Loader2, Camera, User, Mail, Phone, FileText, Save, ArrowLeft, X, Check, ZoomIn, ZoomOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import Cropper from 'react-easy-crop';
-import getCroppedImg from '@/utils/cropImage';
+// import Cropper from 'react-easy-crop'; // Remove
+// import getCroppedImg from '@/utils/cropImage'; // Remove
+import ImageCropper from '@/components/ui/ImageCropper';
 
 interface ProfileFormData {
     name: string;
@@ -26,9 +27,9 @@ export default function ProfilePage() {
     const [isSaving, setIsSaving] = useState(false);
 
     // Cropper State
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    // const [crop, setCrop] = useState({ x: 0, y: 0 }); // Moved to component
+    // const [zoom, setZoom] = useState(1); // Moved to component
+    // const [croppedAreaPixels, setCroppedAreaPixels] = useState(null); // Moved to component
     const [isCropping, setIsCropping] = useState(false);
     const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,9 +46,7 @@ export default function ProfilePage() {
         }
     }, [user, setValue]);
 
-    const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
-        setCroppedAreaPixels(croppedAreaPixels);
-    }, []);
+    // Removed onCropComplete
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
@@ -61,18 +60,9 @@ export default function ProfilePage() {
         }
     };
 
-    const handleSaveCrop = async () => {
-        if (!tempImageSrc || !croppedAreaPixels) return;
-
+    const handleSaveCrop = async (croppedImageBlob: Blob) => {
         setIsUploading(true);
         try {
-            const croppedImageBlob = await getCroppedImg(tempImageSrc, croppedAreaPixels);
-
-            if (!croppedImageBlob) {
-                toast.error('Something went wrong with cropping.');
-                return;
-            }
-
             // Create a File from the Blob
             const file = new File([croppedImageBlob], "profile_pic.jpg", { type: "image/jpeg" });
 
@@ -129,77 +119,14 @@ export default function ProfilePage() {
     return (
         <div className="relative">
             {/* Cropper Modal */}
-            <AnimatePresence>
-                {isCropping && tempImageSrc && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-                    >
-                        <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden w-full max-w-lg shadow-2xl">
-                            <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                                <h3 className="font-semibold text-lg">Adjust Profile Picture</h3>
-                                <button onClick={handleCancelCrop} className="text-gray-400 hover:text-white transition-colors">
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            <div className="relative h-[400px] w-full bg-black">
-                                <Cropper
-                                    image={tempImageSrc}
-                                    crop={crop}
-                                    zoom={zoom}
-                                    aspect={1}
-                                    onCropChange={setCrop}
-                                    onCropComplete={onCropComplete}
-                                    onZoomChange={setZoom}
-                                    cropShape="round"
-                                    showGrid={false}
-                                />
-                            </div>
-
-                            <div className="p-6 space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <ZoomOut className="w-4 h-4 text-gray-400" />
-                                    <input
-                                        type="range"
-                                        value={zoom}
-                                        min={1}
-                                        max={3}
-                                        step={0.1}
-                                        aria-labelledby="Zoom"
-                                        onChange={(e) => setZoom(Number(e.target.value))}
-                                        className="w-full accent-purple-500 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                                    />
-                                    <ZoomIn className="w-4 h-4 text-gray-400" />
-                                </div>
-
-                                <div className="flex gap-3 justify-end">
-                                    <button
-                                        onClick={handleCancelCrop}
-                                        className="px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors text-gray-300"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSaveCrop}
-                                        disabled={isUploading}
-                                        className="px-6 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-sm font-medium text-white transition-colors flex items-center gap-2"
-                                    >
-                                        {isUploading ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <Check className="w-4 h-4" />
-                                        )}
-                                        Save Picture
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Cropper Modal */}
+            <ImageCropper
+                isOpen={isCropping}
+                imageSrc={tempImageSrc}
+                onClose={handleCancelCrop}
+                onCropComplete={handleSaveCrop}
+                cropShape="round"
+            />
 
             <div>
                 <h1 className="text-3xl font-bold mb-8">My Profile</h1>

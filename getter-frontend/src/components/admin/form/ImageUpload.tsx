@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from "react";
-import Cropper from "react-easy-crop";
+// import Cropper from "react-easy-crop"; // Remove
 import { useDropzone } from "react-dropzone";
-import getCroppedImg from "../../../utils/cropImage";
+// import getCroppedImg from "../../../utils/cropImage"; // Remove
 import { uploadService } from "../../../services/admin/uploadApiService";
 import Button from "../ui/button/Button";
-import { Modal } from "../ui/modal"; // Named import based on error
+// import { Modal } from "../ui/modal"; // Remove
 import { X, Upload, Image as ImageIcon } from "lucide-react";
+import ImageCropper from "@/components/ui/ImageCropper";
 
 interface ImageUploadProps {
     onChange: (urls: string[]) => void;
@@ -16,11 +17,8 @@ interface ImageUploadProps {
 const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value = [], multiple = true }) => {
     const [images, setImages] = useState<string[]>(value);
     const [imageSrc, setImageSrc] = useState<string | null>(null);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [uploading, setUploading] = useState(false);
+    // Removed duplicate state managed by ImageCropper
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles && acceptedFiles.length > 0) {
@@ -36,19 +34,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value = [], multipl
 
     const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: { 'image/*': [] }, multiple: false });
 
-    const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
-        setCroppedAreaPixels(croppedAreaPixels);
-    }, []);
-
-    const handleUpload = async () => {
-        if (!imageSrc || !croppedAreaPixels) return;
-        setUploading(true);
+    const handleUpload = async (blob: Blob) => {
         try {
-            const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
-            if (!croppedImageBlob) throw new Error("Cropping failed");
-
             // File from Blob
-            const file = new File([croppedImageBlob], "upload.jpg", { type: "image/jpeg" });
+            const file = new File([blob], "upload.jpg", { type: "image/jpeg" });
             const response = await uploadService.uploadImage(file);
 
             if (response.success) {
@@ -63,8 +52,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value = [], multipl
         } catch (e: any) {
             console.error(e);
             alert("Error uploading image");
-        } finally {
-            setUploading(false);
         }
     };
 
@@ -102,29 +89,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value = [], multipl
                 </div>
             )}
 
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white rounded-lg p-4 w-full max-w-lg h-[500px] flex flex-col">
-                        <div className="relative flex-1 bg-gray-100 rounded-lg overflow-hidden mb-4">
-                            <Cropper
-                                image={imageSrc!}
-                                crop={crop}
-                                zoom={zoom}
-                                aspect={4 / 3} // Adjust as needed
-                                onCropChange={setCrop}
-                                onZoomChange={setZoom}
-                                onCropComplete={onCropComplete}
-                            />
-                        </div>
-                        <div className="flex justify-end gap-2">
-                            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                            <Button type="button" onClick={handleUpload} disabled={uploading}>
-                                {uploading ? "Uploading..." : "Crop & Upload"}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ImageCropper
+                isOpen={isModalOpen}
+                imageSrc={imageSrc}
+                onClose={() => setIsModalOpen(false)}
+                onCropComplete={handleUpload}
+                aspectRatio={4 / 3}
+                cropShape="rect"
+            />
         </div>
     );
 };

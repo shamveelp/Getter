@@ -39,6 +39,13 @@ export class UserProfileService implements IUserProfileService {
     }
 
     async uploadProfilePicture(userId: string, file: any): Promise<string> {
+        // Debug credentials at runtime
+        console.log("Upload Profile Picture - Runtime Config:", {
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY ? "Present" : "MISSING",
+            api_secret: process.env.CLOUDINARY_API_SECRET ? `Present (Length: ${process.env.CLOUDINARY_API_SECRET.length})` : "MISSING",
+        });
+
         return new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
@@ -49,8 +56,9 @@ export class UserProfileService implements IUserProfileService {
                 },
                 async (error, result) => {
                     if (error) {
-                        logger.error("Cloudinary upload error", error);
-                        return reject(new CustomError("Image upload failed", StatusCode.INTERNAL_SERVER_ERROR));
+                        logger.error("Cloudinary upload error details:", JSON.stringify(error, null, 2));
+                        console.error("Cloudinary Error Object:", error); // Direct console log to be sure
+                        return reject(new CustomError(`Image upload failed: ${error.message || 'Unknown error'}`, StatusCode.INTERNAL_SERVER_ERROR));
                     }
 
                     if (result?.secure_url) {
