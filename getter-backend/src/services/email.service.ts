@@ -213,6 +213,48 @@ export class EmailService implements IEmailService {
         );
     }
 
+    async sendBookingConfirmation(email: string, bookingDetails: any): Promise<void> {
+        const htmlTemplate = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                    .header { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 30px; text-align: center; }
+                    .content { padding: 30px; }
+                    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Getter Events</h1>
+                        <p>Booking Confirmed!</p>
+                    </div>
+                    <div class="content">
+                        <h2>Thank you for your booking!</h2>
+                        <p>Your booking has been successfully confirmed.</p>
+                        <p><strong>Total Price:</strong> $${bookingDetails.totalPrice}</p>
+                        <p><strong>Status:</strong> ${bookingDetails.status}</p>
+                        <p>We look forward to serving you.</p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; ${new Date().getFullYear()} Getter. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        await this.sendEmail(
+            email,
+            "Booking Confirmation - Getter",
+            `Your booking is confirmed. Total Price: ${bookingDetails.totalPrice}`,
+            htmlTemplate
+        );
+    }
+
     private async sendEmail(to: string, subject: string, text: string, html?: string): Promise<void> {
         try {
             await this.transporter.sendMail({

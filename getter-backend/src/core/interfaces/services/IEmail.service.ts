@@ -3,4 +3,5 @@ export interface IEmailService {
     sendForgotPasswordOtpEmail(email: string, otp: string): Promise<void>;
     sendWelcomeEmail(email: string, username: string): Promise<void>;
     sendPasswordResetSuccessEmail(email: string): Promise<void>;
+    sendBookingConfirmation(email: string, bookingDetails: any): Promise<void>;
 }
