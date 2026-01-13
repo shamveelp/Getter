@@ -8,6 +8,7 @@ import Label from "../../../../../../components/admin/form/Label";
 import Select from "../../../../../../components/admin/form/Select";
 import ImageUpload from "../../../../../../components/admin/form/ImageUpload";
 import { adminServiceService } from "../../../../../../services/admin/adminServiceApiService";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export default function EditServicePage({ params }: { params: { id: string } }) {
     const router = useRouter();
@@ -24,10 +25,11 @@ export default function EditServicePage({ params }: { params: { id: string } }) 
         location: "",
         contactEmail: "",
         contactPhone: "",
-        startDate: "",
-        endDate: "",
         images: [] as string[]
     });
+
+    const [startDate, setStartDate] = useState<Date>();
+    const [endDate, setEndDate] = useState<Date>();
 
     const categoryOptions = [
         { value: "venue", label: "Venue" },
@@ -55,10 +57,11 @@ export default function EditServicePage({ params }: { params: { id: string } }) 
                         location: service.location,
                         contactEmail: service.contact?.email || "",
                         contactPhone: service.contact?.phone || "",
-                        startDate: availability.startDate ? new Date(availability.startDate).toISOString().split('T')[0] : "",
-                        endDate: availability.endDate ? new Date(availability.endDate).toISOString().split('T')[0] : "",
                         images: service.images || []
                     });
+
+                    if (availability.startDate) setStartDate(new Date(availability.startDate));
+                    if (availability.endDate) setEndDate(new Date(availability.endDate));
                 }
             } catch (error) {
                 console.error("Error fetching service:", error);
@@ -73,6 +76,10 @@ export default function EditServicePage({ params }: { params: { id: string } }) 
         e.preventDefault();
         setLoading(true);
         try {
+            const formatDate = (date: Date | undefined) => {
+                return date ? date.toISOString().split('T')[0] : "";
+            };
+
             const payload = {
                 title: formData.title,
                 category: formData.category,
@@ -85,8 +92,8 @@ export default function EditServicePage({ params }: { params: { id: string } }) 
                 },
                 availability: [
                     {
-                        startDate: formData.startDate,
-                        endDate: formData.endDate
+                        startDate: formatDate(startDate),
+                        endDate: formatDate(endDate)
                     }
                 ],
                 images: formData.images
@@ -205,23 +212,23 @@ export default function EditServicePage({ params }: { params: { id: string } }) 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <Label htmlFor="startDate">Availability Start</Label>
-                            <Input
-                                type="date"
-                                id="startDate"
-                                name="startDate"
-                                value={formData.startDate}
-                                onChange={handleChange}
-                            />
+                            <div className="mt-1">
+                                <DatePicker
+                                    date={startDate}
+                                    setDate={setStartDate}
+                                    placeholder="Select start date"
+                                />
+                            </div>
                         </div>
                         <div>
                             <Label htmlFor="endDate">Availability End</Label>
-                            <Input
-                                type="date"
-                                id="endDate"
-                                name="endDate"
-                                value={formData.endDate}
-                                onChange={handleChange}
-                            />
+                            <div className="mt-1">
+                                <DatePicker
+                                    date={endDate}
+                                    setDate={setEndDate}
+                                    placeholder="Select end date"
+                                />
+                            </div>
                         </div>
                     </div>
 

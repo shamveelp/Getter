@@ -7,6 +7,8 @@ import Input from "../../../../../../components/admin/form/input/InputField";
 import Label from "../../../../../../components/admin/form/Label";
 import ImageUpload from "../../../../../../components/admin/form/ImageUpload";
 import { adminEventService } from "../../../../../../services/admin/adminEventApiService";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 
 export default function EditEventPage({ params }: { params: { id: string } }) {
     const router = useRouter();
@@ -21,13 +23,14 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         title: "",
         description: "",
         location: "",
-        startDate: "",
-        startTime: "",
-        endDate: "",
-        endTime: "",
         price: "",
         images: [] as string[]
     });
+
+    const [startDate, setStartDate] = useState<Date>();
+    const [startTime, setStartTime] = useState("09:00");
+    const [endDate, setEndDate] = useState<Date>();
+    const [endTime, setEndTime] = useState("17:00");
 
     useEffect(() => {
         if (!id) return;
@@ -43,13 +46,14 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                         title: event.title,
                         description: event.description,
                         location: event.location,
-                        startDate: start.toISOString().split('T')[0],
-                        startTime: start.toTimeString().slice(0, 5),
-                        endDate: end.toISOString().split('T')[0],
-                        endTime: end.toTimeString().slice(0, 5),
                         price: event.price.toString(),
                         images: event.images || []
                     });
+
+                    setStartDate(start);
+                    setStartTime(start.toTimeString().slice(0, 5));
+                    setEndDate(end);
+                    setEndTime(end.toTimeString().slice(0, 5));
                 }
             } catch (error) {
                 console.error("Error fetching event:", error);
@@ -65,9 +69,18 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         e.preventDefault();
         setLoading(true);
         try {
-            // Combine date and time
-            const startDateTime = new Date(`${formData.startDate}T${formData.startTime}:00`);
-            const endDateTime = new Date(`${formData.endDate}T${formData.endTime}:00`);
+            if (!startDate || !endDate) {
+                alert("Please select start and end dates");
+                setLoading(false);
+                return;
+            }
+
+            const formatDate = (date: Date) => {
+                return date.toISOString().split('T')[0];
+            };
+
+            const startDateTime = new Date(`${formatDate(startDate)}T${startTime}:00`);
+            const endDateTime = new Date(`${formatDate(endDate)}T${endTime}:00`);
 
             const payload = {
                 title: formData.title,
@@ -160,46 +173,44 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <Label htmlFor="startDate">Start Date</Label>
-                            <Input
-                                type="date"
-                                id="startDate"
-                                name="startDate"
-                                value={formData.startDate}
-                                onChange={handleChange}
-                            />
+                            <div className="mt-1">
+                                <DatePicker
+                                    date={startDate}
+                                    setDate={setStartDate}
+                                    placeholder="Select start date"
+                                />
+                            </div>
                         </div>
                         <div>
                             <Label htmlFor="startTime">Start Time</Label>
-                            <Input
-                                type="time"
-                                id="startTime"
-                                name="startTime"
-                                value={formData.startTime}
-                                onChange={handleChange}
-                            />
+                            <div className="mt-1">
+                                <TimePicker
+                                    value={startTime}
+                                    onChange={setStartTime}
+                                />
+                            </div>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <Label htmlFor="endDate">End Date</Label>
-                            <Input
-                                type="date"
-                                id="endDate"
-                                name="endDate"
-                                value={formData.endDate}
-                                onChange={handleChange}
-                            />
+                            <div className="mt-1">
+                                <DatePicker
+                                    date={endDate}
+                                    setDate={setEndDate}
+                                    placeholder="Select end date"
+                                />
+                            </div>
                         </div>
                         <div>
                             <Label htmlFor="endTime">End Time</Label>
-                            <Input
-                                type="time"
-                                id="endTime"
-                                name="endTime"
-                                value={formData.endTime}
-                                onChange={handleChange}
-                            />
+                            <div className="mt-1">
+                                <TimePicker
+                                    value={endTime}
+                                    onChange={setEndTime}
+                                />
+                            </div>
                         </div>
                     </div>
 
