@@ -25,12 +25,15 @@ export default function ServicesPage() {
     const limit = 10;
     const [searchTerm, setSearchTerm] = useState("");
 
+    const [totalPages, setTotalPages] = useState(1);
+
     const fetchServices = async (page: number, search: string) => {
         try {
             setLoading(true);
             const data = await adminServiceService.getAllServices(page, limit, search);
             if (data.success) {
                 setServices(data.data);
+                setTotalPages(Math.ceil(data.meta.total / limit));
             }
         } catch (error) {
             console.error("Failed to fetch services", error);
@@ -45,6 +48,12 @@ export default function ServicesPage() {
         }, 500);
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm, currentPage]);
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     return (
         <div className="p-6">
@@ -72,43 +81,67 @@ export default function ServicesPage() {
             {loading ? (
                 <div className="flex justify-center p-12">Loading...</div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {services.map((service) => (
-                        <div key={service._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-                            <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
-                                {service.images && service.images.length > 0 ? (
-                                    <img src={service.images[0]} alt={service.title} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-400">No Image</div>
-                                )}
-                                <div className="absolute top-2 right-2">
-                                    <Badge size="sm" color={service.status === 'active' ? 'success' : 'warning'}>{service.status}</Badge>
+                <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {services.map((service) => (
+                            <div key={service._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+                                <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
+                                    {service.images && service.images.length > 0 ? (
+                                        <img src={service.images[0]} alt={service.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-gray-400">No Image</div>
+                                    )}
+                                    <div className="absolute top-2 right-2">
+                                        <Badge size="sm" color={service.status === 'active' ? 'success' : 'warning'}>{service.status}</Badge>
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1 truncate">{service.title}</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 capitalize">{service.category}</p>
+                                    <div className="flex items-center justify-between text-sm mb-3">
+                                        <span className="font-medium text-brand-600 dark:text-brand-400">${service.pricePerDay}/day</span>
+                                        <span className="text-gray-500 truncate max-w-[50%]">{service.location}</span>
+                                    </div>
+                                    <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-2">
+                                        <Link href={`/admin/services/${service._id}`} className="flex-1 text-center py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
+                                            Edit
+                                        </Link>
+                                        <button onClick={() => { }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg dark:hover:bg-red-900/10">
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="p-4">
-                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1 truncate">{service.title}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 capitalize">{service.category}</p>
-                                <div className="flex items-center justify-between text-sm mb-3">
-                                    <span className="font-medium text-brand-600 dark:text-brand-400">${service.pricePerDay}/day</span>
-                                    <span className="text-gray-500 truncate max-w-[50%]">{service.location}</span>
-                                </div>
-                                <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-2">
-                                    <Link href={`/admin/services/${service._id}`} className="flex-1 text-center py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
-                                        Edit
-                                    </Link>
-                                    <button onClick={() => { }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg dark:hover:bg-red-900/10">
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
+                        ))}
+                        {services.length === 0 && (
+                            <div className="col-span-full text-center py-12 text-gray-500">
+                                No services found.
                             </div>
-                        </div>
-                    ))}
-                    {services.length === 0 && (
-                        <div className="col-span-full text-center py-12 text-gray-500">
-                            No services found.
+                        )}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div className="flex justify-center mt-8 gap-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                Previous
+                            </Button>
+                            <span className="flex items-center px-4 text-sm text-gray-600 dark:text-gray-400">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </Button>
                         </div>
                     )}
-                </div>
+                </>
             )}
         </div>
     );

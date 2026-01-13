@@ -2,9 +2,9 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../core/types";
 import { IBookingRepository } from "../core/interfaces/repositories/IBooking.repository";
 import { IServiceRepository } from "../core/interfaces/repositories/IService.repository";
-import { IEventRepository } from "../core/interfaces/repositories/IEvent.repository";
+
 import { IBooking } from "../models/booking.model";
-import { BookingStatus, ServiceStatus, EventStatus } from "../enums/business.enums";
+import { BookingStatus, ServiceStatus } from "../enums/business.enums";
 
 // Assuming IEmailService exists and has sendEmail method
 // I'll define a dummy interface here if I can't find the real one easily, or ignore injection for now if not strictly required to run, but requirement says "Send emails".
@@ -17,7 +17,7 @@ export class BookingService {
     constructor(
         @inject(TYPES.IBookingRepository) private bookingRepository: IBookingRepository,
         @inject(TYPES.IServiceRepository) private serviceRepository: IServiceRepository,
-        @inject(TYPES.IEventRepository) private eventRepository: IEventRepository,
+
         @inject(TYPES.IEmailService) private emailService: IEmailService,
         @inject(TYPES.IUserAuthRepository) private userRepository: IUserAuthRepository
     ) { }
@@ -59,37 +59,13 @@ export class BookingService {
         return booking;
     }
 
-    async createEventBooking(userId: string, eventId: string): Promise<IBooking> {
-        const event = await this.eventRepository.findById(eventId);
-        if (!event || event.status !== EventStatus.UPCOMING || event.isDeleted) {
-            throw new Error("Event not bookable");
-        }
 
-        const booking = await this.bookingRepository.create({
-            user: userId as any,
-            event: eventId as any,
-            totalPrice: event.price,
-            status: BookingStatus.CONFIRMED // Instant confirm for events usually?
-        });
-
-        const user = await this.userRepository.findById(userId);
-        if (user) {
-            await this.emailService.sendBookingConfirmation(user.email, {
-                totalPrice: event.price,
-                status: BookingStatus.CONFIRMED,
-                type: 'Event Booking',
-                title: event.title
-            });
-        }
-
-        return booking;
-    }
 
     async getUserBookings(userId: string): Promise<IBooking[]> {
         return this.bookingRepository.findUserBookings(userId);
     }
 
     async getAllBookings(): Promise<IBooking[]> {
-        return this.bookingRepository.find({}, { sort: { createdAt: -1 } });
+        return this.bookingRepository.findAllBookings();
     }
 }

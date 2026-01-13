@@ -36,15 +36,7 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/admin"
   },
-  {
-    icon: <Calendar size={20} />,
-    name: "Events",
-    subItems: [
-      { name: "Event Management", path: "/admin/events", pro: false },
-      { name: "Bookings", path: "/admin/events/bookings", pro: false },
-      { name: "Categories", path: "/admin/events/categories", pro: false },
-    ],
-  },
+
   {
     icon: <Briefcase size={20} />,
     name: "Services",

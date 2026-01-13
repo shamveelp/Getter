@@ -20,15 +20,13 @@ const TYPES = {
     IServiceService: Symbol.for("IServiceService"),
     IServiceController: Symbol.for("IServiceController"),
 
-    // Event Management
-    IEventRepository: Symbol.for("IEventRepository"),
-    IEventService: Symbol.for("IEventService"),
-    IEventController: Symbol.for("IEventController"),
+
 
     // Booking Management
     IBookingRepository: Symbol.for("IBookingRepository"),
     IBookingService: Symbol.for("IBookingService"),
     IBookingController: Symbol.for("IBookingController"),
+    IAdminBookingController: Symbol.for("IAdminBookingController"),
 
     ISearchController: Symbol.for("ISearchController"),
     IUploadController: Symbol.for("IUploadController"),

@@ -25,18 +25,7 @@ export class BookingController {
         }
     };
 
-    createEventBooking = async (req: Request, res: Response) => {
-        try {
-            const userId = (req as any).user.id;
-            const { eventId } = req.body;
-            const result = await this._bookingService.createEventBooking(userId, eventId);
-            res.status(StatusCode.CREATED).json({ success: true, data: result });
-        } catch (error) {
-            logger.error("Error creating event booking:", error);
-            const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
-            res.status(statusCode).json({ success: false, error: (error as Error).message });
-        }
-    };
+
 
     getMyBookings = async (req: Request, res: Response) => {
         try {

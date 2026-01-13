@@ -41,23 +41,24 @@ import { AdminCustomerRepository } from "../repositories/admin/adminCustomer.rep
 
 // Business Repositories
 import { IServiceRepository } from "./interfaces/repositories/IService.repository";
-import { IEventRepository } from "./interfaces/repositories/IEvent.repository";
+
 import { IBookingRepository } from "./interfaces/repositories/IBooking.repository";
 import { ServiceRepository } from "../repositories/service.repository";
-import { EventRepository } from "../repositories/event.repository";
+
 import { BookingRepository } from "../repositories/booking.repository";
 
 // Business Services
 import { ServiceService } from "../services/service.service";
-import { EventService } from "../services/event.service";
+
 import { BookingService } from "../services/booking.service";
 
 // Business Controllers
 import { ServiceController } from "../controllers/admin/adminService.controller";
-import { EventController } from "../controllers/admin/adminEvent.controller";
+
 import { BookingController } from "../controllers/user/booking.controller";
 import { SearchController } from "../controllers/user/search.controller";
 import { UploadController } from "../controllers/admin/adminUpload.controller";
+import { AdminBookingController } from "../controllers/admin/adminBooking.controller";
 
 const container = new Container();
 
@@ -84,18 +85,19 @@ container.bind<IAdminCustomerService>(TYPES.IAdminCustomerService).to(AdminCusto
 
 // Business Modules
 container.bind<IServiceRepository>(TYPES.IServiceRepository).to(ServiceRepository);
-container.bind<IEventRepository>(TYPES.IEventRepository).to(EventRepository);
+
 container.bind<IBookingRepository>(TYPES.IBookingRepository).to(BookingRepository);
 
 container.bind<ServiceService>(TYPES.IServiceService).to(ServiceService);
-container.bind<EventService>(TYPES.IEventService).to(EventService);
+
 container.bind<BookingService>(TYPES.IBookingService).to(BookingService);
 
 container.bind<ServiceController>(TYPES.IServiceController).to(ServiceController);
-container.bind<EventController>(TYPES.IEventController).to(EventController);
+
 container.bind<BookingController>(TYPES.IBookingController).to(BookingController);
 container.bind<SearchController>(TYPES.ISearchController).to(SearchController);
 container.bind<UploadController>(TYPES.IUploadController).to(UploadController);
+container.bind<AdminBookingController>(TYPES.IAdminBookingController).to(AdminBookingController);
 
 
 export default container;

@@ -8,7 +8,6 @@ const searchController = container.get<SearchController>(TYPES.ISearchController
 
 exploreRouter.get("/services", searchController.searchServices);
 exploreRouter.get("/services/:id", searchController.getServiceDetail);
-exploreRouter.get("/events", searchController.searchEvents);
-exploreRouter.get("/events/:id", searchController.getEventDetail);
+
 
 export default exploreRouter;

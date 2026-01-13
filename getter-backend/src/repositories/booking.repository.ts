@@ -10,6 +10,10 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
     }
 
     async findUserBookings(userId: string): Promise<IBooking[]> {
-        return this._model.find({ user: userId }).populate('service').populate('event').sort({ createdAt: -1 }).exec();
+        return this._model.find({ user: userId }).populate('service').sort({ createdAt: -1 }).exec();
+    }
+
+    async findAllBookings(): Promise<IBooking[]> {
+        return this._model.find({}).populate('user').populate('service').sort({ createdAt: -1 }).exec();
     }
 }

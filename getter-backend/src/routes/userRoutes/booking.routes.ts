@@ -8,7 +8,7 @@ const bookingRouter = Router();
 const bookingController = container.get<BookingController>(TYPES.IBookingController);
 
 bookingRouter.post("/service", verifyToken, bookingController.createServiceBooking);
-bookingRouter.post("/event", verifyToken, bookingController.createEventBooking);
+
 bookingRouter.get("/my-bookings", verifyToken, bookingController.getMyBookings);
 
 export default bookingRouter;
