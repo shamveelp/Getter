@@ -1,18 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Button from "../../../../../../components/admin/ui/button/Button";
-import Input from "../../../../../../components/admin/form/input/InputField";
-import Label from "../../../../../../components/admin/form/Label";
-import Select from "../../../../../../components/admin/form/Select";
-import ImageUpload from "../../../../../../components/admin/form/ImageUpload";
-import { adminServiceService } from "../../../../../../services/admin/adminServiceApiService";
-import { DatePicker } from "@/components/ui/date-picker";
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Button from "../../../../../../../../components/admin/ui/button/Button";
+import Input from "../../../../../../../../components/admin/form/input/InputField";
+import Label from "../../../../../../../../components/admin/form/Label";
+import Select from "../../../../../../../../components/admin/form/Select";
+import ImageUpload from "../../../../../../../../components/admin/form/ImageUpload";
+import { adminServiceService } from "../../../../../../../../services/admin/adminServiceApiService";
 
-export default function AddServicePage() {
+export default function EditServicePage() {
     const router = useRouter();
+    const params = useParams();
+    const id = params.id as string;
+
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
+
     const [formData, setFormData] = useState({
         title: "",
         category: "",
@@ -21,7 +25,7 @@ export default function AddServicePage() {
         location: "",
         contactEmail: "",
         contactPhone: "",
-        images: [] as string[] // Changed to array
+        images: [] as string[]
     });
 
     const [availability, setAvailability] = useState({
@@ -49,6 +53,43 @@ export default function AddServicePage() {
         { label: 'Sun', value: 'sunday' },
     ];
 
+    useEffect(() => {
+        const fetchService = async () => {
+            try {
+                const response = await adminServiceService.getServiceById(id);
+                if (response.success && response.data) {
+                    const s = response.data;
+                    setFormData({
+                        title: s.title,
+                        category: s.category,
+                        pricePerDay: s.pricePerDay,
+                        description: s.description,
+                        location: s.location,
+                        contactEmail: s.contact?.email || "",
+                        contactPhone: s.contact?.phone || "",
+                        images: s.images || []
+                    });
+
+                    if (s.availability?.type === 'recurring' && s.availability.recurring) {
+                        setAvailability({
+                            days: s.availability.recurring.days || [],
+                            startTime: s.availability.recurring.startTime || "",
+                            endTime: s.availability.recurring.endTime || ""
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to load service", error);
+                alert("Could not load service details");
+                router.push("/admin/services");
+            } finally {
+                setFetching(false);
+            }
+        };
+
+        if (id) fetchService();
+    }, [id, router]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -74,14 +115,14 @@ export default function AddServicePage() {
                 images: formData.images
             };
 
-            const response = await adminServiceService.createService(payload);
+            const response = await adminServiceService.updateService(id, payload);
             if (response.success) {
-                router.push("/admin/services");
+                router.push(`/admin/services/${id}`); // Go back to detail page
             } else {
                 alert("Failed: " + response.error);
             }
         } catch (error: any) {
-            console.error("Error creating service:", error);
+            console.error("Error updating service:", error);
             alert("Error: " + (error.response?.data?.error || error.message));
         } finally {
             setLoading(false);
@@ -104,9 +145,11 @@ export default function AddServicePage() {
         }
     };
 
+    if (fetching) return <div className="p-12 text-center">Loading...</div>;
+
     return (
         <div className="p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Add New Service</h1>
+            <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Edit Service</h1>
 
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -116,6 +159,7 @@ export default function AddServicePage() {
                             <Input
                                 id="title"
                                 name="title"
+                                value={formData.title}
                                 placeholder="e.g., Grand Wedding Hall"
                                 onChange={handleChange}
                             />
@@ -124,6 +168,7 @@ export default function AddServicePage() {
                             <Label htmlFor="category">Category</Label>
                             <Select
                                 options={categoryOptions}
+                                value={formData.category}
                                 onChange={(val) => setFormData({ ...formData, category: val })}
                                 placeholder="Select Category"
                             />
@@ -134,6 +179,7 @@ export default function AddServicePage() {
                                 type="number"
                                 id="pricePerDay"
                                 name="pricePerDay"
+                                value={formData.pricePerDay}
                                 placeholder="0.00"
                                 onChange={handleChange}
                             />
@@ -143,6 +189,7 @@ export default function AddServicePage() {
                             <Input
                                 id="location"
                                 name="location"
+                                value={formData.location}
                                 placeholder="City, Address"
                                 onChange={handleChange}
                             />
@@ -155,6 +202,7 @@ export default function AddServicePage() {
                             id="description"
                             name="description"
                             rows={4}
+                            value={formData.description}
                             className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-gray-200"
                             placeholder="Describe the service..."
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -168,6 +216,7 @@ export default function AddServicePage() {
                                 type="email"
                                 id="contactEmail"
                                 name="contactEmail"
+                                value={formData.contactEmail}
                                 placeholder="email@example.com"
                                 onChange={handleChange}
                             />
@@ -177,6 +226,7 @@ export default function AddServicePage() {
                             <Input
                                 id="contactPhone"
                                 name="contactPhone"
+                                value={formData.contactPhone}
                                 placeholder="+1 234 567 890"
                                 onChange={handleChange}
                             />
@@ -233,7 +283,7 @@ export default function AddServicePage() {
                     <div className="flex justify-end gap-3 pt-4">
                         <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
                         <Button type="submit" disabled={loading}>
-                            {loading ? "Creating..." : "Create Service"}
+                            {loading ? "Updating..." : "Update Service"}
                         </Button>
                     </div>
                 </form>

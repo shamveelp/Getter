@@ -89,4 +89,16 @@ export class ServiceController {
             res.status(statusCode).json({ success: false, error: (error as Error).message });
         }
     }
+
+    listService = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const result = await this._serviceService.listService(id);
+            res.status(StatusCode.OK).json({ success: true, data: result });
+        } catch (error) {
+            logger.error("Error listing service:", error);
+            const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
+            res.status(statusCode).json({ success: false, error: (error as Error).message });
+        }
+    }
 }

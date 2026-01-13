@@ -56,7 +56,7 @@ export default function ServicesPage() {
     const fetchServices = async (page: number, search: string, currentFilters: any) => {
         try {
             setLoading(true);
-            const data = await adminServiceService.getAllServices(page, limit, search, currentFilters);
+            const data = await adminServiceService.getAllServices(page, limit, search, { ...currentFilters, status: 'all' });
             if (data.success) {
                 setServices(data.data);
                 setTotalPages(Math.ceil(data.meta.total / limit));
@@ -205,11 +205,8 @@ export default function ServicesPage() {
                                     </div>
                                     <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-2">
                                         <Link href={`/admin/services/${service._id}`} className="flex-1 text-center py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
-                                            Edit
+                                            View Details
                                         </Link>
-                                        <button onClick={() => { }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg dark:hover:bg-red-900/10">
-                                            <Trash2 size={18} />
-                                        </button>
                                     </div>
                                 </div>
                             </div>

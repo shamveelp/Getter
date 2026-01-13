@@ -10,6 +10,7 @@ export const adminServiceService = {
         if (filters.maxPrice) query += `&maxPrice=${filters.maxPrice}`;
         if (filters.location) query += `&location=${filters.location}`;
         if (filters.sort) query += `&sort=${filters.sort}`;
+        if (filters.status) query += `&status=${filters.status}`;
 
         const response = await axiosInstance.get(query);
         return response.data;
@@ -37,6 +38,11 @@ export const adminServiceService = {
 
     unlistService: async (id: string) => {
         const response = await axiosInstance.patch(`${API_URL}/${id}/unlist`);
+        return response.data;
+    },
+
+    listService: async (id: string) => {
+        const response = await axiosInstance.patch(`${API_URL}/${id}/list`);
         return response.data;
     }
 };

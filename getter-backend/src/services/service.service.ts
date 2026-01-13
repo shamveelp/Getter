@@ -15,14 +15,15 @@ export class ServiceService {
         if ((data.pricePerDay || 0) < 0) {
             throw new Error("Price must be positive");
         }
-        // ensure availability dates are valid? (startDate < endDate)
-        if (data.availability) {
-            data.availability.forEach(slot => {
+
+        if (data.availability?.type === 'specific_dates' && data.availability.specificDates) {
+            data.availability.specificDates.forEach(slot => {
                 if (new Date(slot.startDate) > new Date(slot.endDate)) {
                     throw new Error("Invalid availability dates");
                 }
             });
         }
+        // Recurring validation could be added here (e.g. check time format)
 
         return this.serviceRepository.create(data);
     }
@@ -33,6 +34,10 @@ export class ServiceService {
 
     async unlistService(id: string): Promise<IService | null> {
         return this.serviceRepository.update(id, { status: ServiceStatus.UNLISTED });
+    }
+
+    async listService(id: string): Promise<IService | null> {
+        return this.serviceRepository.update(id, { status: ServiceStatus.ACTIVE });
     }
 
     async deleteService(id: string): Promise<IService | null> {
@@ -49,7 +54,17 @@ export class ServiceService {
     }
 
     async searchServices(filters: any): Promise<{ data: IService[]; total: number }> {
-        const query: any = { status: ServiceStatus.ACTIVE, isDeleted: false };
+        const query: any = { isDeleted: false };
+
+        if (filters.status) {
+            if (filters.status !== 'all') {
+                query.status = filters.status;
+            }
+            // if status is 'all', we don't add the status constraint
+        } else {
+            // Default to ACTIVE if not specified (for safety in user-facing search)
+            query.status = ServiceStatus.ACTIVE;
+        }
 
         if (filters.keyword) {
             // Search by title OR location if keyword is provided
@@ -70,8 +85,6 @@ export class ServiceService {
             // Specific location filter (in addition to keyword search)
             query.location = { $regex: filters.location, $options: 'i' };
         }
-        // Date availability logic is complex (exclude if booking exists), standard search usually checks if service *declares* it is available.
-        // For now, let's assume availability matches the defined slots.
 
         const options = {
             page: Number(filters.page) || 1,

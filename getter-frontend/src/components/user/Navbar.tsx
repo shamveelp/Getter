@@ -93,7 +93,7 @@ export default function Navbar() {
                 {/* Navigation Links (Hidden when search is open) */}
                 {!isSearchOpen && (
                     <div className="flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-                        {["Home", "Events", "Support"].map((item) => (
+                        {["Home", "Services", "Support"].map((item) => (
                             <Link
                                 key={item}
                                 href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
@@ -114,7 +114,7 @@ export default function Navbar() {
                             <input
                                 type="text"
                                 autoFocus
-                                placeholder="Search events..."
+                                placeholder="Search services..."
                                 className="w-full bg-transparent text-white placeholder-gray-400 outline-none text-sm font-light tracking-wide"
                             />
                             <button
@@ -222,7 +222,7 @@ export default function Navbar() {
                 <Link href="/" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
                     <House size={22} />
                 </Link>
-                <Link href="/events" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
+                <Link href="/services" className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
                     <Calendar size={22} />
                 </Link>
                 <button

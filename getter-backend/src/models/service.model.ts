@@ -8,7 +8,15 @@ export interface IService extends Document {
     description: string;
     location: string;
     images: string[];
-    availability: { startDate: Date; endDate: Date }[];
+    availability: {
+        type: 'specific_dates' | 'recurring';
+        recurring?: {
+            days: string[];
+            startTime: string;
+            endTime: string;
+        };
+        specificDates?: { startDate: Date; endDate: Date }[];
+    };
     contact: { email: string; phone: string };
     status: ServiceStatus;
     isDeleted: boolean; // Accessible only by admin if true? Or maybe just status=UNLISTED
@@ -24,12 +32,20 @@ const ServiceSchema: Schema<IService> = new Schema(
         description: { type: String, required: true },
         location: { type: String, required: true },
         images: [{ type: String }],
-        availability: [
-            {
-                startDate: { type: Date, required: true },
-                endDate: { type: Date, required: true },
+        availability: {
+            type: { type: String, enum: ['specific_dates', 'recurring'], default: 'recurring' },
+            recurring: {
+                days: [{ type: String, enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] }],
+                startTime: { type: String },
+                endTime: { type: String }
             },
-        ],
+            specificDates: [
+                {
+                    startDate: { type: Date },
+                    endDate: { type: Date },
+                },
+            ],
+        },
         contact: {
             email: { type: String, required: true },
             phone: { type: String, required: true },
