@@ -8,6 +8,11 @@ export const adminServiceService = {
         return response.data;
     },
 
+    getServiceById: async (id: string) => {
+        const response = await axiosInstance.get(`${API_URL}/${id}`);
+        return response.data;
+    },
+
     createService: async (data: any) => {
         const response = await axiosInstance.post(API_URL, data);
         return response.data;

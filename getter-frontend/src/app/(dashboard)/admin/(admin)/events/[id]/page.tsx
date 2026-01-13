@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "../../../../../../components/admin/ui/button/Button";
 import Input from "../../../../../../components/admin/form/input/InputField";
@@ -8,9 +8,15 @@ import Label from "../../../../../../components/admin/form/Label";
 import ImageUpload from "../../../../../../components/admin/form/ImageUpload";
 import { adminEventService } from "../../../../../../services/admin/adminEventApiService";
 
-export default function AddEventPage() {
+export default function EditEventPage({ params }: { params: { id: string } }) {
     const router = useRouter();
+    // In strict Next.js 15, params must be awaited or unwrapped with React.use() if async component, 
+    // but in client component this should work if framework handles it, or id is available.
+    // Safe destructuring
+    const { id } = params;
+
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -22,6 +28,38 @@ export default function AddEventPage() {
         price: "",
         images: [] as string[]
     });
+
+    useEffect(() => {
+        if (!id) return;
+        const fetchEvent = async () => {
+            try {
+                const response = await adminEventService.getEventById(id);
+                if (response.success) {
+                    const event = response.data;
+                    const start = new Date(event.startDate);
+                    const end = new Date(event.endDate);
+
+                    setFormData({
+                        title: event.title,
+                        description: event.description,
+                        location: event.location,
+                        startDate: start.toISOString().split('T')[0],
+                        startTime: start.toTimeString().slice(0, 5),
+                        endDate: end.toISOString().split('T')[0],
+                        endTime: end.toTimeString().slice(0, 5),
+                        price: event.price.toString(),
+                        images: event.images || []
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching event:", error);
+
+            } finally {
+                setFetching(false);
+            }
+        };
+        fetchEvent();
+    }, [id]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,14 +79,14 @@ export default function AddEventPage() {
                 images: formData.images
             };
 
-            const response = await adminEventService.createEvent(payload);
+            const response = await adminEventService.updateEvent(id, payload);
             if (response.success) {
                 router.push("/admin/events");
             } else {
                 alert("Failed: " + response.error);
             }
         } catch (error: any) {
-            console.error("Error creating event:", error);
+            console.error("Error updating event:", error);
             alert("Error: " + (error.response?.data?.error || error.message));
         } finally {
             setLoading(false);
@@ -63,9 +101,11 @@ export default function AddEventPage() {
         setFormData({ ...formData, images: urls });
     };
 
+    if (fetching) return <div className="p-6 text-center">Loading event details...</div>;
+
     return (
         <div className="p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Add New Event</h1>
+            <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Edit Event</h1>
 
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -75,6 +115,7 @@ export default function AddEventPage() {
                             id="title"
                             name="title"
                             placeholder="e.g., Summer Music Festival"
+                            value={formData.title}
                             onChange={handleChange}
                         />
                     </div>
@@ -87,6 +128,7 @@ export default function AddEventPage() {
                             rows={4}
                             className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-gray-200"
                             placeholder="Describe the event..."
+                            value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
                     </div>
@@ -98,6 +140,7 @@ export default function AddEventPage() {
                                 id="location"
                                 name="location"
                                 placeholder="Event Venue"
+                                value={formData.location}
                                 onChange={handleChange}
                             />
                         </div>
@@ -108,6 +151,7 @@ export default function AddEventPage() {
                                 id="price"
                                 name="price"
                                 placeholder="0.00"
+                                value={formData.price}
                                 onChange={handleChange}
                             />
                         </div>
@@ -170,7 +214,7 @@ export default function AddEventPage() {
                     <div className="flex justify-end gap-3 pt-4">
                         <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
                         <Button type="submit" disabled={loading}>
-                            {loading ? "Creating..." : "Create Event"}
+                            {loading ? "Updating..." : "Update Event"}
                         </Button>
                     </div>
                 </form>

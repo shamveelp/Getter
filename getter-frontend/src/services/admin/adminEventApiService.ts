@@ -8,6 +8,11 @@ export const adminEventService = {
         return response.data;
     },
 
+    getEventById: async (id: string) => {
+        const response = await axiosInstance.get(`${API_URL}/${id}`);
+        return response.data;
+    },
+
     createEvent: async (data: any) => {
         const response = await axiosInstance.post(API_URL, data);
         return response.data;

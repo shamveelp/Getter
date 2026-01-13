@@ -18,6 +18,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value = [], multipl
     const [images, setImages] = useState<string[]>(value);
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Sync internal state with value prop (for edit mode / async loading)
+    React.useEffect(() => {
+        setImages(value);
+    }, [value]);
+
     // Removed duplicate state managed by ImageCropper
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
