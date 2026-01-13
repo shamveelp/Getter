@@ -52,7 +52,11 @@ export class ServiceService {
         const query: any = { status: ServiceStatus.ACTIVE, isDeleted: false };
 
         if (filters.keyword) {
-            query.$text = { $search: filters.keyword };
+            // Search by title OR location if keyword is provided
+            query.$or = [
+                { title: { $regex: filters.keyword, $options: 'i' } },
+                { location: { $regex: filters.keyword, $options: 'i' } }
+            ];
         }
         if (filters.category) {
             query.category = filters.category;
@@ -63,6 +67,7 @@ export class ServiceService {
             if (filters.maxPrice) query.pricePerDay.$lte = Number(filters.maxPrice);
         }
         if (filters.location) {
+            // Specific location filter (in addition to keyword search)
             query.location = { $regex: filters.location, $options: 'i' };
         }
         // Date availability logic is complex (exclude if booking exists), standard search usually checks if service *declares* it is available.
@@ -71,7 +76,7 @@ export class ServiceService {
         const options = {
             page: Number(filters.page) || 1,
             limit: Number(filters.limit) || 10,
-            sort: filters.sort ? { [filters.sort]: -1 } : { createdAt: -1 } // Simplified sort
+            sort: filters.sort ? { [filters.sort.split(':')[0]]: filters.sort.split(':')[1] === 'desc' ? -1 : 1 } : { createdAt: -1 }
         };
 
         return this.serviceRepository.search(query, options);

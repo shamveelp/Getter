@@ -3,8 +3,15 @@ import axiosInstance from '../../lib/axios';
 const API_URL = '/api/admin/services';
 
 export const adminServiceService = {
-    getAllServices: async (page: number = 1, limit: number = 10, search: string = '') => {
-        const response = await axiosInstance.get(`${API_URL}?page=${page}&limit=${limit}&keyword=${search}`);
+    getAllServices: async (page: number = 1, limit: number = 10, search: string = '', filters: any = {}) => {
+        let query = `${API_URL}?page=${page}&limit=${limit}&keyword=${search}`;
+        if (filters.category) query += `&category=${filters.category}`;
+        if (filters.minPrice) query += `&minPrice=${filters.minPrice}`;
+        if (filters.maxPrice) query += `&maxPrice=${filters.maxPrice}`;
+        if (filters.location) query += `&location=${filters.location}`;
+        if (filters.sort) query += `&sort=${filters.sort}`;
+
+        const response = await axiosInstance.get(query);
         return response.data;
     },
 

@@ -27,10 +27,36 @@ export default function ServicesPage() {
 
     const [totalPages, setTotalPages] = useState(1);
 
-    const fetchServices = async (page: number, search: string) => {
+    const [filters, setFilters] = useState({
+        category: "",
+        minPrice: "",
+        maxPrice: "",
+        location: "",
+        sort: ""
+    });
+
+    const categoryOptions = [
+        { value: "venue", label: "Venue" },
+        { value: "caterer", label: "Caterer" },
+        { value: "dj", label: "DJ" },
+        { value: "photographer", label: "Photographer" },
+        { value: "decoration", label: "Decoration" },
+        { value: "other", label: "Other" },
+    ];
+
+    const sortOptions = [
+        { value: "createdAt:desc", label: "Newest First" },
+        { value: "createdAt:asc", label: "Oldest First" },
+        { value: "pricePerDay:asc", label: "Price: Low to High" },
+        { value: "pricePerDay:desc", label: "Price: High to Low" },
+        { value: "title:asc", label: "Name: A-Z" },
+        { value: "title:desc", label: "Name: Z-A" },
+    ];
+
+    const fetchServices = async (page: number, search: string, currentFilters: any) => {
         try {
             setLoading(true);
-            const data = await adminServiceService.getAllServices(page, limit, search);
+            const data = await adminServiceService.getAllServices(page, limit, search, currentFilters);
             if (data.success) {
                 setServices(data.data);
                 setTotalPages(Math.ceil(data.meta.total / limit));
@@ -44,10 +70,15 @@ export default function ServicesPage() {
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            fetchServices(currentPage, searchTerm);
+            fetchServices(currentPage, searchTerm, filters);
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, currentPage]);
+    }, [searchTerm, currentPage, filters]);
+
+    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFilters({ ...filters, [e.target.name]: e.target.value });
+        setCurrentPage(1);
+    };
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -57,24 +88,94 @@ export default function ServicesPage() {
 
     return (
         <div className="p-6">
-            <div className="mb-6 flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Service Management</h1>
-                <div className="flex gap-4">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search services..."
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                        />
-                    </div>
+            <div className="mb-6 flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Service Management</h1>
                     <Link href="/admin/services/new" className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
                         Add Service
                     </Link>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                        <div className="relative col-span-1 lg:col-span-1">
+                            <input
+                                type="text"
+                                placeholder="Search by keyword..."
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <select
+                                name="category"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                value={filters.category}
+                                onChange={handleFilterChange}
+                            >
+                                <option value="">All Categories</option>
+                                {categoryOptions.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <input
+                                type="text"
+                                name="location"
+                                placeholder="Location..."
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                value={filters.location}
+                                onChange={handleFilterChange}
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                type="number"
+                                name="minPrice"
+                                placeholder="Min ₹"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                value={filters.minPrice}
+                                onChange={handleFilterChange}
+                            />
+                            <input
+                                type="number"
+                                name="maxPrice"
+                                placeholder="Max ₹"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                value={filters.maxPrice}
+                                onChange={handleFilterChange}
+                            />
+                        </div>
+                        <div>
+                            <select
+                                name="sort"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                value={filters.sort}
+                                onChange={handleFilterChange}
+                            >
+                                <option value="">Sort By</option>
+                                {sortOptions.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center">
+                            <button
+                                onClick={() => {
+                                    setSearchTerm("");
+                                    setFilters({ category: "", minPrice: "", maxPrice: "", location: "", sort: "" });
+                                }}
+                                className="text-sm text-gray-500 hover:text-brand-500 underline"
+                            >
+                                Clear Filters
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
