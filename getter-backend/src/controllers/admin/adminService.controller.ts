@@ -17,19 +17,24 @@ export class ServiceController {
             const filters = req.query;
             const result = await this._serviceService.searchServices(filters);
             res.status(StatusCode.OK).json({ success: true, data: result.data, meta: { total: result.total } });
-            // My frontend expects result.data.data? No, frontend expects:
-            // if (data.success) { setServices(data.data.users?? No services) }
-            // Wait, my Frontend 'getAllServices' in 'adminServiceApiService' returns response.data.
-            // Page.tsx says: if (data.success) { setServices(data.data); }
-            // So my backend should return { success: true, data: [...] }. 
-            // But searchServices returns { data: [...], total: N }. 
-            // So I should return { success: true, data: result.data, total: result.total } Or follow standard pagination response.
-            // Let's look at searchController: res.status(StatusCode.OK).json({ success: true, data: result });
-            // result is { data, total }. So frontend gets { success: true, data: { data: [], total: N } }.
-            // So frontend needs to access data.data.data. 
-            // Let's make it clean: { success: true, data: result.data, total: result.total }
         } catch (error) {
             logger.error("Error getting all services:", error);
+            const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
+            res.status(statusCode).json({ success: false, error: (error as Error).message });
+        }
+    };
+
+    getServiceById = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const result = await this._serviceService.getServiceById(id);
+            if (!result) {
+                res.status(StatusCode.NOT_FOUND).json({ success: false, error: "Service not found" });
+                return;
+            }
+            res.status(StatusCode.OK).json({ success: true, data: result });
+        } catch (error) {
+            logger.error("Error getting service by id:", error);
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
             res.status(statusCode).json({ success: false, error: (error as Error).message });
         }

@@ -24,6 +24,22 @@ export class EventController {
         }
     };
 
+    getEventById = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const result = await this._eventService.getEventById(id);
+            if (!result) {
+                res.status(StatusCode.NOT_FOUND).json({ success: false, error: "Event not found" });
+                return;
+            }
+            res.status(StatusCode.OK).json({ success: true, data: result });
+        } catch (error) {
+            logger.error("Error getting event by id:", error);
+            const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
+            res.status(statusCode).json({ success: false, error: (error as Error).message });
+        }
+    };
+
     createEvent = async (req: Request, res: Response) => {
         try {
             const data = req.body;

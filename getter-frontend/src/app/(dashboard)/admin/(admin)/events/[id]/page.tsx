@@ -10,12 +10,12 @@ import { adminEventService } from "../../../../../../services/admin/adminEventAp
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
 
-export default function EditEventPage({ params }: { params: { id: string } }) {
+// Define params type as a Promise
+export default function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
-    // In strict Next.js 15, params must be awaited or unwrapped with React.use() if async component, 
-    // but in client component this should work if framework handles it, or id is available.
-    // Safe destructuring
-    const { id } = params;
+    // Unwrap params using React.use()
+    const { id } = React.use(params);
+
 
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);

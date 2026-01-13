@@ -10,10 +10,11 @@ import ImageUpload from "../../../../../../components/admin/form/ImageUpload";
 import { adminServiceService } from "../../../../../../services/admin/adminServiceApiService";
 import { DatePicker } from "@/components/ui/date-picker";
 
-export default function EditServicePage({ params }: { params: { id: string } }) {
+// Define params type as a Promise
+export default function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
-    // Assuming framework handles params correctly if client side
-    const { id } = params;
+    // Unwrap params using React.use()
+    const { id } = React.use(params);
 
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);

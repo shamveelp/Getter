@@ -8,6 +8,7 @@ const adminEventRouter = Router();
 const eventController = container.get<EventController>(TYPES.IEventController);
 
 adminEventRouter.get("/", verifyToken, eventController.getAllEvents);
+adminEventRouter.get("/:id", verifyToken, eventController.getEventById);
 adminEventRouter.post("/", verifyToken, eventController.createEvent);
 adminEventRouter.put("/:id", verifyToken, eventController.updateEvent);
 adminEventRouter.post("/:id/end", verifyToken, eventController.endEvent);
