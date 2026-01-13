@@ -1,7 +1,7 @@
 import { Router } from "express";
 import container from "../../core/inversify.config";
 import { TYPES } from "../../core/types";
-import { ServiceController } from "../../controllers/admin/service.controller";
+import { ServiceController } from "../../controllers/admin/adminService.controller";
 import { verifyToken } from "../../middlewares/auth.middleware";
 
 const adminServiceRouter = Router();

@@ -53,11 +53,11 @@ import { EventService } from "../services/event.service";
 import { BookingService } from "../services/booking.service";
 
 // Business Controllers
-import { ServiceController } from "../controllers/admin/service.controller";
-import { EventController } from "../controllers/admin/event.controller";
+import { ServiceController } from "../controllers/admin/adminService.controller";
+import { EventController } from "../controllers/admin/adminEvent.controller";
 import { BookingController } from "../controllers/user/booking.controller";
 import { SearchController } from "../controllers/user/search.controller";
-import { UploadController } from "../controllers/admin/upload.controller";
+import { UploadController } from "../controllers/admin/adminUpload.controller";
 
 const container = new Container();
 

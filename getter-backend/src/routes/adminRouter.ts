@@ -1,9 +1,9 @@
 import { Router } from "express";
 import adminAuthRoutes from "./adminRoutes/adminAuth.routes";
 import customerRouter from "./adminRoutes/adminCustomer.routes";
-import adminServiceRouter from "./adminRoutes/service.routes";
-import adminEventRouter from "./adminRoutes/event.routes";
-import uploadRouter from "./adminRoutes/upload.routes";
+import adminServiceRouter from "./adminRoutes/adminService.routes";
+import adminEventRouter from "./adminRoutes/adminEvent.routes";
+import uploadRouter from "./adminRoutes/adminUpload.routes";
 
 const adminRouter = Router();
 

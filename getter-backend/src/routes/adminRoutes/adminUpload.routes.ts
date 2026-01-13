@@ -1,7 +1,7 @@
 import { Router } from "express";
 import container from "../../core/inversify.config";
 import { TYPES } from "../../core/types";
-import { UploadController } from "../../controllers/admin/upload.controller";
+import { UploadController } from "../../controllers/admin/adminUpload.controller";
 import { verifyToken } from "../../middlewares/auth.middleware";
 import multer from "multer";
 

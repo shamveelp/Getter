@@ -10,12 +10,6 @@ const config = {
     upload_preset: process.env.CLOUDINARY_PRESET,
 };
 
-console.log("Cloudinary Config Loaded:", {
-    cloud_name: config.cloud_name,
-    api_key: config.api_key ? "***" : "MISSING",
-    api_secret: config.api_secret ? "***" : "MISSING",
-});
-
 cloudinary.config({
     cloud_name: config.cloud_name,
     api_key: config.api_key,

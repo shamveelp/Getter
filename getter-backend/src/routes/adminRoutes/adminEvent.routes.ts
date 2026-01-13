@@ -1,7 +1,7 @@
 import { Router } from "express";
 import container from "../../core/inversify.config";
 import { TYPES } from "../../core/types";
-import { EventController } from "../../controllers/admin/event.controller";
+import { EventController } from "../../controllers/admin/adminEvent.controller";
 import { verifyToken } from "../../middlewares/auth.middleware";
 
 const adminEventRouter = Router();
