@@ -99,7 +99,7 @@ export default function ServicesPage() {
                                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1 truncate">{service.title}</h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 capitalize">{service.category}</p>
                                     <div className="flex items-center justify-between text-sm mb-3">
-                                        <span className="font-medium text-brand-600 dark:text-brand-400">${service.pricePerDay}/day</span>
+                                        <span className="font-medium text-brand-600 dark:text-brand-400">₹{service.pricePerDay}/day</span>
                                         <span className="text-gray-500 truncate max-w-[50%]">{service.location}</span>
                                     </div>
                                     <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-2">

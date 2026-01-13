@@ -235,7 +235,7 @@ export class EmailService implements IEmailService {
                     <div class="content">
                         <h2>Thank you for your booking!</h2>
                         <p>Your booking has been successfully confirmed.</p>
-                        <p><strong>Total Price:</strong> $${bookingDetails.totalPrice}</p>
+                        <p><strong>Total Price:</strong> ₹${bookingDetails.totalPrice}</p>
                         <p><strong>Status:</strong> ${bookingDetails.status}</p>
                         <p>We look forward to serving you.</p>
                     </div>

@@ -151,7 +151,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                             />
                         </div>
                         <div>
-                            <Label htmlFor="pricePerDay">Price Per Day ($)</Label>
+                            <Label htmlFor="pricePerDay">Price Per Day (₹)</Label>
                             <Input
                                 type="number"
                                 id="pricePerDay"

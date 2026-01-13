@@ -90,7 +90,7 @@ export default function BookingsPage() {
                                             {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 font-medium text-gray-800 dark:text-white">
-                                            ${booking.totalPrice}
+                                            ₹{booking.totalPrice}
                                         </td>
                                         <td className="px-6 py-4">
                                             <Badge
