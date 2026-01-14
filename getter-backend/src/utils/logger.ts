@@ -3,22 +3,26 @@ import winston from "winston";
 const { combine, timestamp, errors, json, colorize, printf } =
   winston.format;
 
-const isProduction = process.env.NODE_ENV === "production";
-
 const devFormat = printf(({ level, message, timestamp, stack }) => {
   return `${timestamp} [${level}]: ${stack || message}`;
 });
 
 const logger = winston.createLogger({
-  level: isProduction ? "info" : "debug",
+  level: process.env.LOG_LEVEL || "debug", // Default to debug
   format: combine(
     timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     errors({ stack: true }),
-    isProduction ? json() : devFormat
+    json()
   ),
   transports: [
     new winston.transports.Console({
-      format: isProduction ? json() : combine(colorize(), devFormat),
+      format: combine(
+        colorize(),
+        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        printf(({ level, message, timestamp, stack }) => {
+          return `${timestamp} [${level}]: ${stack || message}`;
+        })
+      ),
     }),
     new winston.transports.File({
       filename: "logs/error.log",

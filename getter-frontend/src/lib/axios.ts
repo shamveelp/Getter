@@ -43,6 +43,12 @@ axiosInstance.interceptors.response.use(
             error.response?.status === 403 &&
             error.response?.data?.message?.toLowerCase().includes('banned')
         ) {
+            // ... ban handling ...
+            if (originalRequest.skipAuthRedirect) {
+                return Promise.reject(error);
+            }
+            // ... existing ban redirects
+
             if (store) {
                 if (isAdminRequest) {
                     if (adminLogoutAction) store.dispatch(adminLogoutAction());
@@ -69,7 +75,11 @@ axiosInstance.interceptors.response.use(
             !originalRequest.url?.includes('/login') &&
             !originalRequest.url?.includes('/refresh-token')
         ) {
+            if (originalRequest.skipAuthRedirect) {
+                return Promise.reject(error);
+            }
             originalRequest._retry = true;
+            // ... rest of 401 handling
 
             try {
                 const { data } = await axiosInstance.post(refreshUrl);

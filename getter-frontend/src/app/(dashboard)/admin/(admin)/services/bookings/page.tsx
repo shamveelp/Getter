@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Badge from "../../../../../../components/admin/ui/badge/Badge";
-import { adminBookingService } from "../../../../../../services/admin/adminBookingApiService";
+import { adminBookingApiService } from "@/services/admin/adminBookingApiService";
 import Button from "../../../../../../components/admin/ui/button/Button";
 
 interface IBooking {
@@ -28,7 +28,7 @@ export default function BookingsPage() {
     const fetchBookings = async () => {
         try {
             setLoading(true);
-            const response = await adminBookingService.getAllBookings();
+            const response = await adminBookingApiService.getAllBookings();
             if (response.success) {
                 setBookings(response.data);
             }

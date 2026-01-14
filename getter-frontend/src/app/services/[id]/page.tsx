@@ -9,6 +9,18 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { DatePicker } from '@/components/ui/date-picker';
 import { bookingApiService } from '@/services/user/bookingApiService';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { format } from "date-fns";
+
 
 export default function ServiceDetailPage() {
     const { id } = useParams() as { id: string };
@@ -19,50 +31,62 @@ export default function ServiceDetailPage() {
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
     const [bookingLoading, setBookingLoading] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const handleBookNow = async () => {
+    const numberOfDays = startDate && endDate
+        ? Math.max(0, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))
+        : 0;
+
+    const totalPrice = service ? service.pricePerDay * numberOfDays : 0;
+
+
+    const handleBookClick = () => {
         if (!startDate || !endDate) {
-            alert("Please select both start and end dates.");
+            toast.error("Please select both start and end dates.");
             return;
         }
 
         if (endDate <= startDate) {
-            alert("End date must be after start date.");
+            toast.error("End date must be after start date.");
             return;
         }
 
-        // Basic auth check using localStorage token presence as a hint
-        // A better way would be using a collaborative update to the Auth Context
-        const token = localStorage.getItem('token');
-        if (!token && !localStorage.getItem('accessToken')) {
-            router.push('/login');
-            return;
-        }
+        setIsDialogOpen(true);
+    };
 
+    const handleConfirmBooking = async () => {
         setBookingLoading(true);
         try {
             const response = await bookingApiService.createBooking({
                 serviceId: id,
-                startDate,
-                endDate
+                startDate: startDate!,
+                endDate: endDate!
             });
             if (response.success) {
-                alert("Booking successful! Check your email for confirmation.");
-                router.push('/dashboard/bookings'); // Or wherever user sees their bookings
+                setIsDialogOpen(false);
+                toast.success("Booking Request Sent!", {
+                    description: "We have received your booking request. Check your email for confirmation.",
+                    action: {
+                        label: "View Bookings",
+                        onClick: () => router.push('/bookings')
+                    }
+                });
+                // router.push('/bookings'); // Optional: redirect immediately or let user choose
             } else {
-                alert("Booking failed: " + response.error);
+                toast.error("Booking failed", { description: response.error });
             }
         } catch (error: any) {
             console.error("Booking error:", error);
             if (error.response?.status === 401) {
-                router.push('/login');
+                toast.error("Please login to continue booking.");
             } else {
-                alert(error.response?.data?.error || "Failed to create booking.");
+                toast.error("Booking Error", { description: error.response?.data?.error || "Failed to create booking." });
             }
         } finally {
             setBookingLoading(false);
         }
     };
+
 
     useEffect(() => {
         if (!id) return;
@@ -161,13 +185,77 @@ export default function ServiceDetailPage() {
                                 )}
                             </div>
 
-                            <Button
-                                onClick={handleBookNow}
-                                disabled={bookingLoading}
-                                className="w-full h-12 text-lg bg-white text-black hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {bookingLoading ? 'Booking...' : 'Book Now'}
-                            </Button>
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        onClick={handleBookClick}
+                                        disabled={bookingLoading}
+                                        className="w-full h-12 text-lg bg-white text-black hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Book Now
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md bg-neutral-900 border border-white/10 text-white">
+                                    <DialogHeader>
+                                        <DialogTitle>Confirm Booking</DialogTitle>
+                                        <DialogDescription className="text-neutral-400">
+                                            Review your booking details before confirming.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 py-4">
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <span className="text-neutral-500 block mb-1">Service</span>
+                                                <span className="font-semibold">{service?.title}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-neutral-500 block mb-1">Location</span>
+                                                <span className="font-semibold">{service?.location}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-neutral-500 block mb-1">Check-in</span>
+                                                <span className="font-semibold">{startDate ? format(startDate, 'MMM dd, yyyy') : '-'}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-neutral-500 block mb-1">Check-out</span>
+                                                <span className="font-semibold">{endDate ? format(endDate, 'MMM dd, yyyy') : '-'}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-white/10 pt-4 mt-4 space-y-2">
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-neutral-400">Rate per day</span>
+                                                <span>₹{service?.pricePerDay}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-neutral-400">Duration</span>
+                                                <span>{numberOfDays} days</span>
+                                            </div>
+                                            <div className="flex justify-between text-lg font-bold border-t border-white/10 pt-2 mt-2">
+                                                <span>Total</span>
+                                                <span>₹{totalPrice}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <DialogFooter className="flex gap-2 sm:justify-end">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setIsDialogOpen(false)}
+                                            className="bg-transparent border-white/10 hover:bg-white/10 text-white"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={handleConfirmBooking}
+                                            disabled={bookingLoading}
+                                            className="bg-white text-black hover:bg-neutral-200"
+                                        >
+                                            {bookingLoading ? 'Confirming...' : 'Confirm Booking'}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+
 
                             {service.availability?.type === 'recurring' && (
                                 <div className="pt-4 border-t border-white/10 text-sm">

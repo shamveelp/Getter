@@ -23,15 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
-if (process.env.NODE_ENV === "development") {
-  app.use(
-    morgan("dev", {
-      stream: {
-        write: (message: string) => logger.http(message.trim()),
-      },
-    })
-  );
-}
+app.use(
+  morgan("dev", {
+    stream: {
+      write: (message: string) => logger.info(message.trim()), // Use logger.info for requests
+    },
+  })
+);
 
 
 app.get("/health", (_req, res) => {

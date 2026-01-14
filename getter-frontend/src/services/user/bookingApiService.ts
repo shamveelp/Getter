@@ -4,7 +4,7 @@ const API_URL = '/api/users/bookings';
 
 export const bookingApiService = {
     createBooking: async (data: { serviceId: string; startDate: Date; endDate: Date }) => {
-        const response = await axiosInstance.post(`${API_URL}/service`, data);
+        const response = await axiosInstance.post(`${API_URL}/service`, data, { skipAuthRedirect: true } as any);
         return response.data;
     },
 

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { adminServiceService } from "../../../../../../services/admin/adminServiceApiService";
-import { adminBookingService } from "../../../../../../services/admin/adminBookingApiService";
+import { adminBookingApiService } from "@/services/admin/adminBookingApiService";
 import Badge from "../../../../../../components/admin/ui/badge/Badge";
 import Button from "../../../../../../components/admin/ui/button/Button";
 import Link from "next/link";
@@ -33,7 +33,7 @@ export default function ServiceDetailPage() {
                 setLoading(true);
                 const [serviceData, bookingsData] = await Promise.all([
                     adminServiceService.getServiceById(id),
-                    adminBookingService.getAllBookings()
+                    adminBookingApiService.getAllBookings()
                 ]);
 
                 if (serviceData.success) {
