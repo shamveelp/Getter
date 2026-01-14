@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Button from "../../../../../../../../components/admin/ui/button/Button";
-import Input from "../../../../../../../../components/admin/form/input/InputField";
-import Label from "../../../../../../../../components/admin/form/Label";
-import Select from "../../../../../../../../components/admin/form/Select";
-import ImageUpload from "../../../../../../../../components/admin/form/ImageUpload";
-import { adminServiceService } from "../../../../../../../../services/admin/adminServiceApiService";
+import Button from "@/components/admin/ui/button/Button";
+import Input from "@/components/admin/form/input/InputField";
+import Label from "@/components/admin/form/Label";
+import Select from "@/components/admin/form/Select";
+import ImageUpload from "@/components/admin/form/ImageUpload";
+import { adminServiceService } from "@/services/admin/adminServiceApiService";
 
 export default function EditServicePage() {
     const router = useRouter();
