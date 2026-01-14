@@ -95,6 +95,18 @@ export default function ServiceDetailPage() {
                             <Button className="w-full h-12 text-lg bg-white text-black hover:bg-neutral-200">
                                 Book Now
                             </Button>
+
+                            {service.availability?.type === 'recurring' && (
+                                <div className="pt-4 border-t border-white/10 text-sm">
+                                    <p className="text-neutral-400 mb-2 flex items-center gap-2"><Calendar size={14} /> Weekly Availability</p>
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                        {service.availability.recurring?.days?.map((d: string) => (
+                                            <span key={d} className="px-2 py-1 bg-neutral-800 rounded text-xs capitalize text-neutral-300">{d}</span>
+                                        ))}
+                                    </div>
+                                    <p className="text-neutral-300">{service.availability.recurring?.startTime} - {service.availability.recurring?.endTime}</p>
+                                </div>
+                            )}
                         </div>
 
                         <div className="space-y-4">

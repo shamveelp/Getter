@@ -103,10 +103,10 @@ export default function Home() {
 
         <div ref={ctaRef} className="pt-4">
           <Link
-            href="#"
+            href="/services"
             className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-white px-8 font-medium text-black transition-all duration-300 hover:bg-neutral-200 hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-black"
           >
-            <span className="mr-2">Explore Events</span>
+            <span className="mr-2">Explore Services</span>
             <span className="relative overflow-hidden w-5 h-5 flex items-center justify-center">
               <svg
                 className="w-4 h-4 transform transition-transform group-hover:translate-x-1"

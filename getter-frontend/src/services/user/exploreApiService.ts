@@ -1,6 +1,6 @@
 import axiosInstance from '../../lib/axios';
 
-const API_URL = '/api/explore';
+const API_URL = '/api/users';
 
 export const exploreApiService = {
     searchServices: async (filters: any = {}) => {
