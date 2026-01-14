@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, Mail, Phone, ArrowLeft, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { DatePicker } from '@/components/ui/date-picker';
+import { bookingApiService } from '@/services/user/bookingApiService';
 
 export default function ServiceDetailPage() {
     const { id } = useParams() as { id: string };
@@ -14,6 +16,53 @@ export default function ServiceDetailPage() {
     const [service, setService] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [activeImage, setActiveImage] = useState(0);
+    const [startDate, setStartDate] = useState<Date | undefined>();
+    const [endDate, setEndDate] = useState<Date | undefined>();
+    const [bookingLoading, setBookingLoading] = useState(false);
+
+    const handleBookNow = async () => {
+        if (!startDate || !endDate) {
+            alert("Please select both start and end dates.");
+            return;
+        }
+
+        if (endDate <= startDate) {
+            alert("End date must be after start date.");
+            return;
+        }
+
+        // Basic auth check using localStorage token presence as a hint
+        // A better way would be using a collaborative update to the Auth Context
+        const token = localStorage.getItem('token');
+        if (!token && !localStorage.getItem('accessToken')) {
+            router.push('/login');
+            return;
+        }
+
+        setBookingLoading(true);
+        try {
+            const response = await bookingApiService.createBooking({
+                serviceId: id,
+                startDate,
+                endDate
+            });
+            if (response.success) {
+                alert("Booking successful! Check your email for confirmation.");
+                router.push('/dashboard/bookings'); // Or wherever user sees their bookings
+            } else {
+                alert("Booking failed: " + response.error);
+            }
+        } catch (error: any) {
+            console.error("Booking error:", error);
+            if (error.response?.status === 401) {
+                router.push('/login');
+            } else {
+                alert(error.response?.data?.error || "Failed to create booking.");
+            }
+        } finally {
+            setBookingLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!id) return;
@@ -92,8 +141,32 @@ export default function ServiceDetailPage() {
                                 </div>
                             </div>
 
-                            <Button className="w-full h-12 text-lg bg-white text-black hover:bg-neutral-200">
-                                Book Now
+                            <div className="space-y-3 pt-4 border-t border-white/10">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs text-neutral-400 mb-1 block">Start Date</label>
+                                        <DatePicker date={startDate} setDate={setStartDate} placeholder="Start" className="bg-neutral-800 border-white/10 text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-neutral-400 mb-1 block">End Date</label>
+                                        <DatePicker date={endDate} setDate={setEndDate} placeholder="End" className="bg-neutral-800 border-white/10 text-white" />
+                                    </div>
+                                </div>
+
+                                {startDate && endDate && (
+                                    <div className="flex justify-between items-center text-sm pt-2">
+                                        <span className="text-neutral-400">Total ({Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} days)</span>
+                                        <span className="text-xl font-bold">₹{service.pricePerDay * Math.max(0, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <Button
+                                onClick={handleBookNow}
+                                disabled={bookingLoading}
+                                className="w-full h-12 text-lg bg-white text-black hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {bookingLoading ? 'Booking...' : 'Book Now'}
                             </Button>
 
                             {service.availability?.type === 'recurring' && (
