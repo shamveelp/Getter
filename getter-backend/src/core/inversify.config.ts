@@ -55,8 +55,8 @@ import { BookingService } from "../services/booking.service";
 // Business Controllers
 import { ServiceController } from "../controllers/admin/adminService.controller";
 
-import { BookingController } from "../controllers/user/booking.controller";
-import { SearchController } from "../controllers/user/search.controller";
+import { BookingController } from "../controllers/user/userBooking.controller";
+import { SearchController } from "../controllers/user/userSearch.controller";
 import { UploadController } from "../controllers/admin/adminUpload.controller";
 import { AdminBookingController } from "../controllers/admin/adminBooking.controller";
 

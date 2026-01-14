@@ -1,7 +1,7 @@
 import { Router } from "express";
 import container from "../../core/inversify.config";
 import { TYPES } from "../../core/types";
-import { BookingController } from "../../controllers/user/booking.controller";
+import { BookingController } from "../../controllers/user/userBooking.controller";
 import { verifyToken } from "../../middlewares/auth.middleware";
 
 const bookingRouter = Router();

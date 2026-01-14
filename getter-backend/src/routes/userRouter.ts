@@ -1,8 +1,8 @@
 import { Router } from "express";
 import userAuthRoutes from "./userRoutes/userAuth.routes";
 import userProfileRoutes from "./userRoutes/userProfile.routes";
-import bookingRouter from "./userRoutes/booking.routes";
-import exploreRouter from "./userRoutes/explore.routes";
+import bookingRouter from "./userRoutes/userBooking.routes";
+import exploreRouter from "./userRoutes/userExplore.routes";
 
 const userRouter = Router();
 
