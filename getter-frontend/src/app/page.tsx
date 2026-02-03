@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import Link from "next/link";
 import Navbar from "@/components/user/Navbar";
+import Orb from "@/components/ui/Orb";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -76,6 +77,19 @@ export default function Home() {
         <div className="glow-orb absolute top-[-10%] left-[20%] h-125 w-125 rounded-full bg-purple-900/40 blur-[120px]" />
         <div className="glow-orb absolute bottom-[-10%] right-[20%] h-100 w-100 rounded-full bg-blue-900/30 blur-[100px]" />
         <div className="glow-orb absolute top-[40%] left-[80%] h-75 w-75 rounded-full bg-fuchsia-900/20 blur-[80px]" />
+
+        {/* Animated Orb Centerpiece */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-60 pointer-events-auto">
+          <div className="w-full h-[800px] max-w-5xl">
+            <Orb
+              hoverIntensity={2}
+              rotateOnHover
+              hue={0}
+              forceHoverState={false}
+              backgroundColor="#000000"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Grid Pattern Overlay */}
