@@ -18,7 +18,7 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ value, onChange, className }: TimePickerProps) {
-    const [hours, minutes] = (value && value.includes(':')) ? value.split(':') : ["00", "00"];
+    const [hours, minutes] = (value && value.includes(':')) ? value.split(':') : ["12", "00"];
 
     const handleHourChange = (newHour: string) => {
         onChange(`${newHour}:${minutes}`);
@@ -29,31 +29,33 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
     };
 
     return (
-        <div className={cn("flex items-center gap-1.5", className)}>
-            <Select value={hours} onValueChange={handleHourChange}>
-                <SelectTrigger className="w-[70px] focus:ring-brand-500">
-                    <SelectValue placeholder="HH" />
-                </SelectTrigger>
-                <SelectContent className="h-64">
-                    {Array.from({ length: 24 }).map((_, i) => {
-                        const h = i.toString().padStart(2, '0');
-                        return <SelectItem key={h} value={h}>{h}</SelectItem>
-                    })}
-                </SelectContent>
-            </Select>
-            <span className="text-gray-500 font-medium">:</span>
-            <Select value={minutes} onValueChange={handleMinuteChange}>
-                <SelectTrigger className="w-[70px] focus:ring-brand-500">
-                    <SelectValue placeholder="MM" />
-                </SelectTrigger>
-                <SelectContent className="h-64">
-                    {Array.from({ length: 60 }).map((_, i) => {
-                        const m = i.toString().padStart(2, '0');
-                        return <SelectItem key={m} value={m}>{m}</SelectItem>
-                    })}
-                </SelectContent>
-            </Select>
-            <Clock className="w-4 h-4 text-muted-foreground ml-2" />
+        <div className={cn("flex items-center gap-2 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 shadow-sm transition-colors focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500", className)}>
+            <div className="flex items-center gap-1">
+                <Select value={hours} onValueChange={handleHourChange}>
+                    <SelectTrigger className="w-[70px] border-none focus:ring-0 h-9 text-sm font-medium bg-transparent text-gray-800 dark:text-gray-200">
+                        <SelectValue placeholder="HH" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64 min-w-[70px] bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                        {Array.from({ length: 24 }).map((_, i) => {
+                            const h = i.toString().padStart(2, '0');
+                            return <SelectItem key={h} value={h} className="text-sm">{h}</SelectItem>
+                        })}
+                    </SelectContent>
+                </Select>
+                <span className="text-gray-400 font-bold">:</span>
+                <Select value={minutes} onValueChange={handleMinuteChange}>
+                    <SelectTrigger className="w-[70px] border-none focus:ring-0 h-9 text-sm font-medium bg-transparent text-gray-800 dark:text-gray-200">
+                        <SelectValue placeholder="MM" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64 min-w-[70px] bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                        {Array.from({ length: 60 }).map((_, i) => {
+                            const m = i.toString().padStart(2, '0');
+                            return <SelectItem key={m} value={m} className="text-sm">{m}</SelectItem>
+                        })}
+                    </SelectContent>
+                </Select>
+            </div>
+            <Clock className="w-4 h-4 text-gray-400 ml-auto" />
         </div>
     )
 }

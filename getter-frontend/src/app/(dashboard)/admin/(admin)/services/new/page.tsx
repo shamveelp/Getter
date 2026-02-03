@@ -10,6 +10,7 @@ import ImageUpload from "../../../../../../components/admin/form/ImageUpload";
 import Checkbox from "../../../../../../components/admin/form/input/Checkbox";
 import { adminServiceService } from "../../../../../../services/admin/adminServiceApiService";
 import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 
 export default function AddServicePage() {
     const router = useRouter();
@@ -28,8 +29,8 @@ export default function AddServicePage() {
 
     const [availability, setAvailability] = useState({
         days: [] as string[],
-        startTime: "",
-        endTime: "",
+        startTime: "09:00",
+        endTime: "18:00",
         is24Hours: false
     });
 
@@ -226,20 +227,16 @@ export default function AddServicePage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="startTime">Start Time</Label>
-                                    <Input
-                                        type="time"
-                                        id="startTime"
+                                    <TimePicker
                                         value={availability.startTime}
-                                        onChange={(e) => setAvailability({ ...availability, startTime: e.target.value })}
+                                        onChange={(val) => setAvailability({ ...availability, startTime: val })}
                                     />
                                 </div>
                                 <div>
                                     <Label htmlFor="endTime">End Time</Label>
-                                    <Input
-                                        type="time"
-                                        id="endTime"
+                                    <TimePicker
                                         value={availability.endTime}
-                                        onChange={(e) => setAvailability({ ...availability, endTime: e.target.value })}
+                                        onChange={(val) => setAvailability({ ...availability, endTime: val })}
                                     />
                                 </div>
                             </div>
