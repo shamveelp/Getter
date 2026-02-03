@@ -14,10 +14,12 @@ export interface IService extends Document {
             days: string[];
             startTime: string;
             endTime: string;
+            is24Hours?: boolean;
         };
         specificDates?: { startDate: Date; endDate: Date }[];
     };
     contact: { email: string; phone: string };
+    totalUnits: number;
     status: ServiceStatus;
     isDeleted: boolean; // Accessible only by admin if true? Or maybe just status=UNLISTED
     createdAt: Date;
@@ -32,12 +34,14 @@ const ServiceSchema: Schema<IService> = new Schema(
         description: { type: String, required: true },
         location: { type: String, required: true },
         images: [{ type: String }],
+        totalUnits: { type: Number, default: 1 },
         availability: {
             type: { type: String, enum: ['specific_dates', 'recurring'], default: 'recurring' },
             recurring: {
                 days: [{ type: String, enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] }],
                 startTime: { type: String },
-                endTime: { type: String }
+                endTime: { type: String },
+                is24Hours: { type: Boolean, default: false }
             },
             specificDates: [
                 {

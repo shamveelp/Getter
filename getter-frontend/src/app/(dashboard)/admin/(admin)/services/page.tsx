@@ -13,6 +13,7 @@ interface IService {
     category: string;
     pricePerDay: number;
     location: string;
+    totalUnits: number;
     status: string;
     createdAt: string;
     images?: string[];
@@ -201,7 +202,10 @@ export default function ServicesPage() {
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 capitalize">{service.category}</p>
                                     <div className="flex items-center justify-between text-sm mb-3">
                                         <span className="font-medium text-brand-600 dark:text-brand-400">₹{service.pricePerDay}/day</span>
-                                        <span className="text-gray-500 truncate max-w-[50%]">{service.location}</span>
+                                        <div className="text-gray-500 flex flex-col items-end">
+                                            <span>{service.location}</span>
+                                            <span className="text-[10px] text-gray-400">{service.totalUnits} Units</span>
+                                        </div>
                                     </div>
                                     <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-2">
                                         <Link href={`/admin/services/${service._id}`} className="flex-1 text-center py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">

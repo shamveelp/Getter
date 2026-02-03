@@ -259,13 +259,27 @@ export default function ServiceDetailPage() {
 
                             {service.availability?.type === 'recurring' && (
                                 <div className="pt-4 border-t border-white/10 text-sm">
-                                    <p className="text-neutral-400 mb-2 flex items-center gap-2"><Calendar size={14} /> Weekly Availability</p>
-                                    <div className="flex flex-wrap gap-2 mb-2">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <p className="text-neutral-400 flex items-center gap-2"><Calendar size={14} /> Weekly Schedule</p>
+                                        {service.totalUnits > 1 && (
+                                            <span className="px-2 py-1 bg-brand-500/20 text-brand-400 border border-brand-500/30 rounded text-xs">
+                                                {service.totalUnits} slots available
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 mb-3">
                                         {service.availability.recurring?.days?.map((d: string) => (
-                                            <span key={d} className="px-2 py-1 bg-neutral-800 rounded text-xs capitalize text-neutral-300">{d}</span>
+                                            <span key={d} className="px-2 py-1 bg-neutral-800 rounded text-xs capitalize text-neutral-300 border border-white/5">{d}</span>
                                         ))}
                                     </div>
-                                    <p className="text-neutral-300">{service.availability.recurring?.startTime} - {service.availability.recurring?.endTime}</p>
+                                    <div className="flex items-center justify-between text-neutral-300 bg-neutral-800/50 p-3 rounded-xl border border-white/5">
+                                        <span>Operating Hours:</span>
+                                        <span className="font-semibold text-white">
+                                            {service.availability.recurring?.is24Hours
+                                                ? "Open 24/7"
+                                                : `${service.availability.recurring?.startTime} - ${service.availability.recurring?.endTime}`}
+                                        </span>
+                                    </div>
                                 </div>
                             )}
                         </div>

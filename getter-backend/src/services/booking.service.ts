@@ -30,12 +30,34 @@ export class BookingService {
 
         const start = new Date(startDate);
         const end = new Date(endDate);
-        const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 
-        if (days <= 0) throw new Error("Invalid dates");
+        if (start < new Date()) {
+            throw new Error("Cannot book in the past");
+        }
 
-        // Check availability (Naive check: is the service explicitly available in this range? AND is it not booked?)
-        // For MVP, just calculate price.
+        const diffTime = end.getTime() - start.getTime();
+        const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // At least 1 day
+
+        if (diffTime < 0) throw new Error("End date must be after start date");
+
+        // 1. Check Recurring Days Availability
+        if (service.availability.type === 'recurring' && service.availability.recurring) {
+            const requestedDays = this.getDaysInRange(start, end);
+            const availableDays = service.availability.recurring.days;
+            const unavailableRequestedDays = requestedDays.filter(day => !availableDays.includes(day));
+            if (unavailableRequestedDays.length > 0) {
+                throw new Error(`Service is not available on: ${unavailableRequestedDays.join(', ')}`);
+            }
+        }
+
+        // 2. Check Unit Availability (Overlap)
+        const overlapping = await this.bookingRepository.findOverlappingBookings(serviceId, start, end);
+        const maxOccupied = this.calculateMaxOverlappingUnits(start, end, overlapping);
+
+        if (maxOccupied >= service.totalUnits) {
+            throw new Error("Sold out! No available units/slots for the selected dates.");
+        }
+
         const totalPrice = service.pricePerDay * days;
 
         const booking = await this.bookingRepository.create({
@@ -57,6 +79,42 @@ export class BookingService {
             });
         }
         return booking;
+    }
+
+    private getDaysInRange(start: Date, end: Date): string[] {
+        const days = [];
+        const current = new Date(start);
+        const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+        while (current <= end) {
+            days.push(weekdays[current.getDay()]);
+            current.setDate(current.getDate() + 1);
+            if (days.length > 31) break; // Safety break
+        }
+        return Array.from(new Set(days));
+    }
+
+    private calculateMaxOverlappingUnits(start: Date, end: Date, overlapping: IBooking[]): number {
+        if (overlapping.length === 0) return 0;
+
+        // Collect all critical time points (starts and ends)
+        const points: { time: number; type: number }[] = [];
+        overlapping.forEach(b => {
+            if (b.startDate) points.push({ time: new Date(b.startDate).getTime(), type: 1 }); // Start
+            if (b.endDate) points.push({ time: new Date(b.endDate).getTime(), type: -1 }); // End
+        });
+
+        // Sort points by time
+        points.sort((a, b) => a.time - b.time || a.type);
+
+        let max = 0;
+        let current = 0;
+        for (const p of points) {
+            current += p.type;
+            if (current > max) max = current;
+        }
+
+        return max;
     }
 
 

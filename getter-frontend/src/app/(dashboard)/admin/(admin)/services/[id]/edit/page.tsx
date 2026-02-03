@@ -7,6 +7,7 @@ import Input from "@/components/admin/form/input/InputField";
 import Label from "@/components/admin/form/Label";
 import Select from "@/components/admin/form/Select";
 import ImageUpload from "@/components/admin/form/ImageUpload";
+import Checkbox from "@/components/admin/form/input/Checkbox";
 import { adminServiceService } from "@/services/admin/adminServiceApiService";
 
 export default function EditServicePage() {
@@ -25,13 +26,15 @@ export default function EditServicePage() {
         location: "",
         contactEmail: "",
         contactPhone: "",
+        totalUnits: "1",
         images: [] as string[]
     });
 
     const [availability, setAvailability] = useState({
         days: [] as string[],
         startTime: "",
-        endTime: ""
+        endTime: "",
+        is24Hours: false
     });
 
     const categoryOptions = [
@@ -67,6 +70,7 @@ export default function EditServicePage() {
                         location: s.location,
                         contactEmail: s.contact?.email || "",
                         contactPhone: s.contact?.phone || "",
+                        totalUnits: s.totalUnits?.toString() || "1",
                         images: s.images || []
                     });
 
@@ -74,7 +78,8 @@ export default function EditServicePage() {
                         setAvailability({
                             days: s.availability.recurring.days || [],
                             startTime: s.availability.recurring.startTime || "",
-                            endTime: s.availability.recurring.endTime || ""
+                            endTime: s.availability.recurring.endTime || "",
+                            is24Hours: s.availability.recurring.is24Hours || false
                         });
                     }
                 }
@@ -100,16 +105,14 @@ export default function EditServicePage() {
                 pricePerDay: Number(formData.pricePerDay),
                 description: formData.description,
                 location: formData.location,
-                contact: {
-                    email: formData.contactEmail,
-                    phone: formData.contactPhone
-                },
+                totalUnits: Number(formData.totalUnits),
                 availability: {
                     type: 'recurring',
                     recurring: {
                         days: availability.days,
-                        startTime: availability.startTime,
-                        endTime: availability.endTime
+                        startTime: availability.is24Hours ? "00:00" : availability.startTime,
+                        endTime: availability.is24Hours ? "23:59" : availability.endTime,
+                        is24Hours: availability.is24Hours
                     }
                 },
                 images: formData.images
@@ -194,6 +197,19 @@ export default function EditServicePage() {
                                 onChange={handleChange}
                             />
                         </div>
+                        <div>
+                            <Label htmlFor="totalUnits">Total Available Units (Slots)</Label>
+                            <Input
+                                type="number"
+                                id="totalUnits"
+                                name="totalUnits"
+                                value={formData.totalUnits}
+                                placeholder="1"
+                                min="1"
+                                onChange={handleChange}
+                                hint="Number of simultaneous bookings allowed (e.g., 1 for a hall, 5 for staff)"
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -250,26 +266,36 @@ export default function EditServicePage() {
                                 </button>
                             ))}
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label htmlFor="startTime">Start Time</Label>
-                                <Input
-                                    type="time"
-                                    id="startTime"
-                                    value={availability.startTime}
-                                    onChange={(e) => setAvailability({ ...availability, startTime: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="endTime">End Time</Label>
-                                <Input
-                                    type="time"
-                                    id="endTime"
-                                    value={availability.endTime}
-                                    onChange={(e) => setAvailability({ ...availability, endTime: e.target.value })}
-                                />
-                            </div>
+                        <div className="flex items-center gap-6 mb-4">
+                            <Checkbox
+                                label="Open 24 Hours / Always Available"
+                                checked={availability.is24Hours}
+                                onChange={(val) => setAvailability({ ...availability, is24Hours: val })}
+                            />
                         </div>
+
+                        {!availability.is24Hours && (
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="startTime">Start Time</Label>
+                                    <Input
+                                        type="time"
+                                        id="startTime"
+                                        value={availability.startTime}
+                                        onChange={(e) => setAvailability({ ...availability, startTime: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="endTime">End Time</Label>
+                                    <Input
+                                        type="time"
+                                        id="endTime"
+                                        value={availability.endTime}
+                                        onChange={(e) => setAvailability({ ...availability, endTime: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div>
