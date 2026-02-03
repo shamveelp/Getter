@@ -38,4 +38,20 @@ export class BookingController {
             res.status(statusCode).json({ success: false, error: (error as Error).message });
         }
     };
+
+    getServiceAvailability = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { month, year } = req.query;
+            const result = await this._bookingService.getServiceAvailability(
+                id,
+                Number(month) || new Date().getMonth() + 1,
+                Number(year) || new Date().getFullYear()
+            );
+            res.status(StatusCode.OK).json({ success: true, data: result });
+        } catch (error) {
+            logger.error("Error fetching availability:", error);
+            res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, error: (error as Error).message });
+        }
+    }
 }

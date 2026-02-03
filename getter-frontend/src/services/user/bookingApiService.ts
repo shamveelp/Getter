@@ -11,5 +11,10 @@ export const bookingApiService = {
     getMyBookings: async () => {
         const response = await axiosInstance.get(`${API_URL}/my-bookings`);
         return response.data;
+    },
+
+    getServiceAvailability: async (serviceId: string, month: number, year: number) => {
+        const response = await axiosInstance.get(`${API_URL}/service/${serviceId}/availability?month=${month}&year=${year}`);
+        return response.data;
     }
 };

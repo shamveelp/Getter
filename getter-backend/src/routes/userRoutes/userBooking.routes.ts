@@ -11,4 +11,6 @@ bookingRouter.post("/service", verifyToken, bookingController.createServiceBooki
 
 bookingRouter.get("/my-bookings", verifyToken, bookingController.getMyBookings);
 
+bookingRouter.get("/service/:id/availability", bookingController.getServiceAvailability);
+
 export default bookingRouter;

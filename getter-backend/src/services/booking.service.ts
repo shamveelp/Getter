@@ -123,6 +123,38 @@ export class BookingService {
         return this.bookingRepository.findUserBookings(userId);
     }
 
+    async getServiceAvailability(serviceId: string, month: number, year: number): Promise<{ date: string, occupied: number, total: number }[]> {
+        const service = await this.serviceRepository.findById(serviceId);
+        if (!service) throw new Error("Service not found");
+
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0, 23, 59, 59); // End of month
+
+        const bookings = await this.bookingRepository.findOverlappingBookings(serviceId, startDate, endDate);
+
+        const availability = [];
+        const current = new Date(startDate);
+        while (current <= endDate) {
+            const dateStr = current.toISOString().split('T')[0];
+            const dayStart = new Date(current);
+            dayStart.setHours(0, 0, 0, 0);
+            const dayEnd = new Date(current);
+            dayEnd.setHours(23, 59, 59, 999);
+
+            // Calculate max overlap for THIS specific day
+            const occupied = this.calculateMaxOverlappingUnits(dayStart, dayEnd, bookings);
+
+            availability.push({
+                date: dateStr,
+                occupied,
+                total: service.totalUnits
+            });
+            current.setDate(current.getDate() + 1);
+        }
+
+        return availability;
+    }
+
     async getAllBookings(): Promise<IBooking[]> {
         return this.bookingRepository.findAllBookings();
     }

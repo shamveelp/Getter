@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { AvailabilityCalendar } from '@/components/user/AvailabilityCalendar';
 
 
 export default function ServiceDetailPage() {
@@ -32,6 +33,11 @@ export default function ServiceDetailPage() {
     const [endDate, setEndDate] = useState<Date | undefined>();
     const [bookingLoading, setBookingLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [availability, setAvailability] = useState<any[]>([]);
+
+    const fullDates = availability
+        .filter(a => a.occupied >= a.total)
+        .map(a => new Date(a.date));
 
     const numberOfDays = startDate && endDate
         ? Math.max(0, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))
@@ -102,7 +108,23 @@ export default function ServiceDetailPage() {
                 setLoading(false);
             }
         };
-        fetchDetail();
+
+        const fetchAvailability = async () => {
+            try {
+                const now = new Date();
+                const response = await bookingApiService.getServiceAvailability(id, now.getMonth() + 1, now.getFullYear());
+                if (response.success) {
+                    setAvailability(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch availability", error);
+            }
+        };
+
+        if (id) {
+            fetchDetail();
+            fetchAvailability();
+        }
     }, [id]);
 
     if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>;
@@ -139,6 +161,19 @@ export default function ServiceDetailPage() {
                                 ))}
                             </div>
                         )}
+
+                        <div className="pt-8">
+                            <AvailabilityCalendar
+                                serviceId={id}
+                                totalUnits={service.totalUnits}
+                                startDate={startDate}
+                                endDate={endDate}
+                                onSelect={(start, end) => {
+                                    setStartDate(start);
+                                    setEndDate(end);
+                                }}
+                            />
+                        </div>
                     </div>
 
                     {/* Content */}
@@ -169,13 +204,32 @@ export default function ServiceDetailPage() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="text-xs text-neutral-400 mb-1 block">Start Date</label>
-                                        <DatePicker date={startDate} setDate={setStartDate} placeholder="Start" className="bg-neutral-800 border-white/10 text-white" />
+                                        <DatePicker
+                                            date={startDate}
+                                            setDate={setStartDate}
+                                            placeholder="Start"
+                                            className="bg-neutral-800 border-white/10 text-white"
+                                            disabled={[
+                                                { before: new Date() },
+                                                ...fullDates
+                                            ]}
+                                        />
                                     </div>
                                     <div>
                                         <label className="text-xs text-neutral-400 mb-1 block">End Date</label>
-                                        <DatePicker date={endDate} setDate={setEndDate} placeholder="End" className="bg-neutral-800 border-white/10 text-white" />
+                                        <DatePicker
+                                            date={endDate}
+                                            setDate={setEndDate}
+                                            placeholder="End"
+                                            className="bg-neutral-800 border-white/10 text-white"
+                                            disabled={[
+                                                { before: startDate || new Date() },
+                                                ...fullDates
+                                            ]}
+                                        />
                                     </div>
                                 </div>
+                                <p className="text-[10px] text-neutral-500 italic px-1">* Dates that are fully booked or in the past are unselectable.</p>
 
                                 {startDate && endDate && (
                                     <div className="flex justify-between items-center text-sm pt-2">
