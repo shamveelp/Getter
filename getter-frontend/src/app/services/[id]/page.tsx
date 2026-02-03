@@ -33,27 +33,18 @@ export default function ServiceDetailPage() {
     const [endDate, setEndDate] = useState<Date | undefined>();
     const [bookingLoading, setBookingLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [availability, setAvailability] = useState<any[]>([]);
 
-    const fullDates = availability
-        .filter(a => a.occupied >= a.total)
-        .map(a => new Date(a.date));
 
     const numberOfDays = startDate && endDate
-        ? Math.max(0, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))
-        : 0;
+        ? Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+        : startDate ? 1 : 0;
 
     const totalPrice = service ? service.pricePerDay * numberOfDays : 0;
 
 
     const handleBookClick = () => {
-        if (!startDate || !endDate) {
-            toast.error("Please select both start and end dates.");
-            return;
-        }
-
-        if (endDate <= startDate) {
-            toast.error("End date must be after start date.");
+        if (!startDate) {
+            toast.error("Please select a date first.");
             return;
         }
 
@@ -63,10 +54,14 @@ export default function ServiceDetailPage() {
     const handleConfirmBooking = async () => {
         setBookingLoading(true);
         try {
+            // Force UTC midnight for the strings to prevent timezone shifting
+            const sDate = format(startDate!, 'yyyy-MM-dd');
+            const eDate = format(endDate || startDate!, 'yyyy-MM-dd');
+
             const response = await bookingApiService.createBooking({
                 serviceId: id,
-                startDate: startDate!,
-                endDate: endDate!
+                startDate: sDate as any, // Api service expects Date but string works with Axios/Express
+                endDate: eDate as any
             });
             if (response.success) {
                 setIsDialogOpen(false);
@@ -77,7 +72,6 @@ export default function ServiceDetailPage() {
                         onClick: () => router.push('/bookings')
                     }
                 });
-                // router.push('/bookings'); // Optional: redirect immediately or let user choose
             } else {
                 toast.error("Booking failed", { description: response.error });
             }
@@ -109,21 +103,8 @@ export default function ServiceDetailPage() {
             }
         };
 
-        const fetchAvailability = async () => {
-            try {
-                const now = new Date();
-                const response = await bookingApiService.getServiceAvailability(id, now.getMonth() + 1, now.getFullYear());
-                if (response.success) {
-                    setAvailability(response.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch availability", error);
-            }
-        };
-
         if (id) {
             fetchDetail();
-            fetchAvailability();
         }
     }, [id]);
 
@@ -162,18 +143,6 @@ export default function ServiceDetailPage() {
                             </div>
                         )}
 
-                        <div className="pt-8">
-                            <AvailabilityCalendar
-                                serviceId={id}
-                                totalUnits={service.totalUnits}
-                                startDate={startDate}
-                                endDate={endDate}
-                                onSelect={(start, end) => {
-                                    setStartDate(start);
-                                    setEndDate(end);
-                                }}
-                            />
-                        </div>
                     </div>
 
                     {/* Content */}
@@ -200,41 +169,29 @@ export default function ServiceDetailPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-3 pt-4 border-t border-white/10">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="text-xs text-neutral-400 mb-1 block">Start Date</label>
-                                        <DatePicker
-                                            date={startDate}
-                                            setDate={setStartDate}
-                                            placeholder="Start"
-                                            className="bg-neutral-800 border-white/10 text-white"
-                                            disabled={[
-                                                { before: new Date() },
-                                                ...fullDates
-                                            ]}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs text-neutral-400 mb-1 block">End Date</label>
-                                        <DatePicker
-                                            date={endDate}
-                                            setDate={setEndDate}
-                                            placeholder="End"
-                                            className="bg-neutral-800 border-white/10 text-white"
-                                            disabled={[
-                                                { before: startDate || new Date() },
-                                                ...fullDates
-                                            ]}
-                                        />
-                                    </div>
-                                </div>
-                                <p className="text-[10px] text-neutral-500 italic px-1">* Dates that are fully booked or in the past are unselectable.</p>
+                            <div className="space-y-4">
+                                <AvailabilityCalendar
+                                    serviceId={id}
+                                    totalUnits={service.totalUnits}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    onSelect={(start, end) => {
+                                        setStartDate(start);
+                                        setEndDate(end);
+                                    }}
+                                    availabilityConfig={service.availability}
+                                />
 
                                 {startDate && endDate && (
-                                    <div className="flex justify-between items-center text-sm pt-2">
-                                        <span className="text-neutral-400">Total ({Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} days)</span>
-                                        <span className="text-xl font-bold">₹{service.pricePerDay * Math.max(0, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))}</span>
+                                    <div className="bg-neutral-800/50 p-4 rounded-xl border border-white/5 space-y-2">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-neutral-400">Selected Period</span>
+                                            <span className="font-semibold">{format(startDate, 'MMM dd')} - {format(endDate, 'MMM dd, yyyy')}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-sm pt-2 border-t border-white/5">
+                                            <span className="text-neutral-400">Total ({numberOfDays} days)</span>
+                                            <span className="text-xl font-bold">₹{totalPrice}</span>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -311,31 +268,6 @@ export default function ServiceDetailPage() {
                             </Dialog>
 
 
-                            {service.availability?.type === 'recurring' && (
-                                <div className="pt-4 border-t border-white/10 text-sm">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <p className="text-neutral-400 flex items-center gap-2"><Calendar size={14} /> Weekly Schedule</p>
-                                        {service.totalUnits > 1 && (
-                                            <span className="px-2 py-1 bg-brand-500/20 text-brand-400 border border-brand-500/30 rounded text-xs">
-                                                {service.totalUnits} slots available
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 mb-3">
-                                        {service.availability.recurring?.days?.map((d: string) => (
-                                            <span key={d} className="px-2 py-1 bg-neutral-800 rounded text-xs capitalize text-neutral-300 border border-white/5">{d}</span>
-                                        ))}
-                                    </div>
-                                    <div className="flex items-center justify-between text-neutral-300 bg-neutral-800/50 p-3 rounded-xl border border-white/5">
-                                        <span>Operating Hours:</span>
-                                        <span className="font-semibold text-white">
-                                            {service.availability.recurring?.is24Hours
-                                                ? "Open 24/7"
-                                                : `${service.availability.recurring?.startTime} - ${service.availability.recurring?.endTime}`}
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
                         <div className="space-y-4">

@@ -7,10 +7,9 @@ import { IBooking } from "../models/booking.model";
 import { BookingStatus, ServiceStatus } from "../enums/business.enums";
 
 // Assuming IEmailService exists and has sendEmail method
-// I'll define a dummy interface here if I can't find the real one easily, or ignore injection for now if not strictly required to run, but requirement says "Send emails".
-// I saw "email.service.ts" in `src/services/email.service.ts`, so I should probably inject it.
 import { IEmailService } from "../core/interfaces/services/IEmail.service";
 import { IUserAuthRepository } from "../core/interfaces/repositories/user/IUserAuth.repository";
+import { format } from "date-fns";
 
 @injectable()
 export class BookingService {
@@ -28,37 +27,71 @@ export class BookingService {
             throw new Error("Service not available");
         }
 
+        // 1. Precise Date Normalization (Force UTC for logic consistency)
         const start = new Date(startDate);
-        const end = new Date(endDate);
+        start.setUTCHours(0, 0, 0, 0);
+        const end = new Date(endDate || startDate);
+        end.setUTCHours(23, 59, 59, 999);
 
-        if (start < new Date()) {
+        const now = new Date();
+        now.setUTCHours(0, 0, 0, 0);
+
+        if (start < now) {
             throw new Error("Cannot book in the past");
         }
 
-        const diffTime = end.getTime() - start.getTime();
-        const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // At least 1 day
-
-        if (diffTime < 0) throw new Error("End date must be after start date");
-
-        // 1. Check Recurring Days Availability
+        // 2. Check Service Availability Config
         if (service.availability.type === 'recurring' && service.availability.recurring) {
-            const requestedDays = this.getDaysInRange(start, end);
-            const availableDays = service.availability.recurring.days;
-            const unavailableRequestedDays = requestedDays.filter(day => !availableDays.includes(day));
-            if (unavailableRequestedDays.length > 0) {
-                throw new Error(`Service is not available on: ${unavailableRequestedDays.join(', ')}`);
+            const requestedWeekDays = this.getWeekDaysInRange(start, end);
+            const allowedWeekDays = service.availability.recurring.days.map(d => d.toLowerCase());
+            const missingDays = requestedWeekDays.filter(day => !allowedWeekDays.includes(day));
+            if (missingDays.length > 0) {
+                throw new Error(`Service is closed on: ${missingDays.join(', ')}`);
+            }
+        } else if (service.availability.type === 'specific_dates' && service.availability.specificDates) {
+            const checkDate = new Date(start);
+            while (checkDate <= end) {
+                const isWithinRange = service.availability.specificDates.some(range => {
+                    if (!range.startDate || !range.endDate) return false;
+                    const rStart = new Date(range.startDate);
+                    rStart.setUTCHours(0, 0, 0, 0);
+                    const rEnd = new Date(range.endDate);
+                    rEnd.setUTCHours(23, 59, 59, 999);
+                    return checkDate >= rStart && checkDate <= rEnd;
+                });
+                if (!isWithinRange) {
+                    throw new Error(`Service is not operating on ${format(checkDate, 'yyyy-MM-dd')}`);
+                }
+                checkDate.setUTCDate(checkDate.getUTCDate() + 1);
             }
         }
 
-        // 2. Check Unit Availability (Overlap)
-        const overlapping = await this.bookingRepository.findOverlappingBookings(serviceId, start, end);
-        const maxOccupied = this.calculateMaxOverlappingUnits(start, end, overlapping);
+        // 3. Strict Occupancy Verification (Day-by-Day)
+        const overlappingBookings = await this.bookingRepository.findOverlappingBookings(serviceId, start, end);
 
-        if (maxOccupied >= service.totalUnits) {
-            throw new Error("Sold out! No available units/slots for the selected dates.");
+        const iterDate = new Date(start);
+        while (iterDate <= end) {
+            const dayS = new Date(iterDate);
+            dayS.setUTCHours(0, 0, 0, 0);
+            const dayE = new Date(iterDate);
+            dayE.setUTCHours(23, 59, 59, 999);
+
+            const occupiedCount = overlappingBookings.filter(b => {
+                if (!b.startDate || !b.endDate) return false;
+                const bS = new Date(b.startDate);
+                const bE = new Date(b.endDate);
+                return bS <= dayE && bE >= dayS;
+            }).length;
+
+            if (occupiedCount >= service.totalUnits) {
+                throw new Error(`Sold out! All slots are booked for ${format(iterDate, 'MMM dd')}`);
+            }
+            iterDate.setUTCDate(iterDate.getUTCDate() + 1);
         }
 
-        const totalPrice = service.pricePerDay * days;
+        const diffTime = end.getTime() - start.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+        const totalPrice = service.pricePerDay * diffDays;
 
         const booking = await this.bookingRepository.create({
             user: userId as any,
@@ -78,46 +111,21 @@ export class BookingService {
                 title: service.title
             });
         }
+
         return booking;
     }
 
-    private getDaysInRange(start: Date, end: Date): string[] {
-        const days = [];
+    private getWeekDaysInRange(start: Date, end: Date): string[] {
+        const daysRequested = [];
         const current = new Date(start);
         const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-
         while (current <= end) {
-            days.push(weekdays[current.getDay()]);
-            current.setDate(current.getDate() + 1);
-            if (days.length > 31) break; // Safety break
+            daysRequested.push(weekdays[current.getUTCDay()]);
+            current.setUTCDate(current.getUTCDate() + 1);
+            if (daysRequested.length > 400) break;
         }
-        return Array.from(new Set(days));
+        return Array.from(new Set(daysRequested));
     }
-
-    private calculateMaxOverlappingUnits(start: Date, end: Date, overlapping: IBooking[]): number {
-        if (overlapping.length === 0) return 0;
-
-        // Collect all critical time points (starts and ends)
-        const points: { time: number; type: number }[] = [];
-        overlapping.forEach(b => {
-            if (b.startDate) points.push({ time: new Date(b.startDate).getTime(), type: 1 }); // Start
-            if (b.endDate) points.push({ time: new Date(b.endDate).getTime(), type: -1 }); // End
-        });
-
-        // Sort points by time
-        points.sort((a, b) => a.time - b.time || a.type);
-
-        let max = 0;
-        let current = 0;
-        for (const p of points) {
-            current += p.type;
-            if (current > max) max = current;
-        }
-
-        return max;
-    }
-
-
 
     async getUserBookings(userId: string): Promise<IBooking[]> {
         return this.bookingRepository.findUserBookings(userId);
@@ -127,32 +135,40 @@ export class BookingService {
         const service = await this.serviceRepository.findById(serviceId);
         if (!service) throw new Error("Service not found");
 
-        const startDate = new Date(year, month - 1, 1);
-        const endDate = new Date(year, month, 0, 23, 59, 59); // End of month
+        const totalUnits = service.totalUnits || 1;
 
-        const bookings = await this.bookingRepository.findOverlappingBookings(serviceId, startDate, endDate);
+        // Month Boundaries in UTC
+        const monthStart = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+        const monthEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
 
-        const availability = [];
-        const current = new Date(startDate);
-        while (current <= endDate) {
-            const dateStr = current.toISOString().split('T')[0];
-            const dayStart = new Date(current);
-            dayStart.setHours(0, 0, 0, 0);
-            const dayEnd = new Date(current);
-            dayEnd.setHours(23, 59, 59, 999);
+        const bookings = await this.bookingRepository.findOverlappingBookings(serviceId, monthStart, monthEnd);
 
-            // Calculate max overlap for THIS specific day
-            const occupied = this.calculateMaxOverlappingUnits(dayStart, dayEnd, bookings);
+        const result = [];
+        const cursor = new Date(monthStart);
 
-            availability.push({
-                date: dateStr,
-                occupied,
-                total: service.totalUnits
+        while (cursor <= monthEnd) {
+            const dayS = new Date(cursor);
+            dayS.setUTCHours(0, 0, 0, 0);
+            const dayE = new Date(cursor);
+            dayE.setUTCHours(23, 59, 59, 999);
+
+            const occupiedCount = bookings.filter(b => {
+                if (!b.startDate || !b.endDate) return false;
+                const bS = new Date(b.startDate);
+                const bE = new Date(b.endDate);
+                return bS <= dayE && bE >= dayS;
+            }).length;
+
+            result.push({
+                date: format(cursor, 'yyyy-MM-dd'),
+                occupied: occupiedCount,
+                total: totalUnits
             });
-            current.setDate(current.getDate() + 1);
+
+            cursor.setUTCDate(cursor.getUTCDate() + 1);
         }
 
-        return availability;
+        return result;
     }
 
     async getAllBookings(): Promise<IBooking[]> {
