@@ -70,7 +70,7 @@ export default function Navbar() {
             dispatch(logout());
             setShowUserMenu(false);
             toast.success('Logged out successfully');
-            router.push('/');
+            router.push('/login');
         } catch (error) {
             toast.error('Logout failed');
         }
