@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { googleLogin } from "@/redux/features/authSlice";
@@ -8,7 +8,7 @@ import { AppDispatch } from "@/redux/store";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const dispatch = useDispatch<AppDispatch>();
@@ -54,5 +54,18 @@ export default function GoogleCallbackPage() {
             <Loader2 className="h-12 w-12 animate-spin text-purple-500 mb-4" />
             <span className="text-lg font-medium text-gray-300">Verifying Google login...</span>
         </div>
+    );
+}
+
+export default function GoogleCallbackPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-screen bg-[#0a0a0a] text-white">
+                <Loader2 className="h-12 w-12 animate-spin text-purple-500 mb-4" />
+                <span className="text-lg font-medium text-gray-300">Loading...</span>
+            </div>
+        }>
+            <GoogleCallbackPageContent />
+        </Suspense>
     );
 }
