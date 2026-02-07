@@ -1,0 +1,40 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "getter-backend/**"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install backend dependencies
+        working-directory: getter-backend
+        run: npm install
+
+      - name: Build backend
+        working-directory: getter-backend
+        run: npm run build
+
+      - name: Verify build output
+        working-directory: getter-backend
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed: dist folder not found"
+            exit 1
+          fi
+
+      - name: Trigger Render deploy
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
