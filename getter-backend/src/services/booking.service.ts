@@ -21,83 +21,109 @@ export class BookingService {
         @inject(TYPES.IUserAuthRepository) private userRepository: IUserAuthRepository
     ) { }
 
-    async createServiceBooking(userId: string, serviceId: string, startDate: Date, endDate: Date): Promise<IBooking> {
+    async createServiceBooking(userId: string, serviceId: string, startDate?: Date, endDate?: Date, selectedDates?: Date[]): Promise<IBooking> {
         const service = await this.serviceRepository.findById(serviceId);
         if (!service || service.status !== ServiceStatus.ACTIVE || service.isDeleted) {
             throw new Error("Service not available");
         }
 
-        // 1. Precise Date Normalization (Force UTC for logic consistency)
-        const start = new Date(startDate);
-        start.setUTCHours(0, 0, 0, 0);
-        const end = new Date(endDate || startDate);
-        end.setUTCHours(23, 59, 59, 999);
+        let datesToBook: Date[] = [];
+
+        if (selectedDates && selectedDates.length > 0) {
+            // Use discrete dates
+            datesToBook = selectedDates.map(d => {
+                const date = new Date(d);
+                date.setUTCHours(0, 0, 0, 0);
+                return date;
+            });
+        } else if (startDate) {
+            // Use range
+            const start = new Date(startDate);
+            start.setUTCHours(0, 0, 0, 0);
+            const end = new Date(endDate || startDate);
+            end.setUTCHours(0, 0, 0, 0);
+
+            let current = new Date(start);
+            while (current <= end) {
+                datesToBook.push(new Date(current));
+                current.setUTCDate(current.getUTCDate() + 1);
+            }
+        }
+
+        if (datesToBook.length === 0) {
+            throw new Error("No dates selected for booking");
+        }
 
         const now = new Date();
         now.setUTCHours(0, 0, 0, 0);
 
-        if (start < now) {
-            throw new Error("Cannot book in the past");
-        }
-
-        // 2. Check Service Availability Config
-        if (service.availability.type === 'recurring' && service.availability.recurring) {
-            const requestedWeekDays = this.getWeekDaysInRange(start, end);
-            const allowedWeekDays = service.availability.recurring.days.map(d => d.toLowerCase());
-            const missingDays = requestedWeekDays.filter(day => !allowedWeekDays.includes(day));
-            if (missingDays.length > 0) {
-                throw new Error(`Service is closed on: ${missingDays.join(', ')}`);
+        // 1. Validate dates are not in the past and follow service availability
+        for (const date of datesToBook) {
+            if (date < now) {
+                throw new Error(`Cannot book in the past: ${format(date, 'yyyy-MM-dd')}`);
             }
-        } else if (service.availability.type === 'specific_dates' && service.availability.specificDates) {
-            const checkDate = new Date(start);
-            while (checkDate <= end) {
+
+            if (service.availability.type === 'recurring' && service.availability.recurring) {
+                const dayName = format(date, 'eeee').toLowerCase();
+                if (!service.availability.recurring.days.map(d => d.toLowerCase()).includes(dayName)) {
+                    throw new Error(`Service is closed on ${format(date, 'eeee')} (${format(date, 'yyyy-MM-dd')})`);
+                }
+            } else if (service.availability.type === 'specific_dates' && service.availability.specificDates) {
                 const isWithinRange = service.availability.specificDates.some(range => {
                     if (!range.startDate || !range.endDate) return false;
                     const rStart = new Date(range.startDate);
                     rStart.setUTCHours(0, 0, 0, 0);
                     const rEnd = new Date(range.endDate);
                     rEnd.setUTCHours(23, 59, 59, 999);
-                    return checkDate >= rStart && checkDate <= rEnd;
+                    return date >= rStart && date <= rEnd;
                 });
                 if (!isWithinRange) {
-                    throw new Error(`Service is not operating on ${format(checkDate, 'yyyy-MM-dd')}`);
+                    throw new Error(`Service is not operating on ${format(date, 'yyyy-MM-dd')}`);
                 }
-                checkDate.setUTCDate(checkDate.getUTCDate() + 1);
             }
         }
 
-        // 3. Strict Occupancy Verification (Day-by-Day)
-        const overlappingBookings = await this.bookingRepository.findOverlappingBookings(serviceId, start, end);
+        // 2. Overlap Check
+        const minDate = new Date(Math.min(...datesToBook.map(d => d.getTime())));
+        const maxDate = new Date(Math.max(...datesToBook.map(d => d.getTime())));
+        maxDate.setUTCHours(23, 59, 59, 999);
 
-        const iterDate = new Date(start);
-        while (iterDate <= end) {
-            const dayS = new Date(iterDate);
+        const overlappingBookings = await this.bookingRepository.findOverlappingBookings(serviceId, minDate, maxDate);
+
+        for (const date of datesToBook) {
+            const dayS = new Date(date);
             dayS.setUTCHours(0, 0, 0, 0);
-            const dayE = new Date(iterDate);
+            const dayE = new Date(date);
             dayE.setUTCHours(23, 59, 59, 999);
 
             const occupiedCount = overlappingBookings.filter(b => {
-                if (!b.startDate || !b.endDate) return false;
-                const bS = new Date(b.startDate);
-                const bE = new Date(b.endDate);
-                return bS <= dayE && bE >= dayS;
+                if (b.selectedDates && b.selectedDates.length > 0) {
+                    return b.selectedDates.some(sd => {
+                        const sDate = new Date(sd);
+                        return sDate.getTime() === dayS.getTime();
+                    });
+                }
+                if (b.startDate && b.endDate) {
+                    const bS = new Date(b.startDate);
+                    const bE = new Date(b.endDate);
+                    return bS <= dayE && bE >= dayS;
+                }
+                return false;
             }).length;
 
             if (occupiedCount >= service.totalUnits) {
-                throw new Error(`Sold out! All slots are booked for ${format(iterDate, 'MMM dd')}`);
+                throw new Error(`Sold out! All slots are booked for ${format(date, 'MMM dd')}`);
             }
-            iterDate.setUTCDate(iterDate.getUTCDate() + 1);
         }
 
-        const diffTime = end.getTime() - start.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
-        const totalPrice = service.pricePerDay * diffDays;
+        const totalPrice = service.pricePerDay * datesToBook.length;
 
         const booking = await this.bookingRepository.create({
             user: userId as any,
             service: serviceId as any,
-            startDate: start,
-            endDate: end,
+            startDate: minDate,
+            endDate: maxDate,
+            selectedDates: datesToBook,
             totalPrice,
             status: BookingStatus.PENDING
         });
@@ -155,11 +181,18 @@ export class BookingService {
             const dayE = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate(), 23, 59, 59, 999));
 
             const occupiedCount = bookings.filter(b => {
-                if (!b.startDate || !b.endDate) return false;
-                const bS = new Date(b.startDate);
-                const bE = new Date(b.endDate);
-                // Standard overlap: Booking touches this specific day's UTC range
-                return bS <= dayE && bE >= dayS;
+                if (b.selectedDates && b.selectedDates.length > 0) {
+                    return b.selectedDates.some(sd => {
+                        const sDate = new Date(sd);
+                        return sDate.getTime() === dayS.getTime();
+                    });
+                }
+                if (b.startDate && b.endDate) {
+                    const bS = new Date(b.startDate);
+                    const bE = new Date(b.endDate);
+                    return bS <= dayE && bE >= dayS;
+                }
+                return false;
             }).length;
 
             result.push({

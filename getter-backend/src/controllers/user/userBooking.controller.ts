@@ -15,8 +15,8 @@ export class BookingController {
     createServiceBooking = async (req: Request, res: Response) => {
         try {
             const userId = (req as any).user.id; // Correct way to access user from middleware
-            const { serviceId, startDate, endDate } = req.body;
-            const result = await this._bookingService.createServiceBooking(userId, serviceId, startDate, endDate);
+            const { serviceId, startDate, endDate, selectedDates } = req.body;
+            const result = await this._bookingService.createServiceBooking(userId, serviceId, startDate, endDate, selectedDates);
             res.status(StatusCode.CREATED).json({ success: true, data: result });
         } catch (error) {
             logger.error("Error creating service booking:", error);

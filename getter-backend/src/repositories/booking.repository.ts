@@ -23,8 +23,18 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
             status: { $in: ['pending', 'confirmed', 'completed'] }, // Ignore cancelled
             $or: [
                 {
+                    // Case 1: Range overlap (existing bookings with startDate/endDate)
                     startDate: { $lt: endDate },
                     endDate: { $gt: startDate }
+                },
+                {
+                    // Case 2: Selected dates overlap (existing bookings with selectedDates)
+                    selectedDates: {
+                        $elemMatch: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
                 }
             ]
         }).exec();

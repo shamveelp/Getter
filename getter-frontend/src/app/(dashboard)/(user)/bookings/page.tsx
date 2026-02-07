@@ -18,6 +18,7 @@ interface IBooking {
     };
     startDate: string;
     endDate: string;
+    selectedDates?: string[];
     totalPrice: number;
     status: string;
     createdAt: string;
@@ -116,15 +117,30 @@ export default function UserBookingsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                                                    <span className="text-xs text-neutral-500 block mb-1">Check-in</span>
-                                                    <span className="text-sm font-semibold">{format(new Date(booking.startDate), 'MMM dd, yyyy')}</span>
-                                                </div>
-                                                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                                                    <span className="text-xs text-neutral-500 block mb-1">Check-out</span>
-                                                    <span className="text-sm font-semibold">{format(new Date(booking.endDate), 'MMM dd, yyyy')}</span>
-                                                </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                                {booking.selectedDates && booking.selectedDates.length > 0 ? (
+                                                    <div className="md:col-span-2 bg-white/5 rounded-xl p-3 border border-white/5">
+                                                        <span className="text-xs text-neutral-500 block mb-1">Selected Dates</span>
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {booking.selectedDates.map((d, i) => (
+                                                                <span key={i} className="text-[10px] bg-white/10 px-2 py-0.5 rounded font-medium">
+                                                                    {format(new Date(d), 'MMM dd')}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                                                            <span className="text-xs text-neutral-500 block mb-1">Check-in</span>
+                                                            <span className="text-sm font-semibold">{format(new Date(booking.startDate), 'MMM dd, yyyy')}</span>
+                                                        </div>
+                                                        <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                                                            <span className="text-xs text-neutral-500 block mb-1">Check-out</span>
+                                                            <span className="text-sm font-semibold">{format(new Date(booking.endDate), 'MMM dd, yyyy')}</span>
+                                                        </div>
+                                                    </>
+                                                )}
                                                 <div className="bg-white/5 rounded-xl p-3 border border-white/5">
                                                     <span className="text-xs text-neutral-500 block mb-1">Total Amount</span>
                                                     <span className="text-sm font-semibold">₹{booking.totalPrice}</span>

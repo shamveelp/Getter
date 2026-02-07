@@ -16,6 +16,7 @@ interface IBooking {
     };
     startDate: string;
     endDate: string;
+    selectedDates?: string[];
     totalPrice: number;
     status: string;
     createdAt: string;
@@ -86,7 +87,17 @@ export default function BookingsPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
+                                            {booking.selectedDates && booking.selectedDates.length > 0 ? (
+                                                <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                                    {booking.selectedDates.map((d, i) => (
+                                                        <span key={i} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px]">
+                                                            {formatDate(d)}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                `${formatDate(booking.startDate)} - ${formatDate(booking.endDate)}`
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 font-medium">
                                             ₹{booking.totalPrice}

@@ -29,22 +29,19 @@ export default function ServiceDetailPage() {
     const [service, setService] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [activeImage, setActiveImage] = useState(0);
-    const [startDate, setStartDate] = useState<Date | undefined>();
-    const [endDate, setEndDate] = useState<Date | undefined>();
+    const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 
-    const numberOfDays = startDate && endDate
-        ? Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
-        : startDate ? 1 : 0;
+    const numberOfDays = selectedDates.length;
 
     const totalPrice = service ? service.pricePerDay * numberOfDays : 0;
 
 
     const handleBookClick = () => {
-        if (!startDate) {
-            toast.error("Please select a date first.");
+        if (selectedDates.length === 0) {
+            toast.error("Please select at least one date first.");
             return;
         }
 
@@ -54,14 +51,11 @@ export default function ServiceDetailPage() {
     const handleConfirmBooking = async () => {
         setBookingLoading(true);
         try {
-            // Force UTC midnight for the strings to prevent timezone shifting
-            const sDate = format(startDate!, 'yyyy-MM-dd');
-            const eDate = format(endDate || startDate!, 'yyyy-MM-dd');
+            const formattedDates = selectedDates.map(d => format(d, 'yyyy-MM-dd'));
 
             const response = await bookingApiService.createBooking({
                 serviceId: id,
-                startDate: sDate as any, // Api service expects Date but string works with Axios/Express
-                endDate: eDate as any
+                selectedDates: formattedDates
             });
             if (response.success) {
                 setIsDialogOpen(false);
@@ -173,23 +167,27 @@ export default function ServiceDetailPage() {
                                 <AvailabilityCalendar
                                     serviceId={id}
                                     totalUnits={service.totalUnits}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    onSelect={(start, end) => {
-                                        setStartDate(start);
-                                        setEndDate(end);
+                                    selectedDates={selectedDates}
+                                    onSelect={(dates) => {
+                                        setSelectedDates(dates);
                                     }}
                                     availabilityConfig={service.availability}
                                 />
 
-                                {startDate && endDate && (
+                                {selectedDates.length > 0 && (
                                     <div className="bg-neutral-800/50 p-4 rounded-xl border border-white/5 space-y-2">
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-neutral-400">Selected Period</span>
-                                            <span className="font-semibold">{format(startDate, 'MMM dd')} - {format(endDate, 'MMM dd, yyyy')}</span>
+                                        <div className="flex justify-between items-start text-sm">
+                                            <span className="text-neutral-400">Selected Dates</span>
+                                            <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
+                                                {[...selectedDates].sort((a: Date, b: Date) => a.getTime() - b.getTime()).map((d: Date) => (
+                                                    <span key={d.getTime()} className="px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded text-[10px] font-bold">
+                                                        {format(d, 'MMM dd')}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </div>
                                         <div className="flex justify-between items-center text-sm pt-2 border-t border-white/5">
-                                            <span className="text-neutral-400">Total ({numberOfDays} days)</span>
+                                            <span className="text-neutral-400">Total ({numberOfDays} {numberOfDays === 1 ? 'day' : 'days'})</span>
                                             <span className="text-xl font-bold">₹{totalPrice}</span>
                                         </div>
                                     </div>
@@ -223,13 +221,15 @@ export default function ServiceDetailPage() {
                                                 <span className="text-neutral-500 block mb-1">Location</span>
                                                 <span className="font-semibold">{service?.location}</span>
                                             </div>
-                                            <div>
-                                                <span className="text-neutral-500 block mb-1">Check-in</span>
-                                                <span className="font-semibold">{startDate ? format(startDate, 'MMM dd, yyyy') : '-'}</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-neutral-500 block mb-1">Check-out</span>
-                                                <span className="font-semibold">{endDate ? format(endDate, 'MMM dd, yyyy') : '-'}</span>
+                                            <div className="col-span-2">
+                                                <span className="text-neutral-500 block mb-1">Dates</span>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {[...selectedDates].sort((a: Date, b: Date) => a.getTime() - b.getTime()).map((d: Date) => (
+                                                        <span key={d.getTime()} className="px-2 py-1 bg-neutral-800 rounded font-medium text-xs">
+                                                            {format(d, 'MMM dd, yyyy')}
+                                                        </span>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -239,8 +239,8 @@ export default function ServiceDetailPage() {
                                                 <span>₹{service?.pricePerDay}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-neutral-400">Duration</span>
-                                                <span>{numberOfDays} days</span>
+                                                <span className="text-neutral-400">Total Days</span>
+                                                <span>{numberOfDays}</span>
                                             </div>
                                             <div className="flex justify-between text-lg font-bold border-t border-white/10 pt-2 mt-2">
                                                 <span>Total</span>

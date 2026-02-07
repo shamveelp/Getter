@@ -23,9 +23,8 @@ import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 interface AvailabilityCalendarProps {
     serviceId: string;
     totalUnits: number;
-    startDate: Date | undefined;
-    endDate: Date | undefined;
-    onSelect: (start: Date | undefined, end: Date | undefined) => void;
+    selectedDates: Date[];
+    onSelect: (dates: Date[]) => void;
     availabilityConfig?: {
         type: 'specific_dates' | 'recurring';
         recurring?: {
@@ -38,7 +37,7 @@ interface AvailabilityCalendarProps {
     };
 }
 
-export function AvailabilityCalendar({ serviceId, totalUnits, startDate, endDate, onSelect, availabilityConfig }: AvailabilityCalendarProps) {
+export function AvailabilityCalendar({ serviceId, totalUnits, selectedDates, onSelect, availabilityConfig }: AvailabilityCalendarProps) {
     const [availability, setAvailability] = useState<any[]>([]);
     const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -85,45 +84,16 @@ export function AvailabilityCalendar({ serviceId, totalUnits, startDate, endDate
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     };
 
-    const isFullDay = (date: Date) => {
-        const dateStr = toDateKey(date);
-        const slotInfo = availability.find(a => a.date === dateStr);
-        return slotInfo ? slotInfo.occupied >= slotInfo.total : false;
-    };
-
     const handleDayClick = (date: Date, isFull: boolean, isPastDay: boolean, offDay: boolean) => {
         if (isFull || isPastDay || offDay) return;
 
         const clickedDate = startOfDay(date);
-        const s = startDate ? startOfDay(startDate) : null;
-        const e = endDate ? startOfDay(endDate) : null;
+        const isAlreadySelected = selectedDates.some(d => isSameDay(d, clickedDate));
 
-        if (!s || (s && e)) {
-            // Start new selection
-            onSelect(clickedDate, undefined);
+        if (isAlreadySelected) {
+            onSelect(selectedDates.filter(d => !isSameDay(d, clickedDate)));
         } else {
-            // Already have a start date
-            if (isBefore(clickedDate, s)) {
-                // Clicked earlier date, becomes new start
-                onSelect(clickedDate, undefined);
-            } else {
-                // Clicked same or later date, check range validity
-                let current = addDays(s, 1);
-                let hasInvalidDay = false;
-                while (isBefore(current, clickedDate) || isSameDay(current, clickedDate)) {
-                    if (isDayOff(current) || isFullDay(current)) {
-                        hasInvalidDay = true;
-                        break;
-                    }
-                    current = addDays(current, 1);
-                }
-
-                if (hasInvalidDay) {
-                    onSelect(clickedDate, undefined);
-                } else {
-                    onSelect(s, clickedDate);
-                }
-            }
+            onSelect([...selectedDates, clickedDate]);
         }
     };
 
@@ -133,15 +103,12 @@ export function AvailabilityCalendar({ serviceId, totalUnits, startDate, endDate
     };
 
     const isDateSelected = (date: Date) => {
-        if (!startDate) return false;
-        if (isSameDay(date, startDate)) return true;
-        if (endDate && isSameDay(date, endDate)) return true;
-        return false;
+        return selectedDates.some(d => isSameDay(d, date));
     };
 
     const isDateInRange = (date: Date) => {
-        if (!startDate || !endDate) return false;
-        return date > startDate && date < endDate;
+        // Range visualization is no longer needed for discrete selection
+        return false;
     };
 
     const days = useMemo(() => {
@@ -285,7 +252,7 @@ export function AvailabilityCalendar({ serviceId, totalUnits, startDate, endDate
 
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <button
-                        onClick={() => onSelect(undefined, undefined)}
+                        onClick={() => onSelect([])}
                         className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all text-xs font-black uppercase tracking-[0.2em] active:scale-95 group shadow-xl"
                     >
                         <RotateCcw size={16} className="group-hover:-rotate-45 transition-transform" />
