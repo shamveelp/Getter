@@ -137,34 +137,38 @@ export class BookingService {
 
         const totalUnits = service.totalUnits || 1;
 
-        // Month Boundaries in UTC
+        // Force UTC Month Boundaries
         const monthStart = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
         const monthEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
 
+        // Get all relevant bookings
         const bookings = await this.bookingRepository.findOverlappingBookings(serviceId, monthStart, monthEnd);
 
         const result = [];
-        const cursor = new Date(monthStart);
+        let cursor = new Date(monthStart);
 
         while (cursor <= monthEnd) {
-            const dayS = new Date(cursor);
-            dayS.setUTCHours(0, 0, 0, 0);
-            const dayE = new Date(cursor);
-            dayE.setUTCHours(23, 59, 59, 999);
+            const currentDayStr = cursor.toISOString().split('T')[0];
+
+            // Define precise UTC boundaries for this specific day
+            const dayS = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate(), 0, 0, 0, 0));
+            const dayE = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate(), 23, 59, 59, 999));
 
             const occupiedCount = bookings.filter(b => {
                 if (!b.startDate || !b.endDate) return false;
                 const bS = new Date(b.startDate);
                 const bE = new Date(b.endDate);
+                // Standard overlap: Booking touches this specific day's UTC range
                 return bS <= dayE && bE >= dayS;
             }).length;
 
             result.push({
-                date: format(cursor, 'yyyy-MM-dd'),
+                date: currentDayStr,
                 occupied: occupiedCount,
                 total: totalUnits
             });
 
+            // Move to next day UTC safely
             cursor.setUTCDate(cursor.getUTCDate() + 1);
         }
 

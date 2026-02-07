@@ -3,6 +3,9 @@ import { TYPES } from "../core/types";
 import { IServiceRepository } from "../core/interfaces/repositories/IService.repository";
 import { IService } from "../models/service.model";
 import { ServiceStatus } from "../enums/business.enums";
+import { CreateServiceSchema, UpdateServiceSchema } from "../validations/admin/service.validation";
+import { CustomError } from "../utils/customError";
+import { StatusCode } from "../enums/statusCode.enums";
 
 @injectable()
 export class ServiceService {
@@ -10,39 +13,48 @@ export class ServiceService {
         @inject(TYPES.IServiceRepository) private serviceRepository: IServiceRepository
     ) { }
 
-    async createService(data: Partial<IService>): Promise<IService> {
-        // Validation
-        if ((data.pricePerDay || 0) < 0) {
-            throw new Error("Price must be positive");
+    async createService(data: any): Promise<IService> {
+        // Zod Validation
+        const validated = CreateServiceSchema.safeParse(data);
+
+        if (!validated.success) {
+            const errorMessages = validated.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join(", ");
+            throw new CustomError(`Validation Error: ${errorMessages}`, StatusCode.BAD_REQUEST);
         }
 
-        if (data.availability?.type === 'specific_dates' && data.availability.specificDates) {
-            data.availability.specificDates.forEach(slot => {
+        const validData = validated.data;
+
+        if (validData.availability?.type === 'specific_dates' && validData.availability.specificDates) {
+            validData.availability.specificDates.forEach(slot => {
                 if (new Date(slot.startDate) > new Date(slot.endDate)) {
-                    throw new Error("Invalid availability dates");
+                    throw new CustomError("Invalid availability dates: Start date cannot be after end date.", StatusCode.BAD_REQUEST);
                 }
             });
         }
-        // Recurring validation could be added here (e.g. check time format)
 
-        return this.serviceRepository.create(data);
+        return this.serviceRepository.create(validData as any);
     }
 
-    async updateService(id: string, data: Partial<IService>): Promise<IService | null> {
-        return this.serviceRepository.update(id, data);
+    async updateService(id: string, data: any): Promise<IService | null> {
+        const validated = UpdateServiceSchema.safeParse(data);
+        if (!validated.success) {
+            const errorMessages = validated.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join(", ");
+            throw new CustomError(`Validation Error: ${errorMessages}`, StatusCode.BAD_REQUEST);
+        }
+        return this.serviceRepository.update(id, validated.data as any);
     }
 
     async unlistService(id: string): Promise<IService | null> {
-        return this.serviceRepository.update(id, { status: ServiceStatus.UNLISTED });
+        return this.serviceRepository.update(id, { status: ServiceStatus.UNLISTED } as any);
     }
 
     async listService(id: string): Promise<IService | null> {
-        return this.serviceRepository.update(id, { status: ServiceStatus.ACTIVE });
+        return this.serviceRepository.update(id, { status: ServiceStatus.ACTIVE } as any);
     }
 
     async deleteService(id: string): Promise<IService | null> {
         // Soft delete
-        return this.serviceRepository.update(id, { isDeleted: true, status: ServiceStatus.UNLISTED });
+        return this.serviceRepository.update(id, { isDeleted: true, status: ServiceStatus.UNLISTED } as any);
     }
 
     async getServiceById(id: string): Promise<IService | null> {
@@ -60,14 +72,11 @@ export class ServiceService {
             if (filters.status !== 'all') {
                 query.status = filters.status;
             }
-            // if status is 'all', we don't add the status constraint
         } else {
-            // Default to ACTIVE if not specified (for safety in user-facing search)
             query.status = ServiceStatus.ACTIVE;
         }
 
         if (filters.keyword) {
-            // Search by title OR location if keyword is provided
             query.$or = [
                 { title: { $regex: filters.keyword, $options: 'i' } },
                 { location: { $regex: filters.keyword, $options: 'i' } }
@@ -82,7 +91,6 @@ export class ServiceService {
             if (filters.maxPrice) query.pricePerDay.$lte = Number(filters.maxPrice);
         }
         if (filters.location) {
-            // Specific location filter (in addition to keyword search)
             query.location = { $regex: filters.location, $options: 'i' };
         }
 

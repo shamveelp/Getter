@@ -80,8 +80,13 @@ export function AvailabilityCalendar({ serviceId, totalUnits, startDate, endDate
         return false;
     };
 
+    const toDateKey = (date: Date) => {
+        const d = new Date(date);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
     const isFullDay = (date: Date) => {
-        const dateStr = format(date, 'yyyy-MM-dd');
+        const dateStr = toDateKey(date);
         const slotInfo = availability.find(a => a.date === dateStr);
         return slotInfo ? slotInfo.occupied >= slotInfo.total : false;
     };
@@ -123,7 +128,7 @@ export function AvailabilityCalendar({ serviceId, totalUnits, startDate, endDate
     };
 
     const getSlotInfo = (date: Date) => {
-        const dateStr = format(date, 'yyyy-MM-dd');
+        const dateStr = toDateKey(date);
         return availability.find(a => a.date === dateStr);
     };
 

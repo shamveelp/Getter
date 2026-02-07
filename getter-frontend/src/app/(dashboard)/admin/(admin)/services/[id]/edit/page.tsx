@@ -10,6 +10,7 @@ import ImageUpload from "@/components/admin/form/ImageUpload";
 import Checkbox from "@/components/admin/form/input/Checkbox";
 import { adminServiceService } from "@/services/admin/adminServiceApiService";
 import { TimePicker } from "@/components/ui/time-picker";
+import { toast } from "sonner";
 
 export default function EditServicePage() {
     const router = useRouter();
@@ -98,6 +99,23 @@ export default function EditServicePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Basic frontend validation
+        if (!formData.title || !formData.category || !formData.pricePerDay || !formData.location || !formData.description) {
+            toast.error("Required Fields Missing", { description: "Please fill in all the main service details." });
+            return;
+        }
+
+        if (availability.days.length === 0) {
+            toast.error("Availability Missing", { description: "Please select at least one day for service availability." });
+            return;
+        }
+
+        if (!formData.contactEmail || !formData.contactPhone) {
+            toast.error("Contact Info Missing", { description: "Please provide both contact email and phone." });
+            return;
+        }
+
         setLoading(true);
         try {
             const payload = {
@@ -116,18 +134,24 @@ export default function EditServicePage() {
                         is24Hours: availability.is24Hours
                     }
                 },
+                contact: {
+                    email: formData.contactEmail,
+                    phone: formData.contactPhone
+                },
                 images: formData.images
             };
 
             const response = await adminServiceService.updateService(id, payload);
             if (response.success) {
-                router.push(`/admin/services/${id}`); // Go back to detail page
+                toast.success("Service Updated!", { description: "Changes have been saved successfully." });
+                router.push(`/admin/services/${id}`);
             } else {
-                alert("Failed: " + response.error);
+                toast.error("Update Failed", { description: response.error });
             }
         } catch (error: any) {
             console.error("Error updating service:", error);
-            alert("Error: " + (error.response?.data?.error || error.message));
+            const errorMsg = error.response?.data?.error || error.message || "Something went wrong.";
+            toast.error("Error", { description: errorMsg });
         } finally {
             setLoading(false);
         }

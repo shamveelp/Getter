@@ -11,6 +11,7 @@ import Checkbox from "../../../../../../components/admin/form/input/Checkbox";
 import { adminServiceService } from "../../../../../../services/admin/adminServiceApiService";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
+import { toast } from "sonner";
 
 export default function AddServicePage() {
     const router = useRouter();
@@ -55,6 +56,23 @@ export default function AddServicePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Basic frontend validation
+        if (!formData.title || !formData.category || !formData.pricePerDay || !formData.location || !formData.description) {
+            toast.error("Required Fields Missing", { description: "Please fill in all the main service details." });
+            return;
+        }
+
+        if (availability.days.length === 0) {
+            toast.error("Availability Missing", { description: "Please select at least one day for service availability." });
+            return;
+        }
+
+        if (!formData.contactEmail || !formData.contactPhone) {
+            toast.error("Contact Info Missing", { description: "Please provide both contact email and phone." });
+            return;
+        }
+
         setLoading(true);
         try {
             const payload = {
@@ -73,18 +91,24 @@ export default function AddServicePage() {
                         is24Hours: availability.is24Hours
                     }
                 },
+                contact: {
+                    email: formData.contactEmail,
+                    phone: formData.contactPhone
+                },
                 images: formData.images
             };
 
             const response = await adminServiceService.createService(payload);
             if (response.success) {
+                toast.success("Service Created!", { description: "The new service has been added successfully." });
                 router.push("/admin/services");
             } else {
-                alert("Failed: " + response.error);
+                toast.error("Creation Failed", { description: response.error });
             }
         } catch (error: any) {
             console.error("Error creating service:", error);
-            alert("Error: " + (error.response?.data?.error || error.message));
+            const errorMsg = error.response?.data?.error || error.message || "Something went wrong.";
+            toast.error("Error", { description: errorMsg });
         } finally {
             setLoading(false);
         }
