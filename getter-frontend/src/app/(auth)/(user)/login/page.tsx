@@ -9,15 +9,16 @@ import { loginStart, loginSuccess, loginFailure } from '@/redux/features/authSli
 import { toast } from 'sonner';
 import { userAuthService } from '@/services/user/userAuthApiService';
 import { loginSchema, LoginFormData } from '@/validations/userAuth.validation';
-import type { RootState } from '@/redux/store';
+import type { RootState, AppDispatch } from '@/redux/store';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useGoogleLogin } from '@/hooks/useGoogleLogin';
+import { AxiosError } from 'axios';
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const { loading, error } = useSelector((state: RootState) => state.auth);
     const { initiateGoogleLogin } = useGoogleLogin();
@@ -39,12 +40,13 @@ export default function LoginPage() {
                 toast.success('Login successful! Welcome back.');
                 router.push('/');
             } else {
-                const message = response.error || 'Login failed';
+                const message = response.message || 'Login failed';
                 dispatch(loginFailure(message));
                 toast.error(message);
             }
-        } catch (err: any) {
-            const message = err.response?.data?.error || 'Something went wrong';
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const message = axiosError.response?.data?.error || 'Something went wrong';
             dispatch(loginFailure(message));
             toast.error(message);
         }

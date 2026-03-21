@@ -47,15 +47,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value = [], multipl
             const response = await uploadService.uploadImage(file);
 
             if (response.success) {
-                const newImages = [...images, response.url];
+                const newImages = [...images, response.data.url];
                 setImages(newImages);
                 onChange(newImages);
                 setIsModalOpen(false);
                 setImageSrc(null);
             } else {
-                alert("Upload failed: " + response.error);
+                alert("Upload failed: " + response.message);
             }
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error(e);
             alert("Error uploading image");
         }

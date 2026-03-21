@@ -20,6 +20,8 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 
+import { ServiceAvailabilitySlot } from '@/types/booking';
+
 interface AvailabilityCalendarProps {
     serviceId: string;
     totalUnits: number;
@@ -29,16 +31,16 @@ interface AvailabilityCalendarProps {
         type: 'specific_dates' | 'recurring';
         recurring?: {
             days: string[];
-            is24Hours: boolean;
+            is24Hours?: boolean;
             startTime?: string;
             endTime?: string;
         };
-        specificDates?: { startDate: Date; endDate: Date }[];
+        specificDates?: { startDate: string | Date; endDate: string | Date }[];
     };
 }
 
 export function AvailabilityCalendar({ serviceId, totalUnits, selectedDates, onSelect, availabilityConfig }: AvailabilityCalendarProps) {
-    const [availability, setAvailability] = useState<any[]>([]);
+    const [availability, setAvailability] = useState<ServiceAvailabilitySlot[]>([]);
     const [currentMonth, setCurrentMonth] = useState(new Date());
 
     const fetchAvailability = async (date: Date) => {

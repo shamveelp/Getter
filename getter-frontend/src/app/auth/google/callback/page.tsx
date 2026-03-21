@@ -36,9 +36,10 @@ function GoogleCallbackPageContent() {
                         toast.success("Successfully logged in with Google!");
                         router.push("/");
                     })
-                    .catch((err: any) => {
+                    .catch((err: unknown) => {
                         toast.dismiss(toastId);
-                        toast.error(typeof err === 'string' ? err : "Google login failed");
+                        const errorMessage = typeof err === 'string' ? err : (err as Error)?.message || "Google login failed";
+                        toast.error(errorMessage);
                         router.push("/login");
                     });
             }

@@ -12,6 +12,8 @@ import { adminServiceService } from "../../../../../../services/admin/adminServi
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ServiceCategory } from "@/types/service";
 
 export default function AddServicePage() {
     const router = useRouter();
@@ -77,13 +79,13 @@ export default function AddServicePage() {
         try {
             const payload = {
                 title: formData.title,
-                category: formData.category,
+                category: formData.category as ServiceCategory,
                 pricePerDay: Number(formData.pricePerDay),
                 description: formData.description,
                 location: formData.location,
                 totalUnits: Number(formData.totalUnits),
                 availability: {
-                    type: 'recurring',
+                    type: 'recurring' as const,
                     recurring: {
                         days: availability.days,
                         startTime: availability.is24Hours ? "00:00" : availability.startTime,
@@ -103,11 +105,12 @@ export default function AddServicePage() {
                 toast.success("Service Created!", { description: "The new service has been added successfully." });
                 router.push("/admin/services");
             } else {
-                toast.error("Creation Failed", { description: response.error });
+                toast.error("Creation Failed", { description: response.message });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error creating service:", error);
-            const errorMsg = error.response?.data?.error || error.message || "Something went wrong.";
+            const axiosError = error as AxiosError<{ error: string }>;
+            const errorMsg = axiosError.response?.data?.error || (error as Error).message || "Something went wrong.";
             toast.error("Error", { description: errorMsg });
         } finally {
             setLoading(false);
@@ -271,7 +274,7 @@ export default function AddServicePage() {
                         <Label htmlFor="images">Service Images</Label>
                         <ImageUpload
                             onChange={handleImagesChange}
-                            value={formData.images as any}
+                            value={formData.images}
                         />
                     </div>
 

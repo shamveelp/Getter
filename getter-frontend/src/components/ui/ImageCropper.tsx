@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import Cropper from 'react-easy-crop';
+import Cropper, { Area } from 'react-easy-crop';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ZoomIn, ZoomOut, Check, Loader2 } from 'lucide-react';
 import getCroppedImg from '@/utils/cropImage';
@@ -25,10 +25,10 @@ export default function ImageCropper({
 }: ImageCropperProps) {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+    const handleCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     }, []);
 
@@ -41,7 +41,7 @@ export default function ImageCropper({
             if (croppedImageBlob) {
                 await onCropComplete(croppedImageBlob);
             }
-        } catch (e) {
+        } catch (e: unknown) {
             console.error(e);
         } finally {
             setIsProcessing(false);

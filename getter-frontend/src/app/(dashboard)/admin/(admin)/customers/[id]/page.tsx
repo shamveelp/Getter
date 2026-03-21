@@ -17,27 +17,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-interface IUser {
-    _id: string;
-    username: string;
-    email: string;
-    name: string;
-    profilePicture?: string;
-    bio?: string;
-    phoneNumber?: string;
-    isActive: boolean;
-    isBanned: boolean;
-    tokenVersion: number;
-    createdAt: string;
-    updatedAt: string;
-}
+import { User as UserType } from "@/types/user";
 
 export default function CustomerDetailPage() {
     const params = useParams();
     const router = useRouter();
     const id = params?.id as string;
 
-    const [user, setUser] = useState<IUser | null>(null);
+    const [user, setUser] = useState<UserType | null>(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
@@ -52,7 +39,7 @@ export default function CustomerDetailPage() {
                 // data.data.user
                 setUser(data.data.user);
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Failed to fetch user details", error);
             toast.error("Failed to fetch user details");
         } finally {

@@ -1,26 +1,8 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { userAuthService } from '../../services/user/userAuthApiService';
-
-interface User {
-    _id: string;
-    username: string;
-    email: string;
-    name: string;
-    bio?: string;
-    phoneNumber?: string;
-    profilePicture?: string;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface AuthState {
-    user: User | null;
-    isAuthenticated: boolean;
-    loading: boolean;
-    error: string | null;
-    isInitialized: boolean;
-}
+import { User } from '../../types/user';
+import { AuthState, GoogleLoginPayload, LoginResponse } from '../../types/auth';
+import { AxiosError } from 'axios';
 
 const initialState: AuthState = {
     user: null,
@@ -36,7 +18,7 @@ export const checkSession = createAsyncThunk(
         try {
             const response = await userAuthService.getMe();
             return response;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return rejectWithValue("Session invalid");
         }
     }
@@ -44,12 +26,13 @@ export const checkSession = createAsyncThunk(
 
 export const googleLogin = createAsyncThunk(
     'auth/googleLogin',
-    async (data: { token?: string; code?: string; referralCode?: string }, { rejectWithValue }) => {
+    async (data: GoogleLoginPayload, { rejectWithValue }) => {
         try {
             const response = await userAuthService.googleLogin(data);
             return response;
-        } catch (error: any) {
-            return rejectWithValue(error.response?.data?.error || "Google login failed");
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError<{ error: string }>;
+            return rejectWithValue(axiosError.response?.data?.error || "Google login failed");
         }
     }
 );
@@ -101,7 +84,7 @@ const authSlice = createSlice({
             .addCase(checkSession.fulfilled, (state, action) => {
                 state.loading = false;
                 state.isAuthenticated = true;
-                state.user = action.payload.user;
+                state.user = (action.payload as LoginResponse).user;
                 state.isInitialized = true;
             })
             .addCase(checkSession.rejected, (state) => {
@@ -117,7 +100,7 @@ const authSlice = createSlice({
             .addCase(googleLogin.fulfilled, (state, action) => {
                 state.loading = false;
                 state.isAuthenticated = true;
-                state.user = action.payload.user;
+                state.user = (action.payload as LoginResponse).user;
                 state.isInitialized = true;
             })
             .addCase(googleLogin.rejected, (state, action) => {
@@ -138,4 +121,4 @@ export const {
     clearError
 } = authSlice.actions;
 
-export default authSlice.reducer;
+export default authSlice.reducer;

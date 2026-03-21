@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Loader2, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 
+import { AxiosError } from 'axios';
+
 export default function ForgotPasswordPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -35,8 +37,9 @@ export default function ForgotPasswordPage() {
             setSuccess(true);
             setEmailState(data.email);
             toast.success('Password reset OTP sent to your email.');
-        } catch (err: any) {
-            const errorMsg = err.response?.data?.error || 'Request failed';
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const errorMsg = axiosError.response?.data?.error || 'Request failed';
             toast.error(errorMsg);
         } finally {
             setLoading(false);

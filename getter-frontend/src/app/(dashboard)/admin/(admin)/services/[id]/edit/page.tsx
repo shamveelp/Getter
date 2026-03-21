@@ -12,6 +12,9 @@ import { adminServiceService } from "@/services/admin/adminServiceApiService";
 import { TimePicker } from "@/components/ui/time-picker";
 import { toast } from "sonner";
 
+import { AxiosError } from "axios";
+import { ServiceCategory } from "@/types/service";
+
 export default function EditServicePage() {
     const router = useRouter();
     const params = useParams();
@@ -67,7 +70,7 @@ export default function EditServicePage() {
                     setFormData({
                         title: s.title,
                         category: s.category,
-                        pricePerDay: s.pricePerDay,
+                        pricePerDay: s.pricePerDay.toString(),
                         description: s.description,
                         location: s.location,
                         contactEmail: s.contact?.email || "",
@@ -85,7 +88,7 @@ export default function EditServicePage() {
                         });
                     }
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Failed to load service", error);
                 alert("Could not load service details");
                 router.push("/admin/services");
@@ -120,13 +123,13 @@ export default function EditServicePage() {
         try {
             const payload = {
                 title: formData.title,
-                category: formData.category,
+                category: formData.category as ServiceCategory,
                 pricePerDay: Number(formData.pricePerDay),
                 description: formData.description,
                 location: formData.location,
                 totalUnits: Number(formData.totalUnits),
                 availability: {
-                    type: 'recurring',
+                    type: 'recurring' as const,
                     recurring: {
                         days: availability.days,
                         startTime: availability.is24Hours ? "00:00" : availability.startTime,
@@ -146,11 +149,12 @@ export default function EditServicePage() {
                 toast.success("Service Updated!", { description: "Changes have been saved successfully." });
                 router.push(`/admin/services/${id}`);
             } else {
-                toast.error("Update Failed", { description: response.error });
+                toast.error("Update Failed", { description: response.message });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error updating service:", error);
-            const errorMsg = error.response?.data?.error || error.message || "Something went wrong.";
+            const axiosError = error as AxiosError<{ error: string }>;
+            const errorMsg = axiosError.response?.data?.error || (error as Error).message || "Something went wrong.";
             toast.error("Error", { description: errorMsg });
         } finally {
             setLoading(false);
@@ -323,7 +327,7 @@ export default function EditServicePage() {
                         <Label htmlFor="images">Service Images</Label>
                         <ImageUpload
                             onChange={handleImagesChange}
-                            value={formData.images as any}
+                            value={formData.images}
                         />
                     </div>
 

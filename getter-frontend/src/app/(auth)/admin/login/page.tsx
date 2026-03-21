@@ -9,13 +9,14 @@ import { adminLoginStart, adminLoginSuccess, adminLoginFailure } from '@/redux/f
 import { toast } from 'sonner';
 import { adminAuthService } from '@/services/admin/adminAuthApiService';
 import { loginSchema, LoginFormData } from '@/validations/userAuth.validation';
-import type { RootState } from '@/redux/store';
+import type { RootState, AppDispatch } from '@/redux/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { AxiosError } from 'axios';
 
 export default function AdminLoginPage() {
     const [showPassword, setShowPassword] = useState(false);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const { loading, error, isAuthenticated } = useSelector((state: RootState) => state.adminAuth);
 
@@ -42,12 +43,13 @@ export default function AdminLoginPage() {
                 toast.success('Admin Login successful!');
                 router.push('/admin');
             } else {
-                const message = response.error || 'Login failed';
+                const message = response.message || 'Login failed';
                 dispatch(adminLoginFailure(message));
                 toast.error(message);
             }
-        } catch (err: any) {
-            const message = err.response?.data?.error || 'Something went wrong';
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const message = axiosError.response?.data?.error || 'Something went wrong';
             dispatch(adminLoginFailure(message));
             toast.error(message);
         }

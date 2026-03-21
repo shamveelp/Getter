@@ -7,25 +7,10 @@ import { format } from 'date-fns';
 import { Calendar, MapPin, Clock, CreditCard, CheckCircle2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
-interface IBooking {
-    _id: string;
-    service: {
-        _id: string;
-        title: string;
-        location: string;
-        images: string[];
-        pricePerDay: number;
-    };
-    startDate: string;
-    endDate: string;
-    selectedDates?: string[];
-    totalPrice: number;
-    status: string;
-    createdAt: string;
-}
+import { PopulatedBooking, BookingStatus } from '@/types/booking';
 
 export default function UserBookingsPage() {
-    const [bookings, setBookings] = useState<IBooking[]>([]);
+    const [bookings, setBookings] = useState<PopulatedBooking[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,9 +18,9 @@ export default function UserBookingsPage() {
             try {
                 const response = await bookingApiService.getMyBookings();
                 if (response.success) {
-                    setBookings(response.data);
+                    setBookings(response.data as PopulatedBooking[]);
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Failed to fetch bookings", error);
             } finally {
                 setLoading(false);
@@ -44,11 +29,11 @@ export default function UserBookingsPage() {
         fetchBookings();
     }, []);
 
-    const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'confirmed': return 'text-green-400 bg-green-400/10 border-green-400/20';
-            case 'pending': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
-            case 'cancelled': return 'text-red-400 bg-red-400/10 border-red-400/20';
+    const getStatusColor = (status: BookingStatus) => {
+        switch (status) {
+            case BookingStatus.CONFIRMED: return 'text-green-400 bg-green-400/10 border-green-400/20';
+            case BookingStatus.PENDING: return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
+            case BookingStatus.CANCELLED: return 'text-red-400 bg-red-400/10 border-red-400/20';
             default: return 'text-neutral-400 bg-neutral-400/10 border-neutral-400/20';
         }
     };
@@ -133,11 +118,11 @@ export default function UserBookingsPage() {
                                                     <>
                                                         <div className="bg-white/5 rounded-xl p-3 border border-white/5">
                                                             <span className="text-xs text-neutral-500 block mb-1">Check-in</span>
-                                                            <span className="text-sm font-semibold">{format(new Date(booking.startDate), 'MMM dd, yyyy')}</span>
+                                                            <span className="text-sm font-semibold">{booking.startDate ? format(new Date(booking.startDate), 'MMM dd, yyyy') : 'N/A'}</span>
                                                         </div>
                                                         <div className="bg-white/5 rounded-xl p-3 border border-white/5">
                                                             <span className="text-xs text-neutral-500 block mb-1">Check-out</span>
-                                                            <span className="text-sm font-semibold">{format(new Date(booking.endDate), 'MMM dd, yyyy')}</span>
+                                                            <span className="text-sm font-semibold">{booking.endDate ? format(new Date(booking.endDate), 'MMM dd, yyyy') : 'N/A'}</span>
                                                         </div>
                                                     </>
                                                 )}
@@ -146,7 +131,7 @@ export default function UserBookingsPage() {
                                                     <span className="text-sm font-semibold">₹{booking.totalPrice}</span>
                                                 </div>
                                                 <div className="bg-white/5 rounded-xl p-3 border border-white/5 flex items-center justify-center">
-                                                    {booking.status === 'PENDING' ? (
+                                                    {booking.status === BookingStatus.PENDING ? (
                                                         <span className="text-xs text-yellow-500 font-medium flex items-center gap-1">
                                                             <Clock size={12} /> Awaiting Confirmation
                                                         </span>

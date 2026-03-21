@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { Calendar, CalendarProps } from "@/components/ui/calendar"
 import {
     Popover,
     PopoverContent,
@@ -18,7 +18,7 @@ interface DatePickerProps {
     setDate: (date: Date | undefined) => void;
     className?: string;
     placeholder?: string;
-    disabled?: any;
+    disabled?: CalendarProps['disabled'];
 }
 
 export function DatePicker({ date, setDate, className, placeholder = "Pick a date", disabled }: DatePickerProps) {

@@ -1,9 +1,11 @@
 import axiosInstance from '../../lib/axios';
+import { Service, ServiceFilters } from '../../types/service';
+import { ApiResponse, SearchResult } from '../../types/api';
 
 const API_URL = '/api/users';
 
 export const exploreApiService = {
-    searchServices: async (filters: any = {}) => {
+    searchServices: async (filters: ServiceFilters = {}): Promise<ApiResponse<SearchResult<Service>>> => {
         let query = `${API_URL}/services?`;
         if (filters.keyword) query += `keyword=${filters.keyword}&`;
         if (filters.category) query += `category=${filters.category}&`;
@@ -14,12 +16,12 @@ export const exploreApiService = {
         if (filters.page) query += `page=${filters.page}&`;
         if (filters.limit) query += `limit=${filters.limit}&`;
 
-        const response = await axiosInstance.get(query);
+        const response = await axiosInstance.get<ApiResponse<SearchResult<Service>>>(query);
         return response.data;
     },
 
-    getServiceDetail: async (id: string) => {
-        const response = await axiosInstance.get(`${API_URL}/services/${id}`);
+    getServiceDetail: async (id: string): Promise<ApiResponse<Service>> => {
+        const response = await axiosInstance.get<ApiResponse<Service>>(`${API_URL}/services/${id}`);
         return response.data;
     }
 };

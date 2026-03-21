@@ -24,6 +24,7 @@ import {
     Sparkles
 } from 'lucide-react';
 import { useGoogleLogin } from '@/hooks/useGoogleLogin';
+import { AxiosError } from 'axios';
 
 export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
@@ -75,7 +76,7 @@ export default function RegisterPage() {
             const response = await userAuthService.generateUsername(watchedEmail);
             setValue('username', response.username);
             toast.success('Username generated from your email!');
-        } catch (error) {
+        } catch (error: unknown) {
             toast.error('Failed to generate username');
         }
     };
@@ -107,8 +108,9 @@ export default function RegisterPage() {
 
             toast.success('Registration initiated! Please check your email for OTP.');
             router.push(`/verify-otp?email=${encodeURIComponent(data.email)}&username=${encodeURIComponent(data.username)}&password=${encodeURIComponent(data.password)}`);
-        } catch (err: any) {
-            const message = err.response?.data?.error || 'Registration failed';
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const message = axiosError.response?.data?.error || 'Registration failed';
             toast.error(message);
         } finally {
             setLoading(false);

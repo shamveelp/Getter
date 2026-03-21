@@ -10,11 +10,13 @@ const axiosInstance = axios.create({
     },
 });
 
-let store: any = null;
-let logoutAction: any = null;
-let adminLogoutAction: any = null;
+import { Store, UnknownAction } from '@reduxjs/toolkit';
 
-export const setupInterceptors = (_store: any, _logoutAction: any, _adminLogoutAction: any) => {
+let store: Store | null = null;
+let logoutAction: (() => UnknownAction) | null = null;
+let adminLogoutAction: (() => UnknownAction) | null = null;
+
+export const setupInterceptors = (_store: Store, _logoutAction: () => UnknownAction, _adminLogoutAction: () => UnknownAction) => {
     store = _store;
     logoutAction = _logoutAction;
     adminLogoutAction = _adminLogoutAction;

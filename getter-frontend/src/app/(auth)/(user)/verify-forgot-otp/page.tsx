@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Loader2, RefreshCw, Shield } from 'lucide-react';
 
+import { AxiosError } from 'axios';
+
 // Main component with logic
 function VerifyForgotOtpContent() {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -89,8 +91,9 @@ function VerifyForgotOtpContent() {
 
             toast.success('OTP verified successfully!');
             router.push(`/reset-password?email=${encodeURIComponent(email!)}&verified=true`);
-        } catch (err: any) {
-            const message = err.response?.data?.error || 'Verification failed';
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const message = axiosError.response?.data?.error || 'Verification failed';
             setError(message);
             toast.error(message);
             setOtp(['', '', '', '', '', '']);
@@ -108,8 +111,9 @@ function VerifyForgotOtpContent() {
             await userAuthService.forgotPassword(email!);
             toast.success('New OTP sent to your email');
             setResendTimer(60);
-        } catch (err: any) {
-            toast.error(err.response?.data?.error || 'Failed to resend OTP');
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            toast.error(axiosError.response?.data?.error || 'Failed to resend OTP');
         } finally {
             setResendLoading(false);
         }
@@ -160,7 +164,7 @@ function VerifyForgotOtpContent() {
                             {otp.map((digit, index) => (
                                 <motion.input
                                     key={index}
-                                    ref={(el: any) => (inputRefs.current[index] = el)}
+                                    ref={(el) => { inputRefs.current[index] = el; }}
                                     type="text"
                                     inputMode="numeric"
                                     pattern="[0-9]*"

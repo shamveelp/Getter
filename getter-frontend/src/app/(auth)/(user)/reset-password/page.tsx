@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Loader2, Eye, EyeOff, AlertCircle, Check, X, CheckCircle } from 'lucide-react';
 
+import { AxiosError } from 'axios';
+
 function ResetPasswordPageContent() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -67,8 +69,9 @@ function ResetPasswordPageContent() {
 
             toast.success('Password reset successfully! Please login with your new password.');
             router.push('/login?reset=success');
-        } catch (err: any) {
-            const msg = err.response?.data?.error || 'Reset failed';
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const msg = axiosError.response?.data?.error || 'Reset failed';
             toast.error(msg);
         } finally {
             setLoading(false);

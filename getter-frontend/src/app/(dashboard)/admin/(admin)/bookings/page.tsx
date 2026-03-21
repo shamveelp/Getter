@@ -15,26 +15,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Search, Calendar, User, DollarSign } from 'lucide-react';
 
-interface IBooking {
-    _id: string;
-    user: {
-        _id: string;
-        name: string;
-        email: string;
-    };
-    service: {
-        _id: string;
-        title: string;
-    };
-    startDate: string;
-    endDate: string;
-    totalPrice: number;
-    status: string;
-    createdAt: string;
-}
+import { PopulatedBooking } from '@/types/booking';
 
 export default function AdminBookingsPage() {
-    const [bookings, setBookings] = useState<IBooking[]>([]);
+    const [bookings, setBookings] = useState<PopulatedBooking[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -45,7 +29,7 @@ export default function AdminBookingsPage() {
                 if (response.success) {
                     setBookings(response.data);
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Failed to fetch bookings", error);
             } finally {
                 setLoading(false);
@@ -124,9 +108,9 @@ export default function AdminBookingsPage() {
                                             </TableCell>
                                             <TableCell className="text-zinc-300">
                                                 <div className="flex flex-col text-sm">
-                                                    <span>{format(new Date(booking.startDate), 'MMM dd')} - {format(new Date(booking.endDate), 'MMM dd, yyyy')}</span>
+                                                    <span>{booking.startDate ? format(new Date(booking.startDate), 'MMM dd') : 'N/A'} - {booking.endDate ? format(new Date(booking.endDate), 'MMM dd, yyyy') : 'N/A'}</span>
                                                     <span className="text-xs text-zinc-500">
-                                                        {Math.ceil((new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / (1000 * 60 * 60 * 24))} days
+                                                        {(booking.startDate && booking.endDate) ? Math.ceil((new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / (1000 * 60 * 60 * 24)) : 0} days
                                                     </span>
                                                 </div>
                                             </TableCell>

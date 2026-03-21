@@ -15,13 +15,15 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { Service } from "../../../../../../types/service";
+import { PopulatedBooking } from "@/types/booking";
 
 export default function ServiceDetailPage() {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
 
-    const [service, setService] = useState<any>(null);
+    const [service, setService] = useState<Service | null>(null);
     const [stats, setStats] = useState({ totalBookings: 0 });
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -42,13 +44,13 @@ export default function ServiceDetailPage() {
 
                 if (bookingsData.success) {
                     // Filter bookings for this service
-                    const serviceBookings = bookingsData.data.filter((b: any) =>
-                        b.serviceId === id || b.service?._id === id
+                    const serviceBookings = bookingsData.data.filter((b: PopulatedBooking) =>
+                        b.service._id === id
                     );
                     setStats({ totalBookings: serviceBookings.length });
                 }
 
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Error fetching service details", error);
             } finally {
                 setLoading(false);
@@ -73,7 +75,7 @@ export default function ServiceDetailPage() {
                 setService(updated.data);
                 setIsDialogOpen(false);
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error(`Error ${actionType}ing service`, error);
             alert(`Failed to ${actionType} service`);
         }

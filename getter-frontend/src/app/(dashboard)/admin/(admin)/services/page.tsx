@@ -7,20 +7,10 @@ import { adminServiceService } from "../../../../../services/admin/adminServiceA
 import Button from "../../../../../components/admin/ui/button/Button";
 import { Edit, Trash2 } from "lucide-react";
 
-interface IService {
-    _id: string;
-    title: string;
-    category: string;
-    pricePerDay: number;
-    location: string;
-    totalUnits: number;
-    status: string;
-    createdAt: string;
-    images?: string[];
-}
+import { Service, ServiceFilters } from "../../../../../types/service";
 
 export default function ServicesPage() {
-    const [services, setServices] = useState<IService[]>([]);
+    const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const limit = 10;
@@ -54,15 +44,15 @@ export default function ServicesPage() {
         { value: "title:desc", label: "Name: Z-A" },
     ];
 
-    const fetchServices = async (page: number, search: string, currentFilters: any) => {
+    const fetchServices = async (page: number, search: string, currentFilters: ServiceFilters) => {
         try {
             setLoading(true);
-            const data = await adminServiceService.getAllServices(page, limit, search, { ...currentFilters, status: 'all' });
-            if (data.success) {
-                setServices(data.data);
-                setTotalPages(Math.ceil(data.meta.total / limit));
+            const response = await adminServiceService.getAllServices(page, limit, search, currentFilters);
+            if (response.success) {
+                setServices(response.data.data);
+                setTotalPages(Math.ceil(response.data.total / limit));
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Failed to fetch services", error);
         } finally {
             setLoading(false);

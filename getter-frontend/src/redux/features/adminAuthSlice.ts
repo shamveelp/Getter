@@ -1,27 +1,9 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { adminAuthService } from '../../services/admin/adminAuthApiService';
+import { User } from '../../types/user';
+import { AuthState, LoginResponse } from '../../types/auth';
 
-interface AdminUser {
-    _id: string;
-    username: string;
-    email: string;
-    name: string;
-    isAdmin: boolean;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-    profilePicture?: string;
-}
-
-interface AdminAuthState {
-    user: AdminUser | null;
-    isAuthenticated: boolean;
-    loading: boolean;
-    error: string | null;
-    isInitialized: boolean;
-}
-
-const initialState: AdminAuthState = {
+const initialState: AuthState = {
     user: null,
     isAuthenticated: false,
     loading: false,
@@ -35,7 +17,7 @@ export const checkAdminSession = createAsyncThunk(
         try {
             const response = await adminAuthService.getMe();
             return response;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return rejectWithValue("Session invalid");
         }
     }
@@ -49,7 +31,7 @@ const adminAuthSlice = createSlice({
             state.loading = true;
             state.error = null;
         },
-        adminLoginSuccess: (state, action: PayloadAction<{ user: AdminUser }>) => {
+        adminLoginSuccess: (state, action: PayloadAction<{ user: User }>) => {
             state.loading = false;
             state.isAuthenticated = true;
             state.user = action.payload.user;
@@ -85,7 +67,7 @@ const adminAuthSlice = createSlice({
             .addCase(checkAdminSession.fulfilled, (state, action) => {
                 state.loading = false;
                 state.isAuthenticated = true;
-                state.user = action.payload.user;
+                state.user = (action.payload as LoginResponse).user;
                 state.isInitialized = true;
             })
             .addCase(checkAdminSession.rejected, (state) => {

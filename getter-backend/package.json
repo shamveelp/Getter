@@ -51,6 +51,7 @@
     "@types/nodemailer": "^7.0.4",
     "@types/streamifier": "^0.1.2",
     "@types/winston": "^2.4.4",
+    "eslint": "^10.1.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }

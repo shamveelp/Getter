@@ -23,21 +23,22 @@ import { format } from "date-fns";
 import { AvailabilityCalendar } from '@/components/user/AvailabilityCalendar';
 
 
+import { Service } from '@/types/service';
+import { AxiosError } from 'axios';
+
 export default function ServiceDetailPage() {
     const { id } = useParams() as { id: string };
     const router = useRouter();
-    const [service, setService] = useState<any>(null);
+    const [service, setService] = useState<Service | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeImage, setActiveImage] = useState(0);
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-
     const numberOfDays = selectedDates.length;
 
     const totalPrice = service ? service.pricePerDay * numberOfDays : 0;
-
 
     const handleBookClick = () => {
         if (selectedDates.length === 0) {
@@ -67,14 +68,15 @@ export default function ServiceDetailPage() {
                     }
                 });
             } else {
-                toast.error("Booking failed", { description: response.error });
+                toast.error("Booking failed", { description: response.message || "Something went wrong" });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Booking error:", error);
-            if (error.response?.status === 401) {
+            const axiosError = error as AxiosError<{ error: string }>;
+            if (axiosError.response?.status === 401) {
                 toast.error("Please login to continue booking.");
             } else {
-                toast.error("Booking Error", { description: error.response?.data?.error || "Failed to create booking." });
+                toast.error("Booking Error", { description: axiosError.response?.data?.error || "Failed to create booking." });
             }
         } finally {
             setBookingLoading(false);

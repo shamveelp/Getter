@@ -14,20 +14,10 @@ import { adminCustomerService } from "../../../../../services/admin/adminCustome
 import Pagination from "../../../../../components/admin/tables/Pagination";
 import Image from "next/image";
 
-interface IUser {
-    _id: string;
-    username: string;
-    email: string;
-    name: string;
-    profilePicture?: string;
-    isActive: boolean;
-    isBanned: boolean;
-    createdAt: string;
-    phoneNumber?: string;
-}
+import { User } from "../../../../../types/user";
 
 export default function CustomersPage() {
-    const [users, setUsers] = useState<IUser[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -43,7 +33,7 @@ export default function CustomersPage() {
                 setUsers(data.data.users);
                 setTotalPages(Math.ceil(data.data.total / limit));
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Failed to fetch users", error);
         } finally {
             setLoading(false);

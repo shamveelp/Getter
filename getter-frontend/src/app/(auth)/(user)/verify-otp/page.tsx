@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Loader2, RefreshCw } from 'lucide-react';
 
+import { AxiosError } from 'axios';
+import { AppDispatch } from '@/redux/store';
+
 function VerifyOtpContent() {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
@@ -16,7 +19,7 @@ function VerifyOtpContent() {
     const [resendTimer, setResendTimer] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const searchParams = useSearchParams();
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -99,8 +102,9 @@ function VerifyOtpContent() {
                 toast.success('Email verified successfully!');
                 router.push('/');
             }
-        } catch (err: any) {
-            const message = err.response?.data?.error || 'Verification failed';
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const message = axiosError.response?.data?.error || 'Verification failed';
             setError(message);
             toast.error(message);
             setOtp(['', '', '', '', '', '']);
@@ -118,8 +122,9 @@ function VerifyOtpContent() {
             await userAuthService.resendOtp(email!);
             toast.success('New OTP sent to your email');
             setResendTimer(60);
-        } catch (err: any) {
-            toast.error(err.response?.data?.error || 'Failed to resend OTP');
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ error: string }>;
+            toast.error(axiosError.response?.data?.error || 'Failed to resend OTP');
         } finally {
             setResendLoading(false);
         }
