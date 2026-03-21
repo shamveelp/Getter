@@ -5,8 +5,7 @@ import { IAdminCustomerRepository } from "../../core/interfaces/repositories/adm
 @injectable()
 export class AdminCustomerRepository implements IAdminCustomerRepository {
     async findAll(limit: number, skip: number, search?: string): Promise<{ users: IUser[]; total: number }> {
-        // Filter for non-admin users (including those where isAdmin might be undefined)
-        const filter: any = { isAdmin: { $ne: true } };
+        const filter: Record<string, unknown> = { isAdmin: { $ne: true } };
 
         if (search) {
             const searchRegex = new RegExp(search, "i");

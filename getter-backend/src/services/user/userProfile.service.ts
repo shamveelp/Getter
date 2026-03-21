@@ -31,14 +31,14 @@ export class UserProfileService implements IUserProfileService {
             throw new CustomError("User not found", StatusCode.NOT_FOUND);
         }
 
-        await this._userAuthRepository.update(userId, data);
+        await this._userAuthRepository.update(userId, data as unknown as Record<string, unknown>);
 
         // Return updated user
         const updatedUser = await this._userAuthRepository.findById(userId);
         return updatedUser!;
     }
 
-    async uploadProfilePicture(userId: string, file: any): Promise<string> {
+    async uploadProfilePicture(userId: string, file: Express.Multer.File): Promise<string> {
         // Debug credentials at runtime
         console.log("Upload Profile Picture - Runtime Config:", {
             cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

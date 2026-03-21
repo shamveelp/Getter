@@ -9,10 +9,11 @@ export class ServiceRepository extends BaseRepository<IService> implements IServ
         super(ServiceModel);
     }
 
-    async search(query: any, options: any): Promise<{ data: IService[]; total: number }> {
+    async search(query: Record<string, unknown>, options: Record<string, unknown>): Promise<{ data: IService[]; total: number }> {
         // Implementation using find with pagination
-        const skip = (options.page - 1) * options.limit;
-        const data = await this._model.find(query).skip(skip).limit(options.limit).sort(options.sort).exec();
+        const opt = options as { page: number; limit: number; sort?: Record<string, number> };
+        const skip = (opt.page - 1) * opt.limit;
+        const data = await this._model.find(query).skip(skip).limit(opt.limit).sort(opt.sort as any).exec();
         const total = await this._model.countDocuments(query).exec();
         return { data, total };
     }

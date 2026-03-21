@@ -5,6 +5,7 @@ import { BookingService } from "../../services/booking.service";
 import { StatusCode } from "../../enums/statusCode.enums";
 import logger from "../../utils/logger";
 import { CustomError } from "../../utils/customError";
+import { AuthRequest } from "../../middlewares/auth.middleware";
 
 @injectable()
 export class BookingController {
@@ -12,27 +13,25 @@ export class BookingController {
         @inject(TYPES.IBookingService) private _bookingService: BookingService
     ) { }
 
-    createServiceBooking = async (req: Request, res: Response) => {
+    createServiceBooking = async (req: AuthRequest, res: Response) => {
         try {
-            const userId = (req as any).user.id; // Correct way to access user from middleware
+            const userId = req.user!.id;
             const { serviceId, startDate, endDate, selectedDates } = req.body;
             const result = await this._bookingService.createServiceBooking(userId, serviceId, startDate, endDate, selectedDates);
             res.status(StatusCode.CREATED).json({ success: true, data: result });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error("Error creating service booking:", error);
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
             res.status(statusCode).json({ success: false, error: (error as Error).message });
         }
     };
 
-
-
-    getMyBookings = async (req: Request, res: Response) => {
+    getMyBookings = async (req: AuthRequest, res: Response) => {
         try {
-            const userId = (req as any).user.id;
+            const userId = req.user!.id;
             const result = await this._bookingService.getUserBookings(userId);
             res.status(StatusCode.OK).json({ success: true, data: result });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error("Error fetching bookings:", error);
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
             res.status(statusCode).json({ success: false, error: (error as Error).message });
@@ -49,7 +48,7 @@ export class BookingController {
                 Number(year) || new Date().getFullYear()
             );
             res.status(StatusCode.OK).json({ success: true, data: result });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error("Error fetching availability:", error);
             res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, error: (error as Error).message });
         }

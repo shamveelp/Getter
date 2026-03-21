@@ -16,64 +16,64 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
         try {
             const createdItem = new this._model(data);
             return await createdItem.save();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     async findById(id: string): Promise<T | null> {
         try {
             return await this._model.findById(id).exec();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async findOne(filter: any): Promise<T | null> {
+    async findOne(filter: Record<string, unknown>): Promise<T | null> {
         try {
             return await this._model.findOne(filter).exec();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async find(filter: any = {}, options?: any): Promise<T[]> {
+    async find(filter: Record<string, unknown> = {}, options?: Record<string, unknown>): Promise<T[]> {
         try {
             return await this._model.find(filter, null, options).exec();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async update(id: string, update: any): Promise<T | null> {
+    async update(id: string, update: Record<string, unknown>): Promise<T | null> {
         try {
             return await this._model.findByIdAndUpdate(id, update, { new: true }).exec();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async updateOne(filter: any, update: any): Promise<T | null> {
+    async updateOne(filter: Record<string, unknown>, update: Record<string, unknown>): Promise<T | null> {
         try {
             return await this._model.findOneAndUpdate(filter, update, { new: true }).exec();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     async delete(id: string): Promise<T | null> {
         try {
             return await this._model.findByIdAndDelete(id).exec();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async count(filter: any = {}): Promise<number> {
+    async count(filter: Record<string, unknown> = {}): Promise<number> {
         try {
             return await this._model.countDocuments(filter).exec();
-        } catch (error: any) {
-            throw new CustomError(`Database Error: ${error.message}`, StatusCode.INTERNAL_SERVER_ERROR);
+        } catch (error: unknown) {
+            throw new CustomError(`Database Error: ${(error as Error).message}`, StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

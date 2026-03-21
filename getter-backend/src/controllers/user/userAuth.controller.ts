@@ -7,7 +7,7 @@ import { IOTPService } from "../../core/interfaces/services/IOTP.service";
 import { StatusCode } from "../../enums/statusCode.enums";
 import logger from "../../utils/logger";
 import { OAuth2Client } from "google-auth-library";
-import { IJwtService } from "../../core/interfaces/services/IJWT.service";
+import { IJwtService, JwtRefreshPayload } from "../../core/interfaces/services/IJWT.service";
 import { CustomError } from "../../utils/customError";
 import {
     UserRegisterDto,
@@ -25,6 +25,7 @@ import {
     EmailCheckResponseDto
 } from "../../core/dtos/user/userAuth.dto";
 import { SuccessMessages, ErrorMessages, LoggerMessages } from "../../enums/messages.enum";
+import { AuthRequest } from "../../middlewares/auth.middleware";
 
 @injectable()
 export class UserAuthController implements IUserAuthController {
@@ -57,7 +58,7 @@ export class UserAuthController implements IUserAuthController {
 
             const response = new RegisterResponseDto(SuccessMessages.REGISTRATION_INITIATED);
             res.status(StatusCode.OK).json(response);
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.REGISTER_ERROR, error);
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.VALIDATION_ERROR;
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.BAD_REQUEST;
@@ -79,7 +80,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 message: SuccessMessages.OTP_SENT
             });
-        } catch (error) {
+        } catch (error: unknown) {
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.FAILED_RESEND_OTP;
             res.status(StatusCode.BAD_REQUEST).json({
                 success: false,
@@ -110,7 +111,7 @@ export class UserAuthController implements IUserAuthController {
 
             const response = new LoginResponseDto(user, SuccessMessages.USER_REGISTERED);
             res.status(StatusCode.CREATED).json(response);
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.VERIFY_OTP_ERROR, error);
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.FAILED_OTP_VERIFICATION;
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.BAD_REQUEST;
@@ -130,7 +131,7 @@ export class UserAuthController implements IUserAuthController {
             const isAvailable = await this._userAuthService.checkUsernameAvailability(username!);
             const response = new UsernameCheckResponseDto(isAvailable);
             res.status(StatusCode.OK).json(response);
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.CHECK_USERNAME_AVAILABILITY_ERROR, error);
             res.status(StatusCode.BAD_REQUEST).json({
                 success: false,
@@ -147,7 +148,7 @@ export class UserAuthController implements IUserAuthController {
             const isAvailable = await this._userAuthService.checkEmailAvailability(email!);
             const response = new EmailCheckResponseDto(isAvailable);
             res.status(StatusCode.OK).json(response);
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error("Error checking email availability:", error);
             res.status(StatusCode.BAD_REQUEST).json({
                 success: false,
@@ -165,7 +166,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 username
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.GENERATE_USERNAME_ERROR, error);
             res.status(StatusCode.BAD_REQUEST).json({
                 success: false,
@@ -184,7 +185,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 message: SuccessMessages.PASSWORD_RESET_OTP_SENT
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.FORGOT_PASSWORD_OTP_ERROR, error);
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.FAILED_RESET_CODE;
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.BAD_REQUEST;
@@ -205,7 +206,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 message: SuccessMessages.OTP_VERIFIED
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.VERIFY_FORGOT_PASSWORD_OTP_ERROR, error);
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.INVALID_OTP;
 
@@ -226,7 +227,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 message: SuccessMessages.PASSWORD_RESET
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.RESET_PASSWORD_ERROR, error);
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.FAILED_RESET_PASSWORD;
 
@@ -248,7 +249,7 @@ export class UserAuthController implements IUserAuthController {
 
             const response = new LoginResponseDto(user, SuccessMessages.USER_LOGGED_IN);
             res.status(StatusCode.OK).json(response);
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.LOGIN_ERROR, error);
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.FAILED_LOGIN;
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.UNAUTHORIZED;
@@ -269,7 +270,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 message: SuccessMessages.OTP_RESENT
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.RESEND_OTP_ERROR, error);
             res.status(StatusCode.BAD_REQUEST).json({
                 success: false,
@@ -290,11 +291,7 @@ export class UserAuthController implements IUserAuthController {
                 return;
             }
 
-            const decoded = this._jwtService.verifyRefreshToken(refreshToken) as {
-                id: string;
-                role: string;
-                tokenVersion?: number;
-            };
+            const decoded = this._jwtService.verifyRefreshToken(refreshToken);
 
             const accessToken = this._jwtService.generateAccessToken(
                 decoded.id,
@@ -321,7 +318,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 user // Return user data
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.REFRESH_TOKEN_ERROR, error);
             // Critical: Clear cookies if refresh fails so middleware doesn't loop
             this._jwtService.clearTokens(res);
@@ -349,7 +346,7 @@ export class UserAuthController implements IUserAuthController {
 
             const response = new LoginResponseDto(user, SuccessMessages.GOOGLE_LOGIN_SUCCESS);
             res.status(StatusCode.OK).json(response);
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.GOOGLE_LOGIN_ERROR, error);
             const errorMessage = error instanceof CustomError ? error.message : ErrorMessages.GOOGLE_LOGIN_FAILED;
 
@@ -368,7 +365,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 message: SuccessMessages.USER_LOGGED_OUT
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.LOGOUT_ERROR, error);
             res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
                 success: false,
@@ -377,10 +374,9 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    logoutAll = async (req: Request, res: Response) => {
+    logoutAll = async (req: AuthRequest, res: Response) => {
         try {
-            // @ts-ignore
-            const userId = req.user?.id || (this._jwtService.verifyRefreshToken(req.cookies.refreshToken) as any)?.id;
+            const userId = req.user?.id || (this._jwtService.verifyRefreshToken(req.cookies.refreshToken) as JwtRefreshPayload)?.id;
 
             if (userId) {
                 await this._userAuthService.logoutFromAllDevices(userId);
@@ -392,7 +388,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 message: "Logged out from all devices"
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error(LoggerMessages.LOGOUT_ERROR, error);
             res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
                 success: false,
@@ -401,9 +397,8 @@ export class UserAuthController implements IUserAuthController {
         }
     };
 
-    getMe = async (req: Request, res: Response) => {
+    getMe = async (req: AuthRequest, res: Response) => {
         try {
-            // @ts-ignore - user is attached by middleware
             const userId = req.user?.id;
 
             if (!userId) {
@@ -420,7 +415,7 @@ export class UserAuthController implements IUserAuthController {
                 success: true,
                 user
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error("Error in getMe:", error);
             const errorMessage = error instanceof CustomError ? error.message : "Failed to fetch user profile";
             const statusCode = error instanceof CustomError ? error.statusCode : StatusCode.INTERNAL_SERVER_ERROR;
@@ -431,4 +426,4 @@ export class UserAuthController implements IUserAuthController {
             });
         }
     };
-}
+}

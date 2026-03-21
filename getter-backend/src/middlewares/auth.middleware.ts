@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { JwtAccessPayload } from "../core/interfaces/services/IJWT.service";
 
 export interface AuthRequest extends Request {
-    user?: any;
+    user?: JwtAccessPayload;
 }
 
 export const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -20,11 +21,9 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
         const secret = process.env.JWT_ACCESS_SECRET;
         if (!secret) throw new Error("JWT_ACCESS_SECRET is not defined in environment variables.");
 
-        const verified = jwt.verify(token, secret) as any;
+        const verified = jwt.verify(token, secret) as JwtAccessPayload;
 
         // Fetch user to check ban status and token version
-        // We dynamic import UserModel to avoid circular dependencies if any, though here it should be fine.
-        // Or better, just rely on the imported UserModel if we add the import.
         const { UserModel } = await import("../models/user.model");
         const user = await UserModel.findById(verified.id).select('+tokenVersion +isBanned');
 
@@ -49,7 +48,7 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
 
         req.user = verified;
         next();
-    } catch (err) {
+    } catch (err: unknown) {
         res.status(401).json({ success: false, message: "Invalid or Expired Token" });
     }
 };

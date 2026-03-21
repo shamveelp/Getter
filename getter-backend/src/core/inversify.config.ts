@@ -62,8 +62,10 @@ import { AdminBookingController } from "../controllers/admin/adminBooking.contro
 
 const container = new Container();
 
+import { Document } from "mongoose";
+
 // Repositories
-container.bind<IBaseRepository<any>>(TYPES.IBaseRepository).to(BaseRepository);
+container.bind<IBaseRepository<Document>>(TYPES.IBaseRepository).to(BaseRepository);
 container.bind<IUserAuthRepository>(TYPES.IUserAuthRepository).to(UserAuthRepository);
 container.bind<IAdminAuthRepository>(TYPES.IAdminAuthRepository).to(AdminAuthRepository);
 container.bind<IAdminCustomerRepository>(TYPES.IAdminCustomerRepository).to(AdminCustomerRepository);

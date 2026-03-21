@@ -34,8 +34,8 @@ export class JwtService implements IJwtService {
   verifyAccessToken(token: string): JwtAccessPayload {
     try {
       return jwt.verify(token, this.ACCESS_SECRET) as JwtAccessPayload;
-    } catch (error: any) {
-      if (error.name === "TokenExpiredError") {
+    } catch (error: unknown) {
+      if (error instanceof jwt.TokenExpiredError) {
         throw new CustomError("Access token expired", StatusCode.UNAUTHORIZED);
       }
       throw new CustomError("Invalid access token", StatusCode.UNAUTHORIZED);
@@ -45,8 +45,8 @@ export class JwtService implements IJwtService {
   verifyRefreshToken(token: string): JwtRefreshPayload {
     try {
       return jwt.verify(token, this.REFRESH_SECRET) as JwtRefreshPayload;
-    } catch (error: any) {
-      if (error.name === "TokenExpiredError") {
+    } catch (error: unknown) {
+      if (error instanceof jwt.TokenExpiredError) {
         throw new CustomError("Refresh token expired", StatusCode.UNAUTHORIZED);
       }
       throw new CustomError("Invalid refresh token", StatusCode.UNAUTHORIZED);

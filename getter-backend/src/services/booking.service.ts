@@ -2,14 +2,12 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../core/types";
 import { IBookingRepository } from "../core/interfaces/repositories/IBooking.repository";
 import { IServiceRepository } from "../core/interfaces/repositories/IService.repository";
-
 import { IBooking } from "../models/booking.model";
 import { BookingStatus, ServiceStatus } from "../enums/business.enums";
-
-// Assuming IEmailService exists and has sendEmail method
 import { IEmailService } from "../core/interfaces/services/IEmail.service";
 import { IUserAuthRepository } from "../core/interfaces/repositories/user/IUserAuth.repository";
 import { format } from "date-fns";
+import mongoose from "mongoose";
 
 @injectable()
 export class BookingService {
@@ -119,8 +117,8 @@ export class BookingService {
         const totalPrice = service.pricePerDay * datesToBook.length;
 
         const booking = await this.bookingRepository.create({
-            user: userId as any,
-            service: serviceId as any,
+            user: new mongoose.Types.ObjectId(userId) as any,
+            service: new mongoose.Types.ObjectId(serviceId) as any,
             startDate: minDate,
             endDate: maxDate,
             selectedDates: datesToBook,

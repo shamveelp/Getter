@@ -8,6 +8,8 @@ export class UploadProfilePictureDto {
     image?: Buffer;
 }
 
+import { IUser } from "../../../models/user.model";
+
 export class ProfileResponseDto {
     user: {
         _id: string;
@@ -20,7 +22,7 @@ export class ProfileResponseDto {
     };
     success: boolean = true;
 
-    constructor(user: any) {
+    constructor(user: IUser) {
         this.user = {
             _id: user._id.toString(),
             username: user.username,

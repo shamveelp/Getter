@@ -6,6 +6,7 @@ import { ServiceStatus } from "../enums/business.enums";
 import { CreateServiceSchema, UpdateServiceSchema } from "../validations/admin/service.validation";
 import { CustomError } from "../utils/customError";
 import { StatusCode } from "../enums/statusCode.enums";
+import { z } from "zod";
 
 @injectable()
 export class ServiceService {
@@ -13,7 +14,7 @@ export class ServiceService {
         @inject(TYPES.IServiceRepository) private serviceRepository: IServiceRepository
     ) { }
 
-    async createService(data: any): Promise<IService> {
+    async createService(data: Record<string, unknown>): Promise<IService> {
         // Zod Validation
         const validated = CreateServiceSchema.safeParse(data);
 
@@ -35,7 +36,7 @@ export class ServiceService {
         return this.serviceRepository.create(validData as any);
     }
 
-    async updateService(id: string, data: any): Promise<IService | null> {
+    async updateService(id: string, data: Record<string, unknown>): Promise<IService | null> {
         const validated = UpdateServiceSchema.safeParse(data);
         if (!validated.success) {
             const errorMessages = validated.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join(", ");
@@ -45,16 +46,16 @@ export class ServiceService {
     }
 
     async unlistService(id: string): Promise<IService | null> {
-        return this.serviceRepository.update(id, { status: ServiceStatus.UNLISTED } as any);
+        return this.serviceRepository.update(id, { status: ServiceStatus.UNLISTED });
     }
 
     async listService(id: string): Promise<IService | null> {
-        return this.serviceRepository.update(id, { status: ServiceStatus.ACTIVE } as any);
+        return this.serviceRepository.update(id, { status: ServiceStatus.ACTIVE });
     }
 
     async deleteService(id: string): Promise<IService | null> {
         // Soft delete
-        return this.serviceRepository.update(id, { isDeleted: true, status: ServiceStatus.UNLISTED } as any);
+        return this.serviceRepository.update(id, { isDeleted: true, status: ServiceStatus.UNLISTED });
     }
 
     async getServiceById(id: string): Promise<IService | null> {
@@ -65,8 +66,8 @@ export class ServiceService {
         return this.serviceRepository.find({ isDeleted: false });
     }
 
-    async searchServices(filters: any): Promise<{ data: IService[]; total: number }> {
-        const query: any = { isDeleted: false };
+    async searchServices(filters: Record<string, unknown>): Promise<{ data: IService[]; total: number }> {
+        const query: Record<string, any> = { isDeleted: false };
 
         if (filters.status) {
             if (filters.status !== 'all') {
@@ -97,7 +98,7 @@ export class ServiceService {
         const options = {
             page: Number(filters.page) || 1,
             limit: Number(filters.limit) || 10,
-            sort: filters.sort ? { [filters.sort.split(':')[0]]: filters.sort.split(':')[1] === 'desc' ? -1 : 1 } : { createdAt: -1 }
+            sort: filters.sort ? { [(filters.sort as string).split(':')[0]]: (filters.sort as string).split(':')[1] === 'desc' ? -1 : 1 } : { createdAt: -1 }
         };
 
         return this.serviceRepository.search(query, options);

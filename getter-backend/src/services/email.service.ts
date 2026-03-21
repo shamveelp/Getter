@@ -1,6 +1,6 @@
 import nodemailer, { Transporter } from "nodemailer";
 import { injectable } from "inversify";
-import { IEmailService } from "../core/interfaces/services/IEmail.service";
+import { IEmailService, BookingEmailDetails } from "../core/interfaces/services/IEmail.service";
 import logger from "../utils/logger";
 import { CustomError } from "../utils/customError";
 import { StatusCode } from "../enums/statusCode.enums";
@@ -27,7 +27,7 @@ export class EmailService implements IEmailService {
         try {
             await this.transporter.verify();
             logger.info("📧 Email service connected successfully");
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error("❌ Email service connection failed:", error);
         }
     }
@@ -213,7 +213,7 @@ export class EmailService implements IEmailService {
         );
     }
 
-    async sendBookingConfirmation(email: string, bookingDetails: any): Promise<void> {
+    async sendBookingConfirmation(email: string, bookingDetails: BookingEmailDetails): Promise<void> {
         const htmlTemplate = `
             <!DOCTYPE html>
             <html>
@@ -269,10 +269,11 @@ export class EmailService implements IEmailService {
             });
 
             logger.info(`📧 Email sent successfully to ${to}`);
-        } catch (error: any) {
+        } catch (error: unknown) {
             logger.error("❌ Failed to send email:", error);
 
-            if (error.responseCode === 535) {
+            const err = error as any;
+            if (err.responseCode === 535) {
                 logger.error("🔐 SMTP Authentication Error: Username and Password not accepted.");
                 logger.error("💡 TIP: If you are using Gmail, you MUST use an 'App Password' instead of your regular password.");
                 logger.error("   1. Go to Google Account > Security");

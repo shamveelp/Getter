@@ -3,11 +3,11 @@ import { Document } from "mongoose";
 export interface IBaseRepository<T extends Document> {
     create(data: Partial<T>): Promise<T>;
     findById(id: string): Promise<T | null>;
-    findOne(filter: any): Promise<T | null>;
-    find(filter: any, options?: any): Promise<T[]>;
-    update(id: string, update: any): Promise<T | null>;
-    updateOne(filter: any, update: any): Promise<T | null>;
+    findOne(filter: Record<string, unknown>): Promise<T | null>;
+    find(filter: Record<string, unknown>, options?: Record<string, unknown>): Promise<T[]>;
+    update(id: string, update: Record<string, unknown>): Promise<T | null>;
+    updateOne(filter: Record<string, unknown>, update: Record<string, unknown>): Promise<T | null>;
     delete(id: string): Promise<T | null>;
-    count(filter?: any): Promise<number>;
+    count(filter?: Record<string, unknown>): Promise<number>;
 }
 
