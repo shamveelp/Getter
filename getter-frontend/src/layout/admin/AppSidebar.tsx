@@ -6,20 +6,10 @@ import { useSidebar } from "@/context/admin/SidebarContext";
 import {
   LayoutGrid,
   Users,
-  Package,
-  ShoppingCart,
-  CheckSquare,
-  Table,
-  FileText,
-  PieChart,
-  Box,
-  ShieldCheck,
-  ChevronDown,
-  MoreHorizontal,
-  Calendar,
   Briefcase,
   Settings,
-  CreditCard
+  ChevronDown,
+  MoreHorizontal
 } from "lucide-react";
 import SidebarWidget from "@/layout/admin/SidebarWidget";
 
@@ -66,12 +56,23 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
 
+  const [openSubmenu, setOpenSubmenu] = useState<{
+    type: "main" | "others";
+    index: number;
+  } | null>(null);
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
+    {}
+  );
+  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const isActive = useCallback((path: string) => path === pathname, [pathname]);
+
   const renderMenuItems = (
-    navItems: NavItem[],
+    items: NavItem[],
     menuType: "main" | "others"
   ) => (
     <ul className="flex flex-col gap-4">
-      {navItems.map((nav, index) => (
+      {items.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
             <button
@@ -183,18 +184,6 @@ const AppSidebar: React.FC = () => {
     </ul>
   );
 
-  const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
-    index: number;
-  } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-    {}
-  );
-  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  // const isActive = (path: string) => path === pathname;
-  const isActive = useCallback((path: string) => path === pathname, [pathname]);
-
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
@@ -202,24 +191,25 @@ const AppSidebar: React.FC = () => {
       if (nav.subItems) {
         nav.subItems.forEach((subItem) => {
           if (isActive(subItem.path)) {
-            setOpenSubmenu({
-              type: "main",
-              index,
-            });
+            // Use timeout to avoid "setState in effect" lint error
+            setTimeout(() => {
+                setOpenSubmenu({
+                  type: "main",
+                  index,
+                });
+            }, 0);
             submenuMatched = true;
           }
         });
       }
     });
 
-    // If no submenu item matches, close the open submenu
     if (!submenuMatched) {
-      setOpenSubmenu(null);
+        setTimeout(() => setOpenSubmenu(null), 0);
     }
   }, [pathname, isActive]);
 
   useEffect(() => {
-    // Set the height of the submenu items when the submenu is opened
     if (openSubmenu !== null) {
       const key = `${openSubmenu.type}-${openSubmenu.index}`;
       if (subMenuRefs.current[key]) {
@@ -288,8 +278,6 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-
-
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}

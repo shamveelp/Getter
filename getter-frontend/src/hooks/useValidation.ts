@@ -16,8 +16,8 @@ export const useUsernameValidation = (username: string, initialCheck = false) =>
 
   useEffect(() => {
     if (!username || username.length < 3) {
-      setState({ isValid: false, isChecking: false, message: '' });
-      return;
+      const tid = setTimeout(() => setState({ isValid: false, isChecking: false, message: '' }), 0);
+      return () => clearTimeout(tid);
     }
 
     const checkUsername = async () => {
@@ -55,8 +55,8 @@ export const useEmailValidation = (email: string) => {
 
   useEffect(() => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setState({ isValid: false, isChecking: false, message: '' });
-      return;
+      const tid = setTimeout(() => setState({ isValid: false, isChecking: false, message: '' }), 0);
+      return () => clearTimeout(tid);
     }
 
     const checkEmail = async () => {

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Badge from "../../../../../components/admin/ui/badge/Badge";
 import { adminServiceService } from "../../../../../services/admin/adminServiceApiService";
@@ -44,7 +45,7 @@ export default function ServicesPage() {
         { value: "title:desc", label: "Name: Z-A" },
     ];
 
-    const fetchServices = async (page: number, search: string, currentFilters: ServiceFilters) => {
+    const fetchServices = useCallback(async (page: number, search: string, currentFilters: ServiceFilters) => {
         try {
             setLoading(true);
             const response = await adminServiceService.getAllServices(page, limit, search, currentFilters);
@@ -52,19 +53,19 @@ export default function ServicesPage() {
                 setServices(response.data.data);
                 setTotalPages(Math.ceil(response.data.total / limit));
             }
-        } catch (error: unknown) {
-            console.error("Failed to fetch services", error);
+        } catch (_error: unknown) {
+            console.error("Failed to fetch services", _error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [limit]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             fetchServices(currentPage, searchTerm, filters);
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, currentPage, filters]);
+    }, [fetchServices, searchTerm, currentPage, filters]);
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -179,7 +180,12 @@ export default function ServicesPage() {
                             <div key={service._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
                                 <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
                                     {service.images && service.images.length > 0 ? (
-                                        <img src={service.images[0]} alt={service.title} className="w-full h-full object-cover" />
+                                        <Image
+                                            src={service.images[0]}
+                                            alt={service.title}
+                                            fill
+                                            className="object-cover"
+                                        />
                                     ) : (
                                         <div className="flex items-center justify-center h-full text-gray-400">No Image</div>
                                     )}

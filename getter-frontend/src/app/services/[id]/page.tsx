@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Navbar from '@/components/user/Navbar';
 import { exploreApiService } from '@/services/user/exploreApiService';
 import { Button } from '@/components/ui/button';
@@ -70,9 +71,9 @@ export default function ServiceDetailPage() {
             } else {
                 toast.error("Booking failed", { description: response.message || "Something went wrong" });
             }
-        } catch (error: unknown) {
-            console.error("Booking error:", error);
-            const axiosError = error as AxiosError<{ error: string }>;
+        } catch (_error: unknown) {
+            console.error("Booking error:", _error);
+            const axiosError = _error as AxiosError<{ error: string }>;
             if (axiosError.response?.status === 401) {
                 toast.error("Please login to continue booking.");
             } else {
@@ -92,8 +93,8 @@ export default function ServiceDetailPage() {
                 if (response.success) {
                     setService(response.data);
                 }
-            } catch (error) {
-                console.error("Failed to fetch service detail", error);
+            } catch (_error) {
+                console.error("Failed to fetch service detail", _error);
             } finally {
                 setLoading(false);
             }
@@ -120,7 +121,12 @@ export default function ServiceDetailPage() {
                     <div className="space-y-4">
                         <div className="aspect-[4/3] bg-neutral-900 rounded-2xl overflow-hidden border border-white/10 relative group">
                             {service.images && service.images.length > 0 ? (
-                                <img src={service.images[activeImage]} alt={service.title} className="w-full h-full object-cover" />
+                                <Image
+                                    src={service.images[activeImage]}
+                                    alt={service.title}
+                                    fill
+                                    className="object-cover"
+                                />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-neutral-600">No Image</div>
                             )}
@@ -133,7 +139,12 @@ export default function ServiceDetailPage() {
                                         onClick={() => setActiveImage(idx)}
                                         className={`relative w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-brand-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
                                     >
-                                        <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
+                                        <Image
+                                            src={img}
+                                            alt="thumbnail"
+                                            fill
+                                            className="object-cover"
+                                        />
                                     </button>
                                 ))}
                             </div>

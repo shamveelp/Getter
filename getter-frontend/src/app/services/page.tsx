@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import Navbar from '@/components/user/Navbar';
 import Link from 'next/link';
 import { exploreApiService } from '@/services/user/exploreApiService';
@@ -32,7 +33,7 @@ export default function ServicesPage() {
         "Venue", "Caterer", "DJ", "Photographer", "Decoration", "Other"
     ];
 
-    const fetchServices = async () => {
+    const fetchServices = useCallback(async () => {
         try {
             setLoading(true);
             const data = await exploreApiService.searchServices({
@@ -42,19 +43,19 @@ export default function ServicesPage() {
             if (data.success) {
                 setServices(data.data.data); // data.data.data because pagination return { data: [], total: N }
             }
-        } catch (error) {
-            console.error("Failed to fetch services", error);
+        } catch (_error) {
+            console.error("Failed to fetch services", _error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchTerm, filters]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             fetchServices();
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, filters]);
+    }, [fetchServices]);
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -137,7 +138,12 @@ export default function ServicesPage() {
                                 {/* Image Placeholder */}
                                 <div className="aspect-[4/3] bg-neutral-800 relative overflow-hidden">
                                     {service.images && service.images.length > 0 ? (
-                                        <img src={service.images[0]} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <Image
+                                            src={service.images[0]}
+                                            alt={service.title}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center bg-neutral-800 text-neutral-600">No Image</div>
                                     )}

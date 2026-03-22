@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { adminServiceService } from "../../../../../../services/admin/adminServiceApiService";
 import { adminBookingApiService } from "@/services/admin/adminBookingApiService";
@@ -50,8 +51,8 @@ export default function ServiceDetailPage() {
                     setStats({ totalBookings: serviceBookings.length });
                 }
 
-            } catch (error: unknown) {
-                console.error("Error fetching service details", error);
+            } catch (_error: unknown) {
+                console.error("Error fetching service details", _error);
             } finally {
                 setLoading(false);
             }
@@ -75,8 +76,8 @@ export default function ServiceDetailPage() {
                 setService(updated.data);
                 setIsDialogOpen(false);
             }
-        } catch (error: unknown) {
-            console.error(`Error ${actionType}ing service`, error);
+        } catch (_error: unknown) {
+            console.error(`Error ${actionType}ing service`, _error);
             alert(`Failed to ${actionType} service`);
         }
     };
@@ -127,7 +128,9 @@ export default function ServiceDetailPage() {
                         <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Images</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {service.images?.map((img: string, idx: number) => (
-                                <img key={idx} src={img} alt={`Service ${idx}`} className="w-full h-32 object-cover rounded-lg" />
+                                <div key={idx} className="relative h-32">
+                                    <Image src={img} alt={`Service ${idx}`} fill className="object-cover rounded-lg" />
+                                </div>
                             ))}
                         </div>
                     </div>

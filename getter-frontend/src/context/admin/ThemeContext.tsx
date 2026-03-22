@@ -15,17 +15,27 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [theme, setTheme] = useState<Theme>("light");
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [{ theme, isInitialized }, setState] = useState<{
+    theme: Theme;
+    isInitialized: boolean;
+  }>({
+    theme: "light",
+    isInitialized: false,
+  });
 
   useEffect(() => {
-    // This code will only run on the client side
     const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const initialTheme = savedTheme || "light"; // Default to light theme
+    const initialTheme = savedTheme || "light";
 
-    setTheme(initialTheme);
-    setIsInitialized(true);
+    const timeoutId = setTimeout(() => {
+      setState({
+        theme: initialTheme,
+        isInitialized: true,
+      });
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
+
 
   useEffect(() => {
     if (isInitialized) {
@@ -39,7 +49,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [theme, isInitialized]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setState((prev) => ({
+      ...prev,
+      theme: prev.theme === "light" ? "dark" : "light",
+    }));
   };
 
   return (

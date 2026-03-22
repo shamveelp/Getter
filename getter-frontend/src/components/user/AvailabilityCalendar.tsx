@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { bookingApiService } from '@/services/user/bookingApiService';
 import { cn } from '@/lib/utils';
 import {
@@ -43,24 +43,28 @@ export function AvailabilityCalendar({ serviceId, totalUnits, selectedDates, onS
     const [availability, setAvailability] = useState<ServiceAvailabilitySlot[]>([]);
     const [currentMonth, setCurrentMonth] = useState(new Date());
 
-    const fetchAvailability = async (date: Date) => {
-        try {
-            const response = await bookingApiService.getServiceAvailability(
-                serviceId,
-                date.getMonth() + 1,
-                date.getFullYear()
-            );
-            if (response.success) {
-                setAvailability(response.data);
-            }
-        } catch (error) {
-            console.error("Failed to fetch availability", error);
-        }
-    };
 
     useEffect(() => {
-        fetchAvailability(currentMonth);
+        let active = true;
+        const fetchData = async () => {
+            try {
+                const response = await bookingApiService.getServiceAvailability(
+                    serviceId,
+                    currentMonth.getMonth() + 1,
+                    currentMonth.getFullYear()
+                );
+                if (response.success && active) {
+                    setAvailability(response.data);
+                }
+            } catch (_error) {
+                console.error("Failed to fetch availability", _error);
+            }
+        };
+
+        fetchData();
+        return () => { active = false; };
     }, [serviceId, currentMonth]);
+
 
     const isDayOff = (date: Date) => {
         if (!availabilityConfig) return false;

@@ -59,7 +59,6 @@ const TableCell: React.FC<TableCellProps & React.TdHTMLAttributes<HTMLTableCellE
   ...props
 }) => {
   const CellTag = isHeader ? "th" : "td";
-  // @ts-ignore - Dynamic tag props are tricky
   return <CellTag className={` ${className}`} {...props}>{children}</CellTag>;
 };
 
