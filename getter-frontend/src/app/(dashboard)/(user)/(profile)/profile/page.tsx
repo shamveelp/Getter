@@ -9,7 +9,6 @@ import { userProfileService } from '@/services/user/userProfileApiService';
 import { toast } from 'sonner';
 import { Loader2, Camera, User, Mail, Phone, FileText, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import ImageCropper from '@/components/ui/ImageCropper';
 import Image from 'next/image';
 

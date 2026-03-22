@@ -4,26 +4,11 @@ import React, { useEffect, useState } from "react";
 import Badge from "../../../../../../components/admin/ui/badge/Badge";
 import { adminBookingApiService } from "@/services/admin/adminBookingApiService";
 import Button from "../../../../../../components/admin/ui/button/Button";
+import { PopulatedBooking } from "@/types/booking";
 
-interface IBooking {
-    _id: string;
-    service: {
-        title: string;
-    };
-    user: {
-        email: string;
-        name: string;
-    };
-    startDate: string;
-    endDate: string;
-    selectedDates?: string[];
-    totalPrice: number;
-    status: string;
-    createdAt: string;
-}
 
 export default function BookingsPage() {
-    const [bookings, setBookings] = useState<IBooking[]>([]);
+    const [bookings, setBookings] = useState<PopulatedBooking[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchBookings = async () => {
@@ -44,7 +29,8 @@ export default function BookingsPage() {
         fetchBookings();
     }, []);
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleDateString();
     };
 
