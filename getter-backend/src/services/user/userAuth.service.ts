@@ -24,7 +24,7 @@ export class UserAuthService implements IUserAuthService {
         this.googleClient = new OAuth2Client(
             process.env.GOOGLE_CLIENT_ID,
             process.env.GOOGLE_CLIENT_SECRET,
-            "http://localhost:3000/auth/google/callback"
+            "https://getter.shamveelp.xyz/auth/google/callback"
         );
     }
 
