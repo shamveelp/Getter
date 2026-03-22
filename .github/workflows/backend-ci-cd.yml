@@ -1,4 +1,4 @@
-name: Backend CI/CD
+name: Getter Backend CI/CD
 
 on:
   push:
@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         working-directory: getter-backend
         run: npm install
 
@@ -28,13 +28,23 @@ jobs:
         working-directory: getter-backend
         run: npm run build
 
-      - name: Verify build output
-        working-directory: getter-backend
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "❌ Build failed: dist folder not found"
-            exit 1
-          fi
+      - name: Copy backend to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "getter-backend/dist,getter-backend/package.json"
+          target: "/home/ubuntu/apps/getter-backend"
 
-      - name: Trigger Render deploy
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Restart backend on EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/apps/getter-backend/getter-backend
+            npm install --omit=dev
+            pm2 restart getter-backend || pm2 start dist/index.js --name getter-backend
+            pm2 save
