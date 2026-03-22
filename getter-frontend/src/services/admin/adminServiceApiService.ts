@@ -1,5 +1,5 @@
 import axiosInstance from '../../lib/axios';
-import { Service, ServiceFilters, ServiceStatus } from '../../types/service';
+import { Service, ServiceFilters } from '../../types/service';
 import { ApiResponse, SearchResult } from '../../types/api';
 
 const API_URL = '/api/admin/services';

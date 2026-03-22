@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Navbar from '@/components/user/Navbar';
 import { bookingApiService } from '@/services/user/bookingApiService';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Clock, CreditCard, CheckCircle2, XCircle } from 'lucide-react';
+import { Calendar, MapPin, Clock, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { PopulatedBooking, BookingStatus } from '@/types/booking';
@@ -55,7 +56,7 @@ export default function UserBookingsPage() {
                     <div className="text-center py-20 bg-neutral-900/30 rounded-3xl border border-white/5">
                         <Calendar className="w-16 h-16 mx-auto text-neutral-600 mb-4" />
                         <h3 className="text-xl font-semibold mb-2">No bookings found</h3>
-                        <p className="text-neutral-500 mb-6">You haven't booked any services yet.</p>
+                        <p className="text-neutral-500 mb-6">You haven&apos;t booked any services yet.</p>
                         <Link href="/services" className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-neutral-200 transition-colors">
                             Explore Services
                         </Link>
@@ -68,10 +69,11 @@ export default function UserBookingsPage() {
                                     {/* Image Section */}
                                     <div className="w-full md:w-64 h-48 md:h-auto bg-neutral-800 relative">
                                         {booking.service?.images && booking.service.images.length > 0 ? (
-                                            <img
+                                            <Image
                                                 src={booking.service.images[0]}
                                                 alt={booking.service.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-neutral-600">No Image</div>

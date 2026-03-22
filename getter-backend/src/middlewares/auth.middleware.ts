@@ -48,7 +48,7 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
 
         req.user = verified;
         next();
-    } catch (err: unknown) {
+    } catch (_err: unknown) {
         res.status(401).json({ success: false, message: "Invalid or Expired Token" });
     }
 };

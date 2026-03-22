@@ -38,7 +38,7 @@ function ResetPasswordPageContent() {
     // Password strength validation
     const getPasswordStrength = (password: string) => {
         let strength = 0;
-        let checks = {
+        const checks = {
             length: password.length >= 8,
             uppercase: /[A-Z]/.test(password),
             lowercase: /[a-z]/.test(password),
@@ -233,7 +233,7 @@ function ResetPasswordPageContent() {
                                         ) : (
                                             <>
                                                 <X className="w-3 h-3 text-red-500" />
-                                                <span className="text-red-500">Passwords don't match</span>
+                                                <span className="text-red-500">Passwords don&apos;t match</span>
                                             </>
                                         )}
                                     </motion.div>

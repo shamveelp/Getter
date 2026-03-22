@@ -8,7 +8,7 @@ import {
     GoogleLoginPayload, 
     LoginResponse 
 } from '../../types/auth';
-import { BaseResponse, ApiResponse } from '../../types/api';
+import { BaseResponse } from '../../types/api';
 import { User } from '../../types/user';
 
 const API_URL = '/api/users/auth';

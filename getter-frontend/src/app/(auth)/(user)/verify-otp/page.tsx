@@ -151,7 +151,7 @@ function VerifyOtpContent() {
                         </motion.div>
                         <h1 className="text-2xl font-bold text-white mb-2">Verify Your Email</h1>
                         <p className="text-gray-400 text-sm">
-                            We've sent a 6-digit code to<br />
+                            We&apos;ve sent a 6-digit code to<br />
                             <span className="text-purple-300 font-medium">{email}</span>
                         </p>
                     </div>
@@ -222,7 +222,7 @@ function VerifyOtpContent() {
                         </div>
 
                         <div className="text-center text-xs text-gray-500">
-                            <p>Didn't receive the code? Check your spam folder</p>
+                            <p>Didn&apos;t receive the code? Check your spam folder</p>
                         </div>
                     </div>
                 </div>

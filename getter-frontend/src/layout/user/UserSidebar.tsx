@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, MapPin, Package, Wallet, LogOut, LayoutDashboard } from 'lucide-react'; // Added LayoutDashboard for dashboard link if needed
+import { User, MapPin, Package, Wallet, LogOut } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/features/authSlice';
 import { userAuthService } from '@/services/user/userAuthApiService';
@@ -40,7 +40,7 @@ export function UserSidebar() {
             dispatch(logout());
             toast.success('Logged out successfully');
             router.push('/login');
-        } catch (error) {
+        } catch (_error) {
             toast.error('Logout failed');
         }
     };

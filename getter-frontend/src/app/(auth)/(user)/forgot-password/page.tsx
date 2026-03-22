@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
 
                         <h1 className="text-2xl font-bold text-white mb-2">Check Your Email</h1>
                         <p className="text-gray-400 text-sm mb-6">
-                            We've sent a password reset code to<br />
+                            We&apos;ve sent a password reset code to<br />
                             <span className="text-green-300 font-medium">{email}</span>
                         </p>
 
@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
 
                     <div className="mb-6">
                         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-cyan-300 mb-2">Forgot Password?</h1>
-                        <p className="text-gray-400 text-sm">Enter your email address and we'll send you a verification code to reset your password.</p>
+                        <p className="text-gray-400 text-sm">Enter your email address and we&apos;ll send you a verification code to reset your password.</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -31,9 +31,9 @@ export class UserAuthService implements IUserAuthService {
     async registerUser(
         username: string,
         email: string,
-        password?: string,
-        name?: string,
-        referralCode?: string
+        _password?: string,
+        _name?: string,
+        _referralCode?: string
     ): Promise<boolean> {
         const existingUserByEmail = await this._userAuthRepository.findByEmail(email);
         if (existingUserByEmail) {
@@ -55,10 +55,10 @@ export class UserAuthService implements IUserAuthService {
         email: string,
         password?: string,
         name?: string,
-        referralCode?: string
+        _referralCode?: string
     ): Promise<{ user: IUser; accessToken: string; refreshToken: string }> {
         // We re-check here, but usually verifyOtp handles the flow
-        const isNewUser = await this.registerUser(username, email, password, name, referralCode);
+        const isNewUser = await this.registerUser(username, email, password, name, _referralCode);
         if (!isNewUser) {
             throw new CustomError("Email already registered", StatusCode.CONFLICT);
         }
@@ -184,7 +184,7 @@ export class UserAuthService implements IUserAuthService {
 
     async loginWithGoogle(payload: { token?: string, code?: string, referralCode?: string }): Promise<{ user: IUser; accessToken: string; refreshToken: string }> {
         try {
-            const { token: idToken, code, referralCode } = payload;
+            const { token: idToken, code, referralCode: _referralCode } = payload;
             let email: string = "";
             let name: string = "";
 

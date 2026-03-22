@@ -27,7 +27,7 @@ export default function TicketsPage() {
                     <Ticket className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No tickets found</h3>
-                <p className="text-gray-400">You haven't booked any events yet.</p>
+                <p className="text-gray-400">You haven&apos;t booked any events yet.</p>
             </motion.div>
         </div>
     );

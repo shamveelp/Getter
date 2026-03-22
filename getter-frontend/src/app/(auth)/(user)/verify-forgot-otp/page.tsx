@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { userAuthService } from '@/services/user/userAuthApiService';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { KeyRound, Loader2, RefreshCw, Shield } from 'lucide-react';
+import { Loader2, RefreshCw, Shield } from 'lucide-react';
 
 import { AxiosError } from 'axios';
 
@@ -140,7 +140,7 @@ function VerifyForgotOtpContent() {
                         </motion.div>
                         <h1 className="text-2xl font-bold text-white mb-2">Verify Reset Code</h1>
                         <p className="text-gray-400 text-sm">
-                            We've sent a 6-digit code to<br />
+                            We&apos;ve sent a 6-digit code to<br />
                             <span className="text-orange-300 font-medium">{email}</span>
                         </p>
                     </div>

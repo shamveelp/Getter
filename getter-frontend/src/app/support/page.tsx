@@ -13,7 +13,7 @@ export default function SupportPage() {
                         Help & Support
                     </h1>
                     <p className="text-neutral-400 max-w-xl mx-auto">
-                        Need assistance with your booking? We're here to help.
+                        Need assistance with your booking? We&apos;re here to help.
                     </p>
                 </div>
 
@@ -32,7 +32,7 @@ export default function SupportPage() {
                             <Mail size={24} />
                         </div>
                         <h3 className="font-semibold text-lg">Email Us</h3>
-                        <p className="text-sm text-neutral-400">Send us an email and we'll get back to you.</p>
+                        <p className="text-sm text-neutral-400">Send us an email and we&apos;ll get back to you.</p>
                         <button className="text-sm font-medium text-white hover:underline">support@getter.com</button>
                     </div>
 
@@ -51,7 +51,7 @@ export default function SupportPage() {
                     <div className="space-y-6">
                         <div className="space-y-2">
                             <h4 className="font-medium text-lg">How do I cancel a booking?</h4>
-                            <p className="text-neutral-400 text-sm">You can cancel your booking from the 'My Tickets' section up to 24 hours before the event.</p>
+                            <p className="text-neutral-400 text-sm">You can cancel your booking from the &apos;My Tickets&apos; section up to 24 hours before the event.</p>
                         </div>
                         <div className="space-y-2">
                             <h4 className="font-medium text-lg">Can I get a refund?</h4>

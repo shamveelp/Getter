@@ -1,6 +1,6 @@
 'use client';
 
-import { Wallet, CreditCard, Plus, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Wallet, CreditCard, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function WalletPage() {

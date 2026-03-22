@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, Calendar, User, DollarSign } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 import { PopulatedBooking } from '@/types/booking';
 
@@ -29,8 +29,8 @@ export default function AdminBookingsPage() {
                 if (response.success) {
                     setBookings(response.data);
                 }
-            } catch (error: unknown) {
-                console.error("Failed to fetch bookings", error);
+            } catch (_error: unknown) {
+                console.error("Failed to fetch bookings", _error);
             } finally {
                 setLoading(false);
             }

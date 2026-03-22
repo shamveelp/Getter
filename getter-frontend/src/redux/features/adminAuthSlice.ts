@@ -17,7 +17,7 @@ export const checkAdminSession = createAsyncThunk(
         try {
             const response = await adminAuthService.getMe();
             return response;
-        } catch (error: unknown) {
+        } catch (_error: unknown) {
             return rejectWithValue("Session invalid");
         }
     }

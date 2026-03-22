@@ -18,7 +18,7 @@ export const checkSession = createAsyncThunk(
         try {
             const response = await userAuthService.getMe();
             return response;
-        } catch (error: unknown) {
+        } catch (_error: unknown) {
             return rejectWithValue("Session invalid");
         }
     }

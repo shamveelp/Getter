@@ -16,13 +16,7 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.Console({
-      format: combine(
-        colorize(),
-        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        printf(({ level, message, timestamp, stack }) => {
-          return `${timestamp} [${level}]: ${stack || message}`;
-        })
-      ),
+      format: combine(colorize(), timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), devFormat),
     }),
     new winston.transports.File({
       filename: "logs/error.log",

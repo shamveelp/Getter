@@ -28,13 +28,13 @@ export class OTPService implements IOTPService {
         try {
             await this._emailService.sendOtpEmail(email, otp);
             logger.info(`📧 OTP sent to ${email} for ${type}`);
-        } catch (error) {
+        } catch (_error) {
             this.otpStore.delete(email);
             throw new CustomError("Failed to send OTP email", StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async requestForgotPasswordOtp(email: string, type: string): Promise<void> {
+    async requestForgotPasswordOtp(email: string, _type: string): Promise<void> {
         const otp = this.generateOtp();
         const expires = Date.now() + this.OTP_EXPIRY;
 
@@ -46,7 +46,7 @@ export class OTPService implements IOTPService {
         try {
             await this._emailService.sendForgotPasswordOtpEmail(email, otp);
             logger.info(`📧 Password reset OTP sent to ${email}`);
-        } catch (error) {
+        } catch (_error) {
             this.otpStore.delete(`reset_${email}`);
             throw new CustomError("Failed to send reset OTP email", StatusCode.INTERNAL_SERVER_ERROR);
         }

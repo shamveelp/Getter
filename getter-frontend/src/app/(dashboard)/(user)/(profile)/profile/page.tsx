@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { useForm } from 'react-hook-form';
 import { updateUser } from '@/redux/features/authSlice';
 import { userProfileService } from '@/services/user/userProfileApiService';
 import { toast } from 'sonner';
-import { Loader2, Camera, User, Mail, Phone, FileText, Save, ArrowLeft, X, Check, ZoomIn, ZoomOut } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Camera, User, Mail, Phone, FileText, Save } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-// import Cropper from 'react-easy-crop'; // Remove
-// import getCroppedImg from '@/utils/cropImage'; // Remove
 import ImageCropper from '@/components/ui/ImageCropper';
+import Image from 'next/image';
 
 interface ProfileFormData {
     name: string;
@@ -23,7 +22,6 @@ interface ProfileFormData {
 export default function ProfilePage() {
     const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
-    const [isUploading, setIsUploading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // Cropper State
@@ -39,9 +37,7 @@ export default function ProfilePage() {
     useEffect(() => {
         if (user) {
             setValue('name', user.name);
-            // @ts-ignore
             setValue('bio', user.bio || '');
-            // @ts-ignore
             setValue('phoneNumber', user.phoneNumber || '');
         }
     }, [user, setValue]);
@@ -61,7 +57,7 @@ export default function ProfilePage() {
     };
 
     const handleSaveCrop = async (croppedImageBlob: Blob) => {
-        setIsUploading(true);
+        setIsSaving(true);
         try {
             // Create a File from the Blob
             const file = new File([croppedImageBlob], "profile_pic.jpg", { type: "image/jpeg" });
@@ -74,11 +70,11 @@ export default function ProfilePage() {
                 setIsCropping(false);
                 setTempImageSrc(null);
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error('Failed to upload image');
-            console.error(error);
+            console.error(_error);
         } finally {
-            setIsUploading(false);
+            setIsSaving(false);
         }
     };
 
@@ -113,7 +109,6 @@ export default function ProfilePage() {
         );
     }
 
-    // @ts-ignore
     const profilePic = user.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
 
     return (
@@ -141,10 +136,11 @@ export default function ProfilePage() {
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
                             <div className="relative inline-block mb-4 group">
                                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-500/20 relative">
-                                    <img
+                                    <Image
                                         src={profilePic}
                                         alt={user.name}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
                                     />
                                 </div>
                                 <button

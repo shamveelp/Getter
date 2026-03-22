@@ -30,7 +30,7 @@ export default function CustomerDetailPage() {
     const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
     const [isUnbanDialogOpen, setIsUnbanDialogOpen] = useState(false);
 
-    const fetchUser = async () => {
+    const fetchUser = React.useCallback(async () => {
         if (!id) return;
         try {
             setLoading(true);
@@ -45,11 +45,11 @@ export default function CustomerDetailPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
 
     useEffect(() => {
         fetchUser();
-    }, [id]);
+    }, [fetchUser]);
 
     const handleBan = async () => {
         try {
@@ -216,7 +216,7 @@ export default function CustomerDetailPage() {
                         <div className="flex flex-col items-center justify-center py-12">
                             <Package className="w-12 h-12 text-gray-300 mb-4" />
                             <p className="text-lg font-medium text-gray-900 dark:text-white">No orders found</p>
-                            <p className="text-sm">This user hasn't placed any orders yet.</p>
+                            <p className="text-sm">This user hasn&apos;t placed any orders yet.</p>
                         </div>
                     </div>
                 )}
@@ -226,7 +226,7 @@ export default function CustomerDetailPage() {
                         <div className="flex flex-col items-center justify-center py-12">
                             <MapPin className="w-12 h-12 text-gray-300 mb-4" />
                             <p className="text-lg font-medium text-gray-900 dark:text-white">No addresses saved</p>
-                            <p className="text-sm">This user hasn't saved any addresses yet.</p>
+                            <p className="text-sm">This user hasn&apos;t saved any addresses yet.</p>
                         </div>
                     </div>
                 )}
