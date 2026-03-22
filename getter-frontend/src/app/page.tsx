@@ -6,6 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/user/Navbar";
 import Orb from "@/components/ui/Orb";
 
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
